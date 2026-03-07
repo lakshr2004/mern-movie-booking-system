@@ -7,7 +7,9 @@ The platform allows users to browse movies, check theatres and showtimes, select
 Admins can manage movies, theatres, and shows through a dedicated Admin Dashboard.
 
 🚀 Features
+
 👤 User Features
+
 🎥 Browse Movies
 
 Users can explore movies available on the platform:
