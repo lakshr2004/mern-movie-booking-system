@@ -441,6 +441,7 @@ Create .env inside backend
 MONGO_URI=
 JWT_SECRET=
 PORT=
+
 👨‍💻 Author
 
 Laksh Raj
