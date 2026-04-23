@@ -23,14 +23,12 @@ const showSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
-  lockedSeats: {
-    type: [{
-      seat: String,
-      userId: mongoose.Schema.Types.ObjectId,
-      expiresAt: Date
-    }],
-    default: [],
-  },
+  lockedSeats: [{
+    seat: String,
+    userId: String,
+    expiresAt: Date
+  }],
 });
 
 module.exports = mongoose.model("Show", showSchema);
+

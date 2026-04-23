@@ -7,256 +7,265 @@ function Navbar() {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const navbarRef = useRef(null);
-  
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (isMenuOpen && navbarRef.current && !navbarRef.current.contains(event.target)) {
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (isMenuOpen && navbarRef.current && !navbarRef.current.contains(e.target)) {
         setIsMenuOpen(false);
       }
     };
-
-    if (isMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      document.addEventListener('touchstart', handleClickOutside);
-    }
-
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('touchstart', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
     };
   }, [isMenuOpen]);
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 768 && isMenuOpen) {
-        setIsMenuOpen(false);
-      }
-    };
+  const handleLogout = () => { logout(); navigate("/"); setIsMenuOpen(false); };
+  const handleMyBookings = () => { navigate(user ? "/my-bookings" : "/register"); setIsMenuOpen(false); };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [isMenuOpen]);
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-    setIsMenuOpen(false);
-  };
-
-  const handleMyBookings = () => {
-    if (user) {
-      navigate("/my-bookings");
-    } else {
-      navigate("/register");
-    }
-    setIsMenuOpen(false);
-  };
+  const isAdmin = user?.user?.role === "admin";
 
   return (
-    <nav ref={navbarRef} className="sticky top-0 z-50 w-full bg-[#f5efe2] shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 md:h-20">
-          <Link to="/" className="flex items-center">
-            <img 
-              src={logo} 
-              alt="TicketPeChalo Logo" 
-              className="h-14 md:h-16 lg:h-20 w-auto object-contain" 
-            />
-          </Link>
-
-          <div className="hidden md:flex items-center gap-2 lg:gap-4">
-            {(!user || user.user?.role !== "admin") && (
-              <>
-                <Link 
-                  to="/contact" 
-                  className="px-3 lg:px-4 py-2 text-sm lg:text-base text-[#4b2e1e] hover:text-[#2b160d] font-semibold rounded-lg hover:bg-[#e6dccb]/60 transition-all duration-300 border border-[#d6c9b7]"
-                >
-                  Contact Us
-                </Link>
-                
-                <button 
-                  onClick={handleMyBookings} 
-                  className="px-3 lg:px-4 py-2 text-sm lg:text-base text-[#4b2e1e] hover:text-[#2b160d] font-semibold rounded-lg hover:bg-[#e6dccb]/60 transition-all duration-300 border border-[#d6c9b7]"
-                >
-                  My Bookings
-                </button>
-              </>
-            )}
-
-            {user && user.user?.role === "admin" && (
-              <div className="flex items-center gap-1 lg:gap-2 ml-2 pl-3 border-l border-[#d6c9b7]">
-                <Link 
-                  to="/admin?tab=movies" 
-                  className="bg-[#8b1e3f] hover:bg-[#a52a4f] text-white px-2 lg:px-3 py-1.5 lg:py-2 rounded-lg text-xs lg:text-sm font-semibold transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
-                >
-                  Movies
-                </Link>
-                <Link 
-                  to="/admin?tab=theatres" 
-                  className="bg-[#6b3e26] hover:bg-[#8b5a3c] text-white px-2 lg:px-3 py-1.5 lg:py-2 rounded-lg text-xs lg:text-sm font-semibold transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
-                >
-                  Theatres
-                </Link>
-                <Link 
-                  to="/admin?tab=shows" 
-                  className="bg-[#4a2e1e] hover:bg-[#6b4532] text-white px-2 lg:px-3 py-1.5 lg:py-2 rounded-lg text-xs lg:text-sm font-semibold transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
-                >
-                  Shows
-                </Link>
-              </div>
-            )}
-          </div>
-
-          <div className="hidden md:flex items-center gap-2 lg:gap-3">
-            {user ? (
-              <>
-                <div className="flex items-center gap-2 bg-[#e6dccb] px-3 py-1.5 rounded-xl border border-[#d6c9b7] shadow-sm">
-                  <div className="w-7 h-7 lg:w-8 lg:h-8 rounded-full bg-[#7a4a2a] flex items-center justify-center text-white font-bold text-xs lg:text-sm">
-                    {user.user?.name?.charAt(0).toUpperCase()}
-                  </div>
-                  <span className="text-[#4b2e1e] text-xs lg:text-sm font-semibold">{user.user?.name}</span>
-                  <span className={`px-1.5 py-0.5 text-[10px] lg:text-xs rounded-full font-semibold ${user.user?.role === "admin" ? "bg-[#7a4a2a]" : "bg-[#a0522d]"} text-white`}>
-                    {user.user?.role}
-                  </span>
-                </div>
-                
-                <button 
-                  onClick={handleLogout} 
-                  className="bg-[#8b0000] hover:bg-[#a52a2a] text-white px-3 lg:px-4 py-1.5 lg:py-2 rounded-lg text-xs lg:text-sm font-semibold shadow-md transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Link 
-                  to="/login" 
-                  className="px-3 lg:px-4 py-1.5 lg:py-2 text-sm text-[#4b2e1e] hover:text-[#2b160d] font-semibold rounded-lg hover:bg-[#e6dccb]/60 transition-all duration-300 border border-[#d6c9b7]"
-                >
-                  Login
-                </Link>
-                <Link 
-                  to="/register" 
-                  className="bg-[#7a4a2a] hover:bg-[#5e351c] text-white px-3 lg:px-5 py-1.5 lg:py-2 rounded-lg text-sm font-semibold shadow-md transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
-                >
-                  Register
-                </Link>
-              </div>
-            )}
-          </div>
-
-          <button 
-            className="md:hidden p-2 rounded-lg hover:bg-[#e6dccb]/50 transition-all duration-300"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+    <div
+      style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 50,
+        padding: isScrolled ? "10px 16px" : "0",
+        transition: "padding 0.35s cubic-bezier(0.4,0,0.2,1)",
+        pointerEvents: "none",
+      }}
+    >
+      <nav
+        ref={navbarRef}
+        style={{
+          pointerEvents: "all",
+          background: "rgba(255, 248, 242, 0.78)",
+          backdropFilter: "blur(18px)",
+          WebkitBackdropFilter: "blur(18px)",
+          borderRadius: isScrolled ? "60px" : "0px",
+          border: isScrolled ? "1px solid rgba(139, 30, 63, 0.18)" : "none",
+          borderBottom: isScrolled ? "none" : "1px solid rgba(139, 30, 63, 0.1)",
+          boxShadow: isScrolled ? "0 8px 32px rgba(122, 74, 42, 0.13)" : "none",
+          transition: "all 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: isScrolled ? "none" : "80rem",
+            margin: "0 auto",
+            padding: isScrolled ? "0 24px" : "0 32px",
+            transition: "padding 0.35s cubic-bezier(0.4,0,0.2,1)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              height: isScrolled ? "54px" : "72px",
+              transition: "height 0.35s cubic-bezier(0.4,0,0.2,1)",
+            }}
           >
-            <div className="w-6 h-6 relative">
-              <span className={`absolute left-0 w-6 h-0.5 bg-[#4b2e1e] transition-all duration-300 ${isMenuOpen ? "top-3 rotate-45" : "top-1"}`}></span>
-              <span className={`absolute left-0 top-3 w-6 h-0.5 bg-[#4b2e1e] transition-all duration-300 ${isMenuOpen ? "opacity-0" : "opacity-100"}`}></span>
-              <span className={`absolute left-0 w-6 h-0.5 bg-[#4b2e1e] transition-all duration-300 ${isMenuOpen ? "top-3 -rotate-45" : "top-5"}`}></span>
+            {/* Logo */}
+            <Link to="/" style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+              <img
+                src={logo}
+                alt="TicketPeChalo Logo"
+                style={{
+                  height: isScrolled ? "36px" : "52px",
+                  width: "auto",
+                  objectFit: "contain",
+                  transition: "height 0.35s cubic-bezier(0.4,0,0.2,1)",
+                  borderRadius: isScrolled ? "50%" : "6px",
+                }}
+              />
+            </Link>
+
+            {/* Desktop links */}
+            <div
+              className="hidden md:flex"
+              style={{ alignItems: "center", gap: 28, fontWeight: 500, fontSize: 14 }}
+            >
+              {!isAdmin && (
+                <>
+                 
+                  <Link
+                    to="/contact"
+                    style={{ color: "#6b4430", textDecoration: "none" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "#8b1e3f")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "#6b4430")}
+                  >
+                    Contact
+                  </Link>
+                  <button
+                    onClick={handleMyBookings}
+                    style={{ background: "none", border: "none", cursor: "pointer", color: "#6b4430", fontSize: 14, fontWeight: 500, padding: 0 }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "#8b1e3f")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "#6b4430")}
+                  >
+                    My Bookings
+                  </button>
+                </>
+              )}
+
+              {isAdmin && (
+                <div style={{ display: "flex", gap: 20, borderLeft: "1px solid rgba(75,46,30,0.15)", paddingLeft: 20 }}>
+                  {[
+                    { label: "Movies", href: "/admin?tab=movies" },
+                    { label: "Theatres", href: "/admin?tab=theatres" },
+                    { label: "Shows", href: "/admin?tab=shows" },
+                  ].map((item) => (
+                    <Link
+                      key={item.label}
+                      to={item.href}
+                      style={{ color: "#6b4430", textDecoration: "none", fontSize: 14, fontWeight: 500 }}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = "#8b1e3f")}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = "#6b4430")}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
-          </button>
-        </div>
-      </div>
 
-      <div className={`md:hidden overflow-hidden transition-all duration-300 ${isMenuOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"}`}>
-        <div className="bg-[#e6dccb]/50 border-t border-[#d6c9b7] mx-4 mb-4 rounded-2xl p-4 shadow-lg">
-          <div className="flex flex-col gap-3">
-            {(!user || user.user?.role !== "admin") && (
-              <>
-                <Link 
-                  to="/contact" 
-                  className="px-4 py-3 text-[#4b2e1e] font-semibold rounded-xl hover:bg-[#e6dccb]/70 transition-all duration-300 border border-[#d6c9b7]"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Contact Us
-                </Link>
-                
-                <button 
-                  onClick={handleMyBookings} 
-                  className="px-4 py-3 text-[#4b2e1e] font-semibold rounded-xl hover:bg-[#e6dccb]/70 transition-all duration-300 border border-[#d6c9b7] text-left"
-                >
-                  My Bookings
-                </button>
-              </>
-            )}
-
-            {user ? (
-              <>
-                {user.user?.role === "admin" && (
-                  <div className="py-3 border-t border-b border-[#d6c9b7]">
-                    <div className="flex flex-wrap gap-2">
-                      <Link 
-                        to="/admin?tab=movies" 
-                        className="flex-1 bg-[#8b1e3f] hover:bg-[#a52a4f] text-white px-3 py-3 rounded-xl text-sm font-semibold text-center transition-all duration-300 hover:shadow-lg"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        Movies
-                      </Link>
-                      <Link 
-                        to="/admin?tab=theatres" 
-                        className="flex-1 bg-[#6b3e26] hover:bg-[#8b5a3c] text-white px-3 py-3 rounded-xl text-sm font-semibold text-center transition-all duration-300 hover:shadow-lg"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        Theatres
-                      </Link>
-                      <Link 
-                        to="/admin?tab=shows" 
-                        className="flex-1 bg-[#4a2e1e] hover:bg-[#6b4532] text-white px-3 py-3 rounded-xl text-sm font-semibold text-center transition-all duration-300 hover:shadow-lg"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        Shows
-                      </Link>
-                    </div>
-                  </div>
-                )}
-
-                <div className="py-3 border-t border-b border-[#d6c9b7]">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[#7a4a2a] flex items-center justify-center text-white font-bold text-base">
+            {/* Auth — desktop */}
+            <div className="hidden md:flex" style={{ alignItems: "center", gap: 10 }}>
+              {user ? (
+                <>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(122,74,42,0.08)", borderRadius: 30, padding: "5px 14px 5px 6px" }}>
+                    <div style={{ width: 30, height: 30, borderRadius: "50%", background: "#7a4a2a", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 13, fontWeight: 700 }}>
                       {user.user?.name?.charAt(0).toUpperCase()}
                     </div>
-                    <div className="flex flex-col">
-                      <span className="text-[#4b2e1e] font-bold">{user.user?.name}</span>
-                      <span className={`px-2 py-0.5 text-xs rounded-full font-semibold w-fit ${user.user?.role === "admin" ? "bg-[#7a4a2a]" : "bg-[#a0522d]"} text-white`}>
-                        {user.user?.role}
-                      </span>
-                    </div>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: "#4b2e1e" }}>
+                      {user.user?.name}
+                    </span>
                   </div>
-                </div>
+                  <button
+                    onClick={handleLogout}
+                    style={{ background: "#8b0000", color: "#fff", border: "none", cursor: "pointer", padding: "7px 18px", fontSize: 13, fontWeight: 600, borderRadius: isScrolled ? 30 : 8, transition: "border-radius 0.35s cubic-bezier(0.4,0,0.2,1)" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "#a52a2a")}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "#8b0000")}
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    style={{ color: "#4b2e1e", fontWeight: 600, fontSize: 13, textDecoration: "none", padding: "7px 14px", border: "1px solid rgba(75,46,30,0.22)", borderRadius: isScrolled ? 30 : 8, transition: "border-radius 0.35s cubic-bezier(0.4,0,0.2,1)" }}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/register"
+                    style={{ background: "#7a4a2a", color: "#fff", fontWeight: 600, fontSize: 13, textDecoration: "none", padding: "7px 18px", borderRadius: isScrolled ? 30 : 8, transition: "border-radius 0.35s cubic-bezier(0.4,0,0.2,1)" }}
+                  >
+                    Register
+                  </Link>
+                </>
+              )}
+            </div>
 
-                <button 
-                  onClick={handleLogout} 
-                  className="bg-[#8b0000] hover:bg-[#a52a2a] text-white px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 hover:shadow-lg"
+            {/* Hamburger */}
+            <button
+              className="md:hidden"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              style={{ background: "none", border: "none", cursor: "pointer", padding: 6 }}
+            >
+              <div style={{ width: 22, height: 18, position: "relative" }}>
+                {[0, 8, 16].map((top, i) => (
+                  <span
+                    key={i}
+                    style={{
+                      position: "absolute", left: 0, width: 22, height: 2,
+                      background: "#4b2e1e", borderRadius: 2,
+                      top: isMenuOpen ? 8 : top,
+                      transform: isMenuOpen
+                        ? (i === 0 ? "rotate(45deg)" : i === 2 ? "rotate(-45deg)" : "none")
+                        : "none",
+                      opacity: isMenuOpen && i === 1 ? 0 : 1,
+                      transition: "all 0.25s ease",
+                    }}
+                  />
+                ))}
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile menu */}
+        <div
+          className="md:hidden"
+          style={{
+            maxHeight: isMenuOpen ? 400 : 0,
+            opacity: isMenuOpen ? 1 : 0,
+            overflow: "hidden",
+            transition: "max-height 0.3s ease, opacity 0.2s ease",
+          }}
+        >
+          <div style={{ margin: "0 12px 12px", padding: 16, background: "rgba(255,252,248,0.9)", borderRadius: 16, border: "1px solid rgba(139,30,63,0.1)", display: "flex", flexDirection: "column", gap: 2 }}>
+            {!isAdmin && (
+              <>
+                <Link
+                  to="/contact"
+                  onClick={() => setIsMenuOpen(false)}
+                  style={{ padding: "12px 4px", fontSize: 15, fontWeight: 500, color: "#4b2e1e", textDecoration: "none", borderBottom: "1px solid rgba(75,46,30,0.08)" }}
                 >
-                  Logout
+                  Contact
+                </Link>
+                <button
+                  onClick={handleMyBookings}
+                  style={{ padding: "12px 4px", textAlign: "left", fontSize: 15, fontWeight: 500, color: "#4b2e1e", background: "none", border: "none", borderBottom: "1px solid rgba(75,46,30,0.08)", cursor: "pointer" }}
+                >
+                  My Bookings
                 </button>
               </>
-            ) : (
-              <div className="flex flex-col gap-2 pt-3 border-t border-[#d6c9b7]">
-                <Link 
-                  to="/login" 
-                  className="px-4 py-3 text-[#4b2e1e] font-semibold rounded-xl hover:bg-[#e6dccb]/70 transition-all duration-300 border border-[#d6c9b7] text-center"
+            )}
+            {!user ? (
+              <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                <Link
+                  to="/login"
                   onClick={() => setIsMenuOpen(false)}
+                  style={{ flex: 1, textAlign: "center", padding: "10px 0", borderRadius: 10, border: "1px solid rgba(75,46,30,0.25)", color: "#4b2e1e", fontWeight: 600, fontSize: 14, textDecoration: "none" }}
                 >
                   Login
                 </Link>
-                <Link 
-                  to="/register" 
-                  className="bg-[#7a4a2a] hover:bg-[#5e351c] text-white px-4 py-3 rounded-xl text-sm font-semibold text-center transition-all duration-300 hover:shadow-lg"
+                <Link
+                  to="/register"
                   onClick={() => setIsMenuOpen(false)}
+                  style={{ flex: 1, textAlign: "center", padding: "10px 0", borderRadius: 10, background: "#7a4a2a", color: "#fff", fontWeight: 600, fontSize: 14, textDecoration: "none" }}
                 >
                   Register
                 </Link>
               </div>
+            ) : (
+              <button
+                onClick={handleLogout}
+                style={{ marginTop: 8, padding: "10px 0", borderRadius: 10, background: "#8b0000", color: "#fff", fontWeight: 600, fontSize: 14, border: "none", cursor: "pointer" }}
+              >
+                Logout
+              </button>
             )}
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </div>
   );
 }
 
 export default Navbar;
-

@@ -106,11 +106,7 @@ function MyBookings() {
               <p className="text-gray-600 text-sm sm:text-base">
                 Show Time: <span className="font-semibold">{b.show?.showTime ? new Date(b.show.showTime).toLocaleString() : 'N/A'}</span>
               </p>
-              <p className="text-gray-600 text-sm sm:text-base">
-                Seats: <span className="font-semibold">{b.seats?.join(", ") || "N/A"}</span>
-              </p>
 
-              <p className="text-gray-600 text-sm sm:text-base">Total: Rs.{b.totalPrice || 0}</p>
               <div className="pt-2">
                 <span className="bg-[#8b1e3f] text-white px-3 sm:px-4 py-1 rounded-full text-xs sm:text-sm">Confirmed</span>
               </div>

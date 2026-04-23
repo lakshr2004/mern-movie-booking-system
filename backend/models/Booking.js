@@ -19,12 +19,18 @@ const bookingSchema = new mongoose.Schema(
     ref: "Show",
     required: true
   },
+  seats: {
+    type: [String],
+    required: true
+  },
+  totalPrice: {
+    type: Number,
+    required: true
+  },
 
-  seats: [String],
-
-  totalPrice: Number
 },
 { timestamps: true }
+
 );
 
 module.exports = mongoose.model("Booking", bookingSchema);

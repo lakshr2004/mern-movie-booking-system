@@ -70,8 +70,10 @@ function TheatreListPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: idx * 0.1 }}
               whileHover={{ scale: 1.02 }}
-              onClick={() => navigate("/seat/" + show._id)}
+              onClick={() => navigate(`/seat/${show._id}`)}
               className="bg-white border border-[#e5dccb] p-4 sm:p-6 rounded-xl shadow-md hover:shadow-xl transition-all cursor-pointer"
+
+
             >
               <h2 className="text-base sm:text-lg font-bold text-[#4b2e1e]">{show.theatre.name}</h2>
               <p className="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">{show.theatre.location}</p>

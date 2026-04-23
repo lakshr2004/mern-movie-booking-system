@@ -48,9 +48,9 @@ function ShowsPage() {
   // Group shows by time - use ISO string for reliable comparison
   const groupedByTime = shows.reduce((acc, show) => {
     const date = new Date(show.showTime);
-    // Format as HH:MM (24-hour)
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
+    // Format as HH:MM (24-hour) with zero padding
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
     const time = `${hours}:${minutes}`;
     if (!acc[time]) acc[time] = [];
     acc[time].push(show);
@@ -93,4 +93,3 @@ function ShowsPage() {
 }
 
 export default ShowsPage;
-
