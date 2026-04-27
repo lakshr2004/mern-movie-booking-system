@@ -1,54 +1,94 @@
+import { Link } from "react-router-dom";
+
 function Footer() {
   const currentYear = new Date().getFullYear();
   const user = JSON.parse(localStorage.getItem("user"));
   const isAdmin = user?.user?.role === "admin";
 
   return (
-    <footer className="bg-gradient-to-r from-[#7a4a2a] via-[#8b1e3f] to-[#7a4a2a] text-[#f5e6d3] border-t border-[#5c1424] mt-10">
+    <footer className="bg-[#4a0e1f] border-t border-[#7a1c1c] mt-10 relative overflow-hidden">
+      {/* Subtle decorative gradient orb */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[1px] bg-gradient-to-r from-transparent via-[#f5f2ee]/30 to-transparent" />
 
-      <div className="max-w-7xl mx-auto px-6 py-10">
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
 
           {/* Brand */}
           <div>
-            <h3 className="text-2xl font-bold text-[#ffd9a0] mb-2">
+            <Link to="/" className="text-4xl font-black text-[#f5f2ee] tracking-wider block mb-3 hover:text-white transition-colors duration-200">
               TicketPeChalo.in
-            </h3>
-            <p className="text-sm opacity-80">
+            </Link>
+            <p className="text-sm text-[#d4a5a5] leading-relaxed">
               Book Movies • Reserve Seats • Enjoy Cinema
             </p>
+            <div className="flex gap-3 mt-4">
+              <span className="w-8 h-8 rounded-full bg-[#7a1c1c] flex items-center justify-center text-sm hover:bg-[#f5f2ee] hover:text-[#4a0e1f] transition-all duration-200 cursor-pointer">🎬</span>
+              <span className="w-8 h-8 rounded-full bg-[#7a1c1c] flex items-center justify-center text-sm hover:bg-[#f5f2ee] hover:text-[#4a0e1f] transition-all duration-200 cursor-pointer">🍿</span>
+              <span className="w-8 h-8 rounded-full bg-[#7a1c1c] flex items-center justify-center text-sm hover:bg-[#f5f2ee] hover:text-[#4a0e1f] transition-all duration-200 cursor-pointer">🎟️</span>
+            </div>
           </div>
 
           {/* Contact */}
           {!isAdmin && (
-            <div className="text-sm space-y-2">
-              <p>📞 +91 9038138105</p>
-              <p>✉️ lakshr2004@gmail.com</p>
-              <p>📍 Asansol, West Bengal</p>
+            <div>
+              <h4 className="text-xs font-bold text-[#f5f2ee] uppercase tracking-widest mb-4">Contact</h4>
+              <div className="space-y-3">
+                <p className="flex items-center gap-3 text-sm text-[#d4a5a5]">
+                  <span className="w-8 h-8 rounded-lg bg-[#7a1c1c] flex items-center justify-center text-[#f5f2ee] text-xs">✉</span>
+                  lakshr2004@gmail.com
+                </p>
+                <p className="flex items-center gap-3 text-sm text-[#d4a5a5]">
+                  <span className="w-8 h-8 rounded-lg bg-[#7a1c1c] flex items-center justify-center text-[#f5f2ee] text-xs">📍</span>
+                  Asansol, West Bengal
+                </p>
+              </div>
             </div>
           )}
 
-          {/* Links */}
-          <div className="text-sm md:text-right space-y-2">
-            <a href="/" className="block hover:text-[#ffd9a0]">Home</a>
-            {!isAdmin && (
-              <a href="/contact" className="block hover:text-[#ffd9a0]">
-                Contact
-              </a>
-            )}
+          {/* Quick Links */}
+          <div className={isAdmin ? "md:col-span-2" : ""}>
+            <h4 className="text-xs font-bold text-[#f5f2ee] uppercase tracking-widest mb-4">Quick Links</h4>
+            <div className="flex flex-wrap gap-x-6 gap-y-2">
+              <Link to="/" className="text-sm text-[#d4a5a5] hover:text-white transition-colors duration-200 relative group">
+                Home
+                <span className="absolute left-0 -bottom-0.5 w-0 h-[1.5px] bg-white transition-all duration-300 group-hover:w-full" />
+              </Link>
+              {!isAdmin && (
+                <Link to="/contact" className="text-sm text-[#d4a5a5] hover:text-white transition-colors duration-200 relative group">
+                  Contact
+                  <span className="absolute left-0 -bottom-0.5 w-0 h-[1.5px] bg-white transition-all duration-300 group-hover:w-full" />
+                </Link>
+              )}
+              {user && (
+                <Link to="/my-bookings" className="text-sm text-[#d4a5a5] hover:text-white transition-colors duration-200 relative group">
+                  My Bookings
+                  <span className="absolute left-0 -bottom-0.5 w-0 h-[1.5px] bg-white transition-all duration-300 group-hover:w-full" />
+                </Link>
+              )}
+              {isAdmin && (
+                <Link to="/admin" className="text-sm text-[#d4a5a5] hover:text-white transition-colors duration-200 relative group">
+                  Admin Dashboard
+                  <span className="absolute left-0 -bottom-0.5 w-0 h-[1.5px] bg-white transition-all duration-300 group-hover:w-full" />
+                </Link>
+              )}
+            </div>
           </div>
 
         </div>
 
-        <div className="border-t border-[#5c1424]/40 mt-8 pt-4 text-center text-xs">
-          © {currentYear} TicketPeChalo.in
+        {/* Bottom bar */}
+        <div className="mt-10 pt-6 border-t border-[#7a1c1c] flex flex-col sm:flex-row justify-between items-center gap-3">
+          <p className="text-xs text-[#b87a7a]">
+            © {currentYear} TicketPeChalo.in — All rights reserved.
+          </p>
+          <p className="text-xs text-[#b87a7a]">
+            Made with <span className="text-white">♥</span> for movie lovers
+          </p>
         </div>
-
       </div>
-
     </footer>
   );
 }
 
 export default Footer;
+

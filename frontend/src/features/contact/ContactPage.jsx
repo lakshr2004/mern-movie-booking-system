@@ -39,11 +39,6 @@ function ContactPage() {
           Contact Us
         </Motion.h1>
 
-        {/* Admin Email */}
-        <div className="bg-[#5b0f1b] text-white p-4 rounded-lg mb-8">
-          <p className="font-semibold text-sm md:text-base">Admin Email:</p>
-          <p className="text-base md:text-lg">{adminEmail}</p>
-        </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5">

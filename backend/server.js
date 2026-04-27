@@ -20,6 +20,23 @@ const io = new Server(server, {
 });
 global.io = io;
 
+const jwt = require("jsonwebtoken");
+
+// Socket authentication middleware
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token;
+  if (!token) {
+    return next(new Error("Authentication error: no token provided"));
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    socket.userId = decoded.id;
+    next();
+  } catch (err) {
+    return next(new Error("Authentication error: invalid token"));
+  }
+});
+
 app.use(cors());
 app.use(compression());
 app.use(express.json());
@@ -43,19 +60,21 @@ mongoose.connect(process.env.MONGO_URI).then(async () => {
 });
 
 io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
+  console.log("User connected:", socket.id, "userId:", socket.userId);
 
   socket.on("join-show", (showId) => {
     socket.join(`show-${showId}`);
     console.log(`User ${socket.id} joined show ${showId}`);
   });
 
-  socket.on("lock-seat", async ({ showId, seat }) => {
+  socket.on("lock-seat", async ({ showId, seat, expiresAt }) => {
     try {
       const show = await Show.findById(showId);
       if (!show) return;
 
-// Clean expired locks\n      const now = new Date();\n      show.lockedSeats = show.lockedSeats.filter(ls => new Date(ls.expiresAt) > now);
+      // Clean expired locks
+      const now = new Date();
+      show.lockedSeats = show.lockedSeats.filter(ls => new Date(ls.expiresAt) > now);
       
       // Check if seat available
       const isBooked = show.bookedSeats.includes(seat);
@@ -66,15 +85,16 @@ io.on("connection", (socket) => {
         return;
       }
 
-      // Lock seat for 120s
+      // Lock seat using real userId from JWT
+      const lockExpiresAt = expiresAt ? new Date(expiresAt) : new Date(Date.now() + 300000);
       show.lockedSeats.push({
         seat,
-        userId: socket.id, // temp use socket.id
-        expiresAt: new Date(Date.now() + 120000)
+        userId: socket.userId,
+        expiresAt: lockExpiresAt
       });
       await show.save();
 
-      io.to(`show-${showId}`).emit("seatLocked", { seat, userId: socket.id, expiresAt: show.lockedSeats[show.lockedSeats.length - 1].expiresAt });
+      io.to(`show-${showId}`).emit("seatLocked", { seat, userId: socket.userId, expiresAt: lockExpiresAt });
     } catch (error) {
       console.error(error);
     }
@@ -99,3 +119,4 @@ io.on("connection", (socket) => {
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server on port ${PORT}`));
+

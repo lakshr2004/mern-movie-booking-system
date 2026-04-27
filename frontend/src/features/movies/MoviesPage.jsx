@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import API from "../../services/api";
 import { Link } from "react-router-dom";
 import { motion as Motion } from "framer-motion";
+import { AuthContext } from "../auth/AuthContext";
 
 function MoviesPage() {
   const [movies, setMovies] = useState([]);
@@ -10,6 +11,8 @@ function MoviesPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchType, setSearchType] = useState("name");
+  const { user } = useContext(AuthContext);
+  const isAdmin = user?.user?.role === "admin";
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
@@ -129,7 +132,7 @@ function MoviesPage() {
       className="bg-[#f5f2ee] text-[#1a1614] min-h-screen"
     >
       {/* ══════════════ HERO SECTION ══════════════ */}
-      <div className="w-full max-w-[1300px] mx-auto relative bg-[#f5f2ee] overflow-hidden min-h-[300px] sm:min-h-[360px] md:min-h-[420px] px-4 sm:px-6 md:px-10 lg:px-16">
+      <div className="w-full max-w-[1300px] mx-auto relative bg-[#f5f2ee] overflow-hidden min-h-[300px] sm:min-h-[360px] md:min-h-[420px] px-10 sm:px-14 md:px-20 lg:px-24">
 
         {/* --- ANIMATED BACKGROUND START --- */}
         <div className="absolute inset-0 z-0 pointer-events-none" style={{ opacity: 0.5 }}>
@@ -161,7 +164,7 @@ function MoviesPage() {
         {/* Left arrow */}
         <button
           onClick={() => goTo(currentSlide - 1)}
-          className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-10 sm:h-10 bg-white border border-[#e0ddd8] rounded-sm flex items-center justify-center text-[#1a1614] text-sm hover:bg-[#1a1614] hover:text-[#f5f2ee] transition shadow-sm"
+          className="absolute left-2 sm:left-4 md:left-6 top-1/2 -translate-y-1/2 z-20 w-7 h-7 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-white border border-[#e0ddd8] rounded-sm flex items-center justify-center text-[#1a1614] text-xs sm:text-sm hover:bg-[#1a1614] hover:text-[#f5f2ee] transition shadow-sm"
         >
           &#8592;
         </button>
@@ -169,7 +172,7 @@ function MoviesPage() {
         {/* Right arrow */}
         <button
           onClick={() => goTo(currentSlide + 1)}
-          className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-10 sm:h-10 bg-white border border-[#e0ddd8] rounded-sm flex items-center justify-center text-[#1a1614] text-sm hover:bg-[#1a1614] hover:text-[#f5f2ee] transition shadow-sm"
+          className="absolute right-2 sm:right-4 md:right-6 top-1/2 -translate-y-1/2 z-20 w-7 h-7 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-white border border-[#e0ddd8] rounded-sm flex items-center justify-center text-[#1a1614] text-xs sm:text-sm hover:bg-[#1a1614] hover:text-[#f5f2ee] transition shadow-sm"
         >
           &#8594;
         </button>
@@ -201,7 +204,7 @@ function MoviesPage() {
             </h1>
 
             {/* Indicators - Hide below 400px */}
-            <div className="hidden max-[400px]:hidden flex justify-center md:justify-start gap-1.5 mb-4 sm:mb-5">
+            <div className="hidden min-[400px]:flex justify-center md:justify-start gap-1.5 mb-4 sm:mb-5">
               {movies.map((_, i) => (
                 <button
                   key={i}
@@ -239,12 +242,21 @@ function MoviesPage() {
             </div>
 
             {/* Button */}
-            <Link
-              to={`/movie/${currentMovie._id}`}
-              className="inline-flex items-center gap-2 bg-[#1a1614] text-[#f5f2ee] text-xs sm:text-sm uppercase px-6 sm:px-8 py-3 rounded-sm hover:bg-[#3d3733] transition"
-            >
-              Book now
-            </Link>
+            {isAdmin ? (
+              <Link
+                to="/admin?tab=movies"
+                className="inline-flex items-center gap-2 bg-[#7a1c1c] text-[#f5f2ee] text-xs sm:text-sm uppercase px-6 sm:px-8 py-3 rounded-lg hover:bg-[#9e2a2a] shadow-md hover:shadow-lg transition"
+              >
+                Edit Movie
+              </Link>
+            ) : (
+              <Link
+                to={`/movie/${currentMovie._id}`}
+                className="inline-flex items-center gap-2 bg-[#7a1c1c] text-[#f5f2ee] text-xs sm:text-sm uppercase px-6 sm:px-8 py-3 rounded-lg hover:bg-[#9e2a2a] shadow-md hover:shadow-lg transition"
+              >
+                Book now
+              </Link>
+            )}
 
           </Motion.div>
 
@@ -297,12 +309,12 @@ function MoviesPage() {
         <div className="max-w-2xl mx-auto">
           {/* Type tabs */}
           <div className="flex justify-center mb-3">
-            <div className="inline-flex bg-white border border-[#e0ddd8] rounded-sm p-0.5">
+            <div className="inline-flex bg-white border border-[#e0ddd8] rounded-lg p-0.5">
               {["name", "language", "genre"].map((type) => (
                 <button
                   key={type}
                   onClick={() => setSearchType(type)}
-                  className={`px-3 sm:px-4 py-1.5 rounded-sm text-xs font-medium tracking-wide uppercase transition-all duration-150 ${searchType === type
+                  className={`px-3 sm:px-4 py-1.5 rounded-md text-xs font-medium tracking-wide uppercase transition-all duration-150 ${searchType === type
                     ? "bg-[#232222] text-[#f5f2ee]"
                     : "text-[#1c1c1b] hover:bg-[#f5f2ee]"
                     }`}
@@ -320,7 +332,7 @@ function MoviesPage() {
               placeholder={`Search movies by ${searchType}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-9 py-2.5 sm:py-3 bg-white border border-[#e0ddd8] rounded-sm text-sm text-[#1a1614] placeholder-[#aaa7a2] outline-none focus:border-[#1a1614] transition-colors"
+              className="w-full pl-10 pr-9 py-2.5 sm:py-3 bg-white border border-[#e0ddd8] rounded-lg text-sm text-[#1a1614] placeholder-[#aaa7a2] outline-none focus:border-[#1a1614] transition-colors"
             />
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1c1c1b]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -354,7 +366,7 @@ function MoviesPage() {
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="text-sm sm:text-base md:text-lg font-semibold tracking-widest uppercase text-[#888580] mb-4 sm:mb-6 md:mb-8"
+          className="text-sm sm:text-base md:text-lg font-semibold tracking-widest uppercase text-[#888580] mb-6 sm:mb-8 md:mb-10"
         >
           {searchQuery ? `Results (${filteredMovies.length})` : "Now Showing"}
         </Motion.h2>
@@ -364,7 +376,7 @@ function MoviesPage() {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="flex gap-4 sm:gap-5 overflow-x-auto scrollbar-hide pb-3 snap-x snap-mandatory"
+            className="flex gap-4 sm:gap-5 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory"
           >
 
             {filteredMovies.map((movie) => (
@@ -451,7 +463,7 @@ function MoviesPage() {
       {!searchQuery && (
         <>
           {/* Divider */}
-          <div className="mx-4 sm:mx-8 md:mx-14 lg:mx-20 border-t border-[#31302d]" />
+          <div className="mx-4 sm:mx-8 md:mx-14 lg:mx-20 my-2 sm:my-4 border-t border-[#31302d]" />
 
           {/* Top Rated */}
           <section className="px-4 sm:px-8 md:px-14 lg:px-20 py-8 sm:py-12 bg-[#f5f2ee]">
@@ -459,7 +471,7 @@ function MoviesPage() {
               initial={{ opacity: 0, y: -12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.05 }}
-              className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold tracking-widest uppercase text-[#888580] mb-6 sm:mb-8 md:mb-10 lg:mb-12"
+              className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold tracking-widest uppercase text-[#888580] mb-6 sm:mb-8 md:mb-10"
             >
               Top Rated
             </Motion.h2>
@@ -496,7 +508,7 @@ function MoviesPage() {
           </section>
 
           {/* Divider */}
-          <div className="mx-4 sm:mx-8 md:mx-14 lg:mx-20 border-t border-[#31302d]" />
+          <div className="mx-4 sm:mx-8 md:mx-14 lg:mx-20 my-2 sm:my-4 border-t border-[#31302d]" />
 
           {/* All Theatres */}
           <section className="px-4 sm:px-8 md:px-14 lg:px-20 py-8 sm:py-12 bg-[#f5f2ee]">
@@ -504,7 +516,7 @@ function MoviesPage() {
               initial={{ opacity: 0, y: -12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.05 }}
-              className="text-sm sm:text-base md:text-lg font-semibold tracking-widest uppercase text-[#888580] mb-4 sm:mb-6 md:mb-8"
+              className="text-sm sm:text-base md:text-lg font-semibold tracking-widest uppercase text-[#888580] mb-6 sm:mb-8 md:mb-10"
             >
               All Theatres
             </Motion.h2>
@@ -512,7 +524,7 @@ function MoviesPage() {
               variants={containerVariants}
               initial="hidden"
               animate="visible"
-              className="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-hide pb-2"
+              className="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-hide pb-4"
             >
               {theatres.map((theatre) => (
                 <Motion.div

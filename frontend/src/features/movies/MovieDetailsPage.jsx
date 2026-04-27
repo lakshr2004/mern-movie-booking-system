@@ -79,13 +79,13 @@ function MovieDetailsPage() {
       initial={{ opacity: 0 }} 
       animate={{ opacity: 1 }} 
       transition={{ duration: 0.5 }}
-      className="min-h-screen bg-[#f8f3e9] p-3 sm:p-4 md:p-6"
+      className="min-h-screen bg-[#f8f3e9] p-2 sm:p-4 md:p-6"
     >
       <div className="max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-4xl mx-auto">
         {/* Back button */}
         <button 
           onClick={() => navigate(-1)} 
-          className="flex items-center gap-1.5 sm:gap-2 text-[#5b0f1b] hover:text-[#8b1e3f] mb-3 sm:mb-4 transition text-sm sm:text-base font-semibold"
+          className="flex items-center gap-1.5 sm:gap-2 text-[#5b0f1b] hover:text-[#8b1e3f] mb-2 sm:mb-4 transition text-sm sm:text-base font-semibold"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
@@ -94,15 +94,15 @@ function MovieDetailsPage() {
         </button>
 
         {/* Rating badge - outside the card */}
-        <div className="bg-yellow-500 text-black px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-sm sm:text-base font-bold flex items-center gap-1.5 sm:gap-2 w-fit mb-3 sm:mb-4 shadow-lg">
+        <div className="bg-yellow-500 text-black px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-sm sm:text-base font-bold flex items-center gap-1.5 sm:gap-2 w-fit mb-2 sm:mb-4 shadow-lg">
           <span>⭐</span>
           <span>{movie.rating}/10</span>
         </div>
 
         {/* Full Maroon Card - Responsive */}
         <div className="bg-[#5b0f1b] rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl overflow-hidden">
-          <div className="p-4 sm:p-6 md:p-8">
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 md:gap-8">
+          <div className="p-3 sm:p-5 md:p-6">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 md:gap-8">
               {/* Poster - Smaller for mobile */}
               <div className="w-full sm:w-1/3">
                 <div className="relative rounded-xl overflow-hidden shadow-lg">
@@ -125,12 +125,12 @@ function MovieDetailsPage() {
                   transition={{ delay: 0.2 }}
                 >
                   {/* Title - Smaller on mobile */}
-                  <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 sm:mb-3 md:mb-4">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-1 sm:mb-3 md:mb-4">
                     {movie.title}
                   </h1>
 
                   {/* Tags - Smaller on mobile */}
-                  <div className="flex flex-wrap gap-2 sm:gap-3 mb-3 sm:mb-4 md:mb-6">
+                  <div className="flex flex-wrap gap-2 sm:gap-3 mb-2 sm:mb-4 md:mb-6">
                     <span className="bg-[#8b1e3f] text-white px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium">
                       {movie.genre}
                     </span>
@@ -146,8 +146,8 @@ function MovieDetailsPage() {
                   </div>
 
                   {/* Description - Smaller text on mobile */}
-                  <div className="mb-4 sm:mb-6">
-                    <h2 className="text-base sm:text-lg md:text-xl font-semibold text-[#f5e6e0] mb-2">Description</h2>
+                  <div className="mb-3 sm:mb-6">
+                    <h2 className="text-base sm:text-lg md:text-xl font-semibold text-[#f5e6e0] mb-1 sm:mb-2">Description</h2>
                     <p className="text-sm sm:text-base text-[#e8dcd6] leading-relaxed line-clamp-3 sm:line-clamp-none">
                       {movie.description}
                     </p>
@@ -155,8 +155,8 @@ function MovieDetailsPage() {
 
                   {/* Cast - Smaller on mobile */}
                   {movie.cast && movie.cast.length > 0 && (
-                    <div className="mb-4 sm:mb-6">
-                      <h2 className="text-base sm:text-lg md:text-xl font-semibold text-[#f5e6e0] mb-2">Cast</h2>
+                    <div className="mb-3 sm:mb-6">
+                      <h2 className="text-base sm:text-lg md:text-xl font-semibold text-[#f5e6e0] mb-1 sm:mb-2">Cast</h2>
                       <div className="flex flex-wrap gap-1.5 sm:gap-2">
                         {movie.cast.map((actor, index) => (
                           <span 
@@ -174,7 +174,7 @@ function MovieDetailsPage() {
 
                   {/* Action Buttons - Admin sees Edit button, Users see Watch Trailer and Book Tickets */}
                   {isAdmin ? (
-                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4 mt-4 sm:mt-6">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4 mt-3 sm:mt-6">
                       <button
                         onClick={() => navigate("/admin?tab=movies")}
                         className="flex items-center justify-center gap-1.5 sm:gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 sm:px-6 sm:py-2.5 md:px-8 md:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base md:text-lg font-semibold shadow-md hover:shadow-lg transition-all"
@@ -186,7 +186,7 @@ function MovieDetailsPage() {
                       </button>
                     </div>
                   ) : (
-                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4 mt-4 sm:mt-6">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4 mt-3 sm:mt-6">
                       <button
                         onClick={handleWatchTrailer}
                         className="flex items-center justify-center gap-1.5 sm:gap-2 bg-[#8b1e3f] hover:bg-[#b02a4f] text-white px-4 py-2 sm:px-6 sm:py-2.5 md:px-8 md:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base md:text-lg font-semibold shadow-md hover:shadow-lg transition-all"

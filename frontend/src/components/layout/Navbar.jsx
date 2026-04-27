@@ -1,15 +1,18 @@
 import { useState, useContext, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../../features/auth/AuthContext";
 import logo from "../../assets/logo.jpeg";
 
 function Navbar() {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
   const navbarRef = useRef(null);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+
+  const isActive = (path) => location.pathname === path;
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -101,23 +104,30 @@ function Navbar() {
             >
               {!isAdmin && (
                 <>
-                 
                   <Link
                     to="/contact"
-                    style={{ color: "#6b4430", textDecoration: "none" }}
+                    style={{ 
+                      color: isActive("/contact") ? "#8b1e3f" : "#6b4430", 
+                      textDecoration: "none",
+                      borderBottom: isActive("/contact") ? "2px solid #8b1e3f" : "2px solid transparent",
+                      paddingBottom: 2,
+                      transition: "all 0.2s ease"
+                    }}
                     onMouseEnter={(e) => (e.currentTarget.style.color = "#8b1e3f")}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = "#6b4430")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = isActive("/contact") ? "#8b1e3f" : "#6b4430")}
                   >
                     Contact
                   </Link>
-                  <button
-                    onClick={handleMyBookings}
-                    style={{ background: "none", border: "none", cursor: "pointer", color: "#6b4430", fontSize: 14, fontWeight: 500, padding: 0 }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = "#8b1e3f")}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = "#6b4430")}
-                  >
-                    My Bookings
-                  </button>
+                  {user && (
+                    <button
+                      onClick={handleMyBookings}
+                      style={{ background: "none", border: "none", cursor: "pointer", color: "#6b4430", fontSize: 14, fontWeight: 500, padding: 0 }}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = "#8b1e3f")}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = "#6b4430")}
+                    >
+                      My Bookings
+                    </button>
+                  )}
                 </>
               )}
 
@@ -228,12 +238,14 @@ function Navbar() {
                 >
                   Contact
                 </Link>
-                <button
-                  onClick={handleMyBookings}
-                  style={{ padding: "12px 4px", textAlign: "left", fontSize: 15, fontWeight: 500, color: "#4b2e1e", background: "none", border: "none", borderBottom: "1px solid rgba(75,46,30,0.08)", cursor: "pointer" }}
-                >
-                  My Bookings
-                </button>
+                {user && (
+                  <button
+                    onClick={handleMyBookings}
+                    style={{ padding: "12px 4px", textAlign: "left", fontSize: 15, fontWeight: 500, color: "#4b2e1e", background: "none", border: "none", borderBottom: "1px solid rgba(75,46,30,0.08)", cursor: "pointer" }}
+                  >
+                    My Bookings
+                  </button>
+                )}
               </>
             )}
             {!user ? (

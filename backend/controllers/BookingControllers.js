@@ -24,14 +24,19 @@ exports.bookSeats = async (req, res) => {
     const { showId, seats } = req.body;
     const show = await Show.findById(showId);
     const now = new Date();
-    
-    show.lockedSeats = show.lockedSeats.filter(ls => new Date(ls.expiresAt) > now);
+    const currentUserId = req.user.id || req.user._id;
     
     if (!show) return res.status(404).json({ message: "Show not found" });
     
+    // Clean expired locks first
+    show.lockedSeats = show.lockedSeats.filter(ls => new Date(ls.expiresAt) > now);
+    
     const invalidSeats = [];
     for (let seat of seats) {
-      if (show.bookedSeats.includes(seat) || show.lockedSeats.find(ls => ls.seat === seat)) {
+      const isBooked = show.bookedSeats.includes(seat);
+      const lockedByOther = show.lockedSeats.find(ls => ls.seat === seat && ls.userId !== currentUserId);
+      
+      if (isBooked || lockedByOther) {
         invalidSeats.push(seat);
       }
     }
@@ -42,7 +47,7 @@ exports.bookSeats = async (req, res) => {
     }
     
     const booking = await Booking.create({
-      user: req.user.id,
+      user: currentUserId,
       movie: show.movie,
       show: showId,
       seats,
