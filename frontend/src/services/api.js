@@ -1,7 +1,11 @@
 import axios from "axios";
 
+// ✅ Use env variable (Vercel) OR fallback (for safety)
+const BASE_URL =
+  import.meta.env.VITE_API_URL || "https://mern-movie-booking-system.onrender.com";
+
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL + "/api",
+  baseURL: BASE_URL + "/api",
 });
 
 // 🔐 Get token from localStorage

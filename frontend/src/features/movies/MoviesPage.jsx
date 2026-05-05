@@ -17,22 +17,29 @@ function MoviesPage() {
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [moviesRes, theatresRes] = await Promise.all([
-          API.get("/movies"),
-          API.get("/theatres"),
-        ]);
-        setMovies(moviesRes.data);
-        setTheatres(theatresRes.data);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+  const fetchData = async () => {
+    try {
+      const [moviesRes, theatresRes] = await Promise.all([
+        API.get("/movies"),
+        API.get("/theatres"),
+      ]);
+
+      // ✅ FIX: handle both formats safely
+      const moviesData = moviesRes.data.movies || moviesRes.data;
+      const theatresData = theatresRes.data.theatres || theatresRes.data;
+
+      setMovies(Array.isArray(moviesData) ? moviesData : []);
+      setTheatres(Array.isArray(theatresData) ? theatresData : []);
+
+    } catch (error) {
+      console.log("API ERROR:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, []);
 
   useEffect(() => {
     if (!movies.length || loading) return;
