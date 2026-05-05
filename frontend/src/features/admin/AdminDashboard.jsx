@@ -23,9 +23,65 @@ function AdminDashboard() {
   const [theatreForm, setTheatreForm] = useState({ name: "", location: "", totalSeats: 100 });
   const [showForm, setShowForm] = useState({ movie: "", theatre: "", showTime: "", price: 200 });
 
-  const fetchMovies = async () => { try { const res = await API.get("/movies"); setMovies(res.data || []); } catch (err) { console.log(err); } };
-  const fetchTheatres = async () => { try { const res = await API.get("/theatres"); setTheatres(res.data || []); } catch (err) { console.log(err); } };
-  const fetchShows = async () => { try { const res = await API.get("/shows"); setShows(res.data || []); } catch (err) { console.log(err); } };
+const fetchMovies = async () => {
+  try {
+    const res = await API.get("/movies");
+
+    // 🔥 HANDLE ALL POSSIBLE FORMATS
+    const raw =
+      res.data?.movies ||
+      res.data?.data ||
+      res.data;
+
+    if (!Array.isArray(raw)) {
+      console.log("Movies not array:", raw);
+      setMovies([]);
+      return;
+    }
+
+    const formatted = raw.map((m) => ({
+      ...m,
+      _id: m._id || m.id,
+      title: m.title || m.name || "Untitled",
+      description: m.description || "",
+      duration: m.duration || 120,
+      genre: m.genre || "Movie",
+      movieLanguage: m.movieLanguage || m.language || "N/A",
+      poster:
+        m.poster ||
+        m.image ||
+        "https://via.placeholder.com/300x450?text=No+Image",
+    }));
+
+    setMovies(formatted);
+  } catch (err) {
+    console.log("Fetch Movies Error:", err);
+  }
+};
+
+const fetchTheatres = async () => {
+  try {
+    const res = await API.get("/theatres");
+
+    const data = res.data.theatres || res.data;
+
+    setTheatres(Array.isArray(data) ? data : []);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const fetchShows = async () => {
+  try {
+    const res = await API.get("/shows");
+
+    const data = res.data.shows || res.data;
+
+    setShows(Array.isArray(data) ? data : []);
+  } catch (err) {
+    console.log(err);
+  }
+};
 
   useEffect(() => {
     fetchMovies(); fetchTheatres(); fetchShows();
