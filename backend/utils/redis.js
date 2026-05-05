@@ -6,14 +6,11 @@ const Redis = require('ioredis');
 let redis;
 
 try {
-  redis = new Redis({
-    host: process.env.REDIS_HOST || '127.0.0.1',
-    port: parseInt(process.env.REDIS_PORT) || 6379,
-    retryStrategy: (times) => Math.min(times * 50, 2000),
-    maxRetriesPerRequest: 3,
-    connectTimeout: 5000,
-    family: 4
-  });
+  redis = new Redis(process.env.REDIS_URL, {
+  tls: {}, // required for Upstash
+  maxRetriesPerRequest: 3,
+  connectTimeout: 10000
+});
 
   redis.on('connect', () => {
     console.log('✅ Redis Connected Successfully');
