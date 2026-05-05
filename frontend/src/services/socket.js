@@ -2,15 +2,18 @@ import { io } from "socket.io-client";
 
 let socket = null;
 
+const SOCKET_URL = import.meta.env.VITE_API_URL; // 🔥 IMPORTANT
+
 export const connectSocket = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const token = user?.token;
 
   if (!token) return null;
 
-  socket = io("http://localhost:5000", {
+  socket = io(SOCKET_URL, {
     auth: { token },
     transports: ["websocket"],
+    withCredentials: true,
   });
 
   socket.on("connect", () => {
@@ -21,14 +24,15 @@ export const connectSocket = () => {
     console.log("❌ Socket disconnected");
   });
 
+  socket.on("connect_error", (err) => {
+    console.error("❌ Socket error:", err.message);
+  });
+
   return socket;
 };
 
 export const getSocket = () => socket;
 
-/**
- * Join show room for real-time seat updates
- */
 export const joinShow = (showId) => {
   if (socket) {
     socket.emit("join-show", showId);
