@@ -104,7 +104,7 @@ function MyBookings() {
                 Location: <span className="font-semibold">{b.show?.theatre?.location || "N/A"}</span>
               </p>
               <p className="text-gray-600 text-sm sm:text-base">
-                Show Time: <span className="font-semibold">{b.show?.showTime ? new Date(b.show.showTime).toLocaleString() : 'N/A'}</span>
+                Show Time: <span className="font-semibold">{b.show?.showTime ? new Date(b.show.showTime).toLocaleString() : 'N/A'}</span> | Seats: <span className="font-semibold">{b.seats?.join(', ') || 'N/A'}</span> | Price: ₹<span className="font-semibold">{b.totalPrice || 0}</span>
               </p>
 
               <div className="pt-2">

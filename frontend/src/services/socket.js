@@ -1,18 +1,39 @@
-import io from 'socket.io-client';
+import { io } from "socket.io-client";
 
-const getToken = () => {
-  try {
-    const user = JSON.parse(localStorage.getItem('user'));
-    return user?.token || '';
-  } catch {
-    return '';
-  }
+let socket = null;
+
+export const connectSocket = () => {
+  const user = JSON.parse(localStorage.getItem("user"));
+  const token = user?.token;
+
+  if (!token) return null;
+
+  socket = io("http://localhost:5000", {
+    auth: { token },
+    transports: ["websocket"],
+  });
+
+  socket.on("connect", () => {
+    console.log("✅ Socket connected:", socket.id);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("❌ Socket disconnected");
+  });
+
+  return socket;
 };
 
-const socket = io('http://localhost:5000', {
-  auth: {
-    token: getToken()
-  }
-});
+export const getSocket = () => socket;
 
-export default socket;
+/**
+ * Join show room for real-time seat updates
+ */
+export const joinShow = (showId) => {
+  if (socket) {
+    socket.emit("join-show", showId);
+    console.log(`Joined show room: show-${showId}`);
+  } else {
+    console.warn("Socket not connected");
+  }
+};

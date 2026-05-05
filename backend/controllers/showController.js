@@ -85,6 +85,7 @@ exports.updateShow = async (req, res) => {
   }
 };
 
+
 // Delete Show (Admin)
 exports.deleteShow = async (req, res) => {
   try {
@@ -95,4 +96,89 @@ exports.deleteShow = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Get Show Seats Status (for seat page)
+exports.getShowSeatsStatus = async (req, res) => {
+  try {
+    const showId = req.params.id;
+    const show = await Show.findById(showId);
+    if (!show) return res.status(404).json({ message: "Show not found" });
+
+    const { getSeatLockStatus } = require('../utils/redis');
+    const status = {};
+
+    // Generate 100 seats A1-J10
+    for (let row = 'A'; row <= 'J'; row++) {
+      for (let num = 1; num <= 10; num++) {
+        const seatId = `${row}${num}`;
+        const redisLock = await getSeatLockStatus(showId, seatId);
+        
+        if (redisLock) {
+          status[seatId] = { status: 'LOCKED', ...redisLock };
+        } else if (show.bookedSeats.includes(seatId)) {
+          status[seatId] = { status: 'BOOKED' };
+        } else {
+          status[seatId] = { status: 'AVAILABLE' };
+        }
+      }
+    }
+
+    res.json({
+      price: show.price,
+      seatsStatus: status,
+      totalSeats: show.totalSeats || 100,
+      bookedSeatsCount: show.bookedSeats.length
+    });
+  } catch (error) {
+    console.error('Seats status error:', error);
+    res.status(500).json({ message: "Seats status failed" });
+  }
+};
+
+// Lock Seats
+exports.lockSeats = async (req, res) => {
+  try {
+    const { seats } = req.body;
+    const showId = req.params.id;
+    const userId = req.user._id.toString();
+
+    if (!Array.isArray(seats) || seats.length === 0) {
+      return res.status(400).json({ message: "Seats array required" });
+    }
+
+    const { lockSeats } = require('../utils/redis');
+    const lockedSeats = await lockSeats(showId, seats, userId, 300); // 5min
+
+    global.io.to(`show-${showId}`).emit('seatLocked', { seats: lockedSeats, userId });
+
+    res.json({ success: true, lockedSeats });
+  } catch (error) {
+    console.error('Lock seats error:', error);
+    res.status(500).json({ message: "Lock failed" });
+  }
+};
+
+// Unlock Seats
+exports.unlockSeats = async (req, res) => {
+  try {
+    const { seats } = req.body;
+    const showId = req.params.id;
+    const userId = req.user._id.toString();
+
+    if (!Array.isArray(seats) || seats.length === 0) {
+      return res.status(400).json({ message: "Seats array required" });
+    }
+
+    const { unlockSeats } = require('../utils/redis');
+    const unlockedSeats = await unlockSeats(showId, seats, userId);
+
+    global.io.to(`show-${showId}`).emit('seatUnlocked', { seats: unlockedSeats });
+
+    res.json({ success: true, unlockedSeats });
+  } catch (error) {
+    console.error('Unlock seats error:', error);
+    res.status(500).json({ message: "Unlock failed" });
+  }
+};
+
 

@@ -50,7 +50,7 @@ const seedDefaultData = async () => {
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/movies", require("./routes/movieRoutes"));
 app.use("/api/shows", require("./routes/showRoutes"));
-app.use("/api/bookings", bookingRoutes);
+app.use("/api/booking", bookingRoutes);
 app.use("/api", contactRoutes);
 app.use("/api/theatres", require("./routes/theatreRoutes"));
 
@@ -67,11 +67,28 @@ io.on("connection", (socket) => {
     console.log(`User ${socket.id} joined show ${showId}`);
   });
 
-  // Seat locking/unlocking removed from this backend
+// Seat lock cleanup cron (every 30s)
+setInterval(async () => {
+  try {
+    const { redis } = require('./utils/redis');
+    if (redis) {
+      const keys = await redis.keys('seat:*');
+      for (const key of keys) {
+        const ttl = await redis.ttl(key);
+        if (ttl <= 0) {
+          const [, showId, seatId] = key.split(':');
+          global.io.to(`show-${showId}`).emit('seatUnlocked', { seat: seatId });
+        }
+      }
+    }
+  } catch (err) {
+    console.log('Cleanup cron error:', err.message);
+  }
+}, 30000);
 
-
-  socket.on("disconnect", () => console.log("User disconnected"));
+socket.on("disconnect", () => console.log("User disconnected"));
 });
+
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server on port ${PORT}`));

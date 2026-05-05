@@ -4,6 +4,7 @@ const API = axios.create({
   baseURL: "http://localhost:5000/api",
 });
 
+// 🔐 Get token from localStorage
 const getToken = () => {
   try {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -13,7 +14,7 @@ const getToken = () => {
   }
 };
 
-// Request interceptor – attach Bearer token
+// 🔐 Attach token automatically
 API.interceptors.request.use((req) => {
   const token = getToken();
   if (token) {
@@ -22,7 +23,7 @@ API.interceptors.request.use((req) => {
   return req;
 });
 
-// Response interceptor – auto-logout on 401 / token failure
+// 🚫 Auto logout if token invalid
 API.interceptors.response.use(
   (res) => res,
   (err) => {
@@ -34,5 +35,23 @@ API.interceptors.response.use(
   }
 );
 
+//
+// 🎬 SHOW APIs (if needed)
+//
+export const getShowSeats = (showId) =>
+  API.get(`/shows/${showId}`);
+
+//
+// 🎟️ BOOKING APIs (IMPORTANT)
+//
+
+export const lockSeats = (showId, seats) =>
+  API.post("/booking/lock", { showId, seats });
+
+export const unlockSeats = (showId, seats) =>
+  API.post("/booking/unlock", { showId, seats });
+
+export const bookSeats = (showId, seats) =>
+  API.post("/booking/book", { showId, seats });
 
 export default API;

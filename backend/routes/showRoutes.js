@@ -7,16 +7,24 @@ const {
   getShowById,
   getAllShows,
   updateShow,
-  deleteShow
+  deleteShow,
+  getShowSeatsStatus,
+  lockSeats,
+  unlockSeats
 } = require("../controllers/showController");
+
 
 const { protect, adminOnly } = require("../middleware/authMiddleware");
 
 // Public routes
 router.get("/movie/:movieId", getShowsByMovie);
 router.get("/:id", getShowById);
+router.get("/:id/seats", protect, getShowSeatsStatus);
+router.post("/:id/lock", protect, lockSeats);
+router.post("/:id/unlock", protect, unlockSeats);
 
 // Admin routes (protected)
+
 router.get("/", protect, adminOnly, getAllShows);
 router.post("/", protect, adminOnly, createShow);
 router.put("/:id", protect, adminOnly, updateShow);
