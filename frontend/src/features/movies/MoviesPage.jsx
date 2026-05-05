@@ -132,7 +132,7 @@ function MoviesPage() {
       className="bg-[#f5f2ee] text-[#1a1614] min-h-screen"
     >
       {/* ══════════════ HERO SECTION ══════════════ */}
-      <div className="w-full max-w-7xl mx-auto relative bg-gradient-to-br from-[#f8f4f0] to-[#f0e9dc] overflow-hidden min-h-[45vh] sm:min-h-[36vh] md:min-h-[40vh] px-4 sm:px-6 lg:px-8 xl:px-12 py-8 lg:py-12">
+      <div className="w-full max-w-7xl mx-auto relative bg-gradient-to-br from-[#f8f4f0] to-[#f0e9dc] overflow-hidden min-h-[45vh] sm:min-h-[36vh] md:min-h-[40vh] px-4 sm:px-6 lg:px-30 xl:px-12 py-8 lg:py-12">
 
         {/* --- ANIMATED BACKGROUND START --- */}
         <div className="absolute inset-0 z-0 pointer-events-none" style={{ opacity: 0.5 }}>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import MovieCard from "../movies/MovieCard.jsx";
 import { motion } from "framer-motion";
 import API from "../../services/api";
 
@@ -9,7 +10,7 @@ function MyBookings() {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const res = await API.get("/bookings/my");
+        const res = await API.get("/booking/my");
         if (res?.data) {
           setBookings(res.data);
         } else {
@@ -90,13 +91,11 @@ function MyBookings() {
             whileHover={{ scale: 1.01, y: -3 }}
             className="bg-white border border-[#e7dac8] rounded-xl shadow-md hover:shadow-lg transition flex flex-col sm:flex-row gap-4 sm:gap-6 p-4 sm:p-6"
           >
-            <img 
-              src={b.movie?.poster || "https://via.placeholder.com/150x200?text=No+Image"} 
-              alt={b.movie?.title || "Movie"} 
-              className="w-full sm:w-36 h-48 sm:h-auto object-cover rounded-lg shadow" 
-            />
+<div className="w-full sm:w-36 h-48 flex-shrink-0 pointer-events-none overflow-hidden rounded-lg">
+              <MovieCard movie={b.movie || {}} />
+            </div>
             <div className="flex-1 space-y-2 sm:space-y-3">
-              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#7a3e1d]">{b.movie?.title || "Unknown Movie"}</h2>
+
               <p className="text-gray-600 text-sm sm:text-base">
                 Theatre: <span className="font-semibold">{b.show?.theatre?.name || "N/A"}</span>
               </p>

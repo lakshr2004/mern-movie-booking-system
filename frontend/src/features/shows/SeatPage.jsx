@@ -196,24 +196,24 @@ export default function SeatPage() {
   if (loading) return <div className="text-center mt-20">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-[#f8f8f8] p-6">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-[#f8f8f8] p-3 sm:p-4 md:p-6 lg:p-8">
 
       {/* HEADER */}
       <div className="max-w-4xl mx-auto mb-8 text-center">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2 leading-tight">
           {showData?.movieName}
         </h1>
-        <p className="text-gray-600 mb-2">
+        <p className="text-sm sm:text-base md:text-lg text-gray-600 mb-2">
           {showData?.theatreName} • {showData?.showTime}
         </p>
         {/* 💰 PRICE CARD */}
         <div className="mt-4 flex justify-center">
-          <div className="bg-white shadow-lg rounded-xl px-6 py-4 flex items-center gap-6 border border-gray-200">
+          <div className="bg-white shadow-lg rounded-xl px-3 sm:px-4 md:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-center justify-center  sm:gap-4 border border-gray-200 w-full max-w-md mx-auto">
 
             {/* price per seat */}
             <div className="text-center">
-              <p className="text-xs text-gray-500">Price</p>
-              <p className="text-lg font-semibold text-gray-800">
+              <p className="text-xs sm:text-sm text-gray-500">Price</p>
+              <p className="text-base sm:text-lg md:text-xl font-semibold text-gray-800">
                 ₹{showData?.price}
               </p>
             </div>
@@ -223,8 +223,8 @@ export default function SeatPage() {
 
             {/* seats */}
             <div className="text-center">
-              <p className="text-xs text-gray-500">Seats</p>
-              <p className="text-lg font-semibold text-gray-800">
+              <p className="text-xs sm:text-sm text-gray-500">Seats</p>
+              <p className="text-base sm:text-lg md:text-xl font-semibold text-gray-800">
                 {selected.length}
               </p>
             </div>
@@ -234,8 +234,8 @@ export default function SeatPage() {
 
             {/* total */}
             <div className="text-center">
-              <p className="text-xs text-gray-500">Total</p>
-              <p className="text-xl font-bold text-green-600">
+              <p className="text-xs sm:text-sm text-gray-500">Total</p>
+              <p className="text-lg sm:text-xl md:text-2xl font-bold text-green-600">
                 ₹{selected.length * (showData?.price || 0)}
               </p>
             </div>
@@ -245,14 +245,14 @@ export default function SeatPage() {
       </div>
 
       {/* SCREEN */}
-      <div className="text-center mb-6 text-gray-500">
+      <div className="text-center mb-4 sm:mb-6 md:mb-8 text-xs sm:text-sm md:text-base text-gray-500 font-mono tracking-wider">
         -------- SCREEN --------
       </div>
 
       {/* GRID */}
-      <div className="space-y-2">
+      <div className="space-y-1.5 sm:space-y-2 md:space-y-2.5 max-w-4xl mx-auto">
         {rows.map(row => (
-          <div key={row} className="flex justify-center gap-2">
+          <div key={row} className="flex justify-center gap-1 sm:gap-1.5 md:gap-2">
             {Array.from({ length: 10 }, (_, i) => {
               const seatId = `${row}${i + 1}`;
 
@@ -260,7 +260,7 @@ export default function SeatPage() {
                 <button
                   key={seatId}
                   onClick={() => handleClick(seatId)}
-                  className={`w-10 h-10 rounded ${getStyle(seatId)}`}
+                  className={`min-w-[32px] w-8 sm:w-9 md:w-10 lg:w-11 h-8 sm:h-9 md:h-10 lg:h-11 rounded-lg font-medium text-xs sm:text-sm md:text-base shadow-sm hover:shadow-md active:scale-95 transition-all ${getStyle(seatId)}`}
                 >
                   {seatId}
                 </button>
@@ -271,13 +271,13 @@ export default function SeatPage() {
       </div>
 
       {/* BUTTON */}
-      <div className="text-center mt-8">
+      <div className="text-center mt-6 sm:mt-8 md:mt-10">
         <button
           onClick={handleBook}
           disabled={!selected.length}
-          className="px-6 py-3 bg-gray-800 text-white rounded disabled:opacity-40"
+          className="px-6 sm:px-8 py-2.5 sm:py-3 md:py-3.5 bg-gray-800 hover:bg-gray-900 text-white font-medium rounded-xl disabled:opacity-40 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-all text-sm sm:text-base md:text-lg min-w-[140px]"
         >
-          Book Seats
+          Book {selected.length || 0} Seat{selected.length !== 1 ? 's' : ''}
         </button>
       </div>
 
