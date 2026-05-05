@@ -23,12 +23,15 @@ const showSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
-  lockedSeats: [{
-    seat: String,
-    userId: String,
-    expiresAt: Date
-  }],
+  totalSeats: {
+    type: Number,
+    default: 100
+  }
 });
+
+// Ensure schema transforms (no seat status virtuals/methods)
+showSchema.set('toJSON', { virtuals: false });
+showSchema.set('toObject', { virtuals: false });
 
 module.exports = mongoose.model("Show", showSchema);
 

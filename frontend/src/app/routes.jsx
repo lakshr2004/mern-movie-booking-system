@@ -6,7 +6,6 @@ import Login from "../features/auth/Login";
 import Register from "../features/auth/Register";
 import AdminDashboard from "../features/admin/AdminDashboard";
 import TheatreListPage from "../features/shows/TheatreListPage";
-import SeatPage from "../features/shows/SeatPage";
 import MyBookings from "../features/bookings/MyBookings";
 import ContactPage from "../features/contact/ContactPage";
 import ProtectedRoute from "../components/layout/ProtectedRoute";
@@ -39,15 +38,6 @@ function AppRoutes() {
       />
 
       <Route
-        path="/seat/:showId"
-        element={
-          <ProtectedRoute>
-            <SeatPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
         path="/admin"
         element={
           <ProtectedRoute adminOnly={true}>
@@ -60,4 +50,3 @@ function AppRoutes() {
 }
 
 export default AppRoutes;
-

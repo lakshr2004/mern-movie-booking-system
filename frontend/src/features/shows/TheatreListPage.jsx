@@ -64,14 +64,13 @@ function TheatreListPage() {
           const booked = show.bookedSeats?.length || 0;
           const availableSeats = totalSeats - booked;
           return (
-            <Motion.div
+              <Motion.div
               key={show._id}
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: idx * 0.1 }}
               whileHover={{ scale: 1.02 }}
-              onClick={() => navigate(`/seat/${show._id}`)}
-              className="bg-white border border-[#e5dccb] p-4 sm:p-6 rounded-xl shadow-md hover:shadow-xl transition-all cursor-pointer"
+              className="bg-white border border-[#e5dccb] p-4 sm:p-6 rounded-xl shadow-md hover:shadow-xl transition-all"
 
 
             >

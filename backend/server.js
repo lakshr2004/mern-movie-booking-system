@@ -67,52 +67,8 @@ io.on("connection", (socket) => {
     console.log(`User ${socket.id} joined show ${showId}`);
   });
 
-  socket.on("lock-seat", async ({ showId, seat, expiresAt }) => {
-    try {
-      const show = await Show.findById(showId);
-      if (!show) return;
+  // Seat locking/unlocking removed from this backend
 
-      // Clean expired locks
-      const now = new Date();
-      show.lockedSeats = show.lockedSeats.filter(ls => new Date(ls.expiresAt) > now);
-      
-      // Check if seat available
-      const isBooked = show.bookedSeats.includes(seat);
-      const isLocked = show.lockedSeats.find(ls => ls.seat === seat);
-      
-      if (isBooked || isLocked) {
-        socket.emit("seat-lock-failed", { seat, reason: isBooked ? "booked" : "locked" });
-        return;
-      }
-
-      // Lock seat using real userId from JWT
-      const lockExpiresAt = expiresAt ? new Date(expiresAt) : new Date(Date.now() + 300000);
-      show.lockedSeats.push({
-        seat,
-        userId: socket.userId,
-        expiresAt: lockExpiresAt
-      });
-      await show.save();
-
-      io.to(`show-${showId}`).emit("seatLocked", { seat, userId: socket.userId, expiresAt: lockExpiresAt });
-    } catch (error) {
-      console.error(error);
-    }
-  });
-
-  socket.on("unlock-seat", async ({ showId, seat }) => {
-    try {
-      const show = await Show.findById(showId);
-      if (!show) return;
-
-      show.lockedSeats = show.lockedSeats.filter(ls => ls.seat !== seat);
-      await show.save();
-
-      io.to(`show-${showId}`).emit("seatUnlocked", { seat });
-    } catch (error) {
-      console.error(error);
-    }
-  });
 
   socket.on("disconnect", () => console.log("User disconnected"));
 });

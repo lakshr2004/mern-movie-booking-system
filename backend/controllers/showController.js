@@ -46,9 +46,18 @@ exports.createShow = async (req, res) => {
     if (!movie || !theatre || !showTime || !price) {
       return res.status(400).json({ message: "All fields required" });
     }
+
     const theatreExists = await Theatre.findById(theatre);
     if (!theatreExists) return res.status(404).json({ message: "Theatre not found" });
-    const show = await Show.create({ movie, theatre, showTime, price, bookedSeats: [], lockedSeats: [] });
+
+    const show = await Show.create({
+      movie,
+      theatre,
+      showTime,
+      price,
+      bookedSeats: [],
+    });
+
     const populatedShow = await Show.findById(show._id).populate("movie theatre");
     res.status(201).json(populatedShow);
   } catch (error) {
@@ -60,9 +69,15 @@ exports.createShow = async (req, res) => {
 exports.updateShow = async (req, res) => {
   try {
     const { movie, theatre, showTime, price } = req.body;
-    const show = await Show.findByIdAndUpdate(req.params.id, { movie, theatre, showTime, price }, { new: true, runValidators: true })
+
+    const show = await Show.findByIdAndUpdate(
+      req.params.id,
+      { movie, theatre, showTime, price },
+      { new: true, runValidators: true }
+    )
       .populate("movie")
       .populate("theatre");
+
     if (!show) return res.status(404).json({ message: "Show not found" });
     res.json(show);
   } catch (error) {
@@ -76,41 +91,6 @@ exports.deleteShow = async (req, res) => {
     const show = await Show.findByIdAndDelete(req.params.id);
     if (!show) return res.status(404).json({ message: "Show not found" });
     res.json({ message: "Show deleted" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// Lock Seat
-exports.lockSeat = async (req, res) => {
-  try {
-    const { seat, expiresAt } = req.body;
-    const show = await Show.findById(req.params.id);
-    if (!show) return res.status(404).json({ message: "Show not found" });
-    const now = new Date();
-    show.lockedSeats = show.lockedSeats.filter(ls => new Date(ls.expiresAt) > now);
-    if (show.bookedSeats.includes(seat) || show.lockedSeats.find(ls => ls.seat === seat)) {
-      return res.status(400).json({ message: "Seat unavailable" });
-    }
-    show.lockedSeats.push({ seat, userId: req.user._id, expiresAt });
-    await show.save();
-    global.io.to(`show-${req.params.id}`).emit('seatLocked', { seat, userId: req.user._id, expiresAt });
-    res.json({ success: true });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// Unlock Seat
-exports.unlockSeat = async (req, res) => {
-  try {
-    const { seat } = req.body;
-    const show = await Show.findById(req.params.id);
-    if (!show) return res.status(404).json({ message: "Show not found" });
-    show.lockedSeats = show.lockedSeats.filter(ls => ls.seat !== seat);
-    await show.save();
-    global.io.to(`show-${req.params.id}`).emit('seatUnlocked', { seat });
-    res.json({ success: true });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

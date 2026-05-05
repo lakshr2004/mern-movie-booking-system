@@ -131,25 +131,7 @@ function Navbar() {
                 </>
               )}
 
-              {isAdmin && (
-                <div style={{ display: "flex", gap: 20, borderLeft: "1px solid rgba(75,46,30,0.15)", paddingLeft: 20 }}>
-                  {[
-                    { label: "Movies", href: "/admin?tab=movies" },
-                    { label: "Theatres", href: "/admin?tab=theatres" },
-                    { label: "Shows", href: "/admin?tab=shows" },
-                  ].map((item) => (
-                    <Link
-                      key={item.label}
-                      to={item.href}
-                      style={{ color: "#6b4430", textDecoration: "none", fontSize: 14, fontWeight: 500 }}
-                      onMouseEnter={(e) => (e.currentTarget.style.color = "#8b1e3f")}
-                      onMouseLeave={(e) => (e.currentTarget.style.color = "#6b4430")}
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
+              
             </div>
 
             {/* Auth — desktop */}
@@ -229,7 +211,7 @@ function Navbar() {
           }}
         >
           <div style={{ margin: "0 12px 12px", padding: 16, background: "rgba(255,252,248,0.9)", borderRadius: 16, border: "1px solid rgba(139,30,63,0.1)", display: "flex", flexDirection: "column", gap: 2 }}>
-            {!isAdmin && (
+{!isAdmin && (
               <>
                 <Link
                   to="/contact"
@@ -247,6 +229,32 @@ function Navbar() {
                   </button>
                 )}
               </>
+            )}
+            {isAdmin && (
+              <div style={{ borderTop: "1px solid rgba(75,46,30,0.15)", paddingTop: 12, marginTop: 8 }}>
+                {[
+                  { label: "Movies", href: "/admin?tab=movies" },
+                  { label: "Theatres", href: "/admin?tab=theatres" },
+                  { label: "Shows", href: "/admin?tab=shows" },
+                ].map((item) => (
+                  <Link
+                    key={item.label}
+                    to={item.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    style={{ 
+                      display: "block", 
+                      padding: "12px 4px", 
+                      fontSize: 15, 
+                      fontWeight: 500, 
+                      color: "#4b2e1e", 
+                      textDecoration: "none", 
+                      borderBottom: "1px solid rgba(75,46,30,0.08)" 
+                    }}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
             )}
             {!user ? (
               <div style={{ display: "flex", gap: 8, marginTop: 8 }}>

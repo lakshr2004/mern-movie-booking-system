@@ -132,7 +132,7 @@ function MoviesPage() {
       className="bg-[#f5f2ee] text-[#1a1614] min-h-screen"
     >
       {/* ══════════════ HERO SECTION ══════════════ */}
-      <div className="w-full max-w-[1300px] mx-auto relative bg-[#f5f2ee] overflow-hidden min-h-[300px] sm:min-h-[360px] md:min-h-[420px] px-10 sm:px-14 md:px-20 lg:px-24">
+      <div className="w-full max-w-7xl mx-auto relative bg-gradient-to-br from-[#f8f4f0] to-[#f0e9dc] overflow-hidden min-h-[45vh] sm:min-h-[36vh] md:min-h-[40vh] px-4 sm:px-6 lg:px-8 xl:px-12 py-8 lg:py-12">
 
         {/* --- ANIMATED BACKGROUND START --- */}
         <div className="absolute inset-0 z-0 pointer-events-none" style={{ opacity: 0.5 }}>
@@ -178,7 +178,7 @@ function MoviesPage() {
         </button>
 
         {/* Hero content */}
-        <div className="relative z-10 flex flex-col md:flex-row items-center md:items-center justify-between gap-6 md:gap-10 py-8 sm:py-10 md:py-12">
+        <div className="relative z-20 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center max-w-4xl mx-auto">
 
           {/* LEFT CONTENT */}
           <Motion.div
@@ -186,7 +186,7 @@ function MoviesPage() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.45 }}
-            className="flex-1 text-center md:text-left"
+            className="lg:order-2 text-center lg:text-left max-w-lg lg:max-w-md"
           >
 
             <span className="inline-block border border-[#bbb8b2] text-[#888580] text-[10px] sm:text-xs uppercase px-2 py-0.5 rounded-sm mb-3 sm:mb-4">
@@ -267,24 +267,23 @@ function MoviesPage() {
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.45 }}
-            className="flex-shrink-0"
+            className="lg:order-1 mx-auto lg:mr-auto lg:ml-0 w-[140px] sm:w-[180px] md:w-[220px] lg:w-[320px] xl:w-[380px] self-center"
           >
 
             <div
-              className="rounded-md overflow-hidden relative"
+              className="rounded-md overflow-hidden relative w-[140px] sm:w-[180px] md:w-[220px] lg:w-[260px] aspect-[2/3]"
               style={{
-                width: "clamp(140px,28vw,260px)",
-                height: "clamp(210px,38vw,380px)",
                 boxShadow:
                   "0 8px 32px rgba(26,22,20,0.18), 0 2px 8px rgba(26,22,20,0.1)"
               }}
             >
 
-              <img
-                src={currentMovie.poster}
-                alt={currentMovie.title}
-                className="w-full h-full object-cover"
-              />
+                <img
+                  src={currentMovie.poster}
+                  alt={currentMovie.title}
+                  className="w-full h-full object-cover min-h-[210px]"
+                  onError={(e) => e.target.src = 'https://via.placeholder.com/300x450?text=Movie'}
+                />
 
               <div
                 className="absolute inset-0 pointer-events-none"
