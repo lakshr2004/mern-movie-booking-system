@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: import.meta.env.VITE_API_URL + "/api",
 });
 
 // 🔐 Get token from localStorage
@@ -36,15 +36,14 @@ API.interceptors.response.use(
 );
 
 //
-// 🎬 SHOW APIs (if needed)
+// 🎬 SHOW APIs
 //
 export const getShowSeats = (showId) =>
   API.get(`/shows/${showId}`);
 
 //
-// 🎟️ BOOKING APIs (IMPORTANT)
+// 🎟️ BOOKING APIs
 //
-
 export const lockSeats = (showId, seats) =>
   API.post("/booking/lock", { showId, seats });
 
