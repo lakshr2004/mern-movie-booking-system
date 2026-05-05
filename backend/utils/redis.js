@@ -1,34 +1,36 @@
-const Redis = require('ioredis');
+const Redis = require("ioredis");
 
 /**
- * Redis client for seat locking (SETNX + auto expiry)
+ * Redis client for seat locking (Upstash compatible)
  */
 let redis;
 
 try {
   redis = new Redis(process.env.REDIS_URL, {
-  tls: {}, // required for Upstash
-  maxRetriesPerRequest: 3,
-  connectTimeout: 10000
-});
-
-  redis.on('connect', () => {
-    console.log('✅ Redis Connected Successfully');
+    tls: {
+      rejectUnauthorized: false, // important for Upstash
+    },
+    maxRetriesPerRequest: null, // prevents retry loops
+    enableReadyCheck: false,
   });
 
-  redis.on('error', (err) => {
-    console.log('❌ Redis Error (non-fatal):', err.message);
+  redis.on("connect", () => {
+    console.log("✅ Redis Connected Successfully");
   });
 
-  console.log('Redis client initialized for seat locking');
+  redis.on("error", (err) => {
+    console.log("❌ Redis Error:", err.message);
+  });
+
+  console.log("🚀 Redis client initialized for seat locking");
 
 } catch (err) {
-  console.log('Redis connection failed:', err.message);
+  console.log("❌ Redis connection failed:", err.message);
   redis = null;
 }
 
 /**
- * 🔒 Atomic lock multiple seats (returns successfully locked seats)
+ * 🔒 Atomic lock multiple seats
  */
 const lockSeats = async (showId, seats, userId, ttl = 300) => {
   if (!redis) return [];
@@ -39,13 +41,10 @@ const lockSeats = async (showId, seats, userId, ttl = 300) => {
     const key = `seat:${showId}:${seatId}`;
 
     try {
-      const result = await redis.set(key, userId, 'EX', ttl, 'NX');
-
-      if (result === 'OK') {
-        lockedSeats.push(seatId);
-      }
+      const result = await redis.set(key, userId, "EX", ttl, "NX");
+      if (result === "OK") lockedSeats.push(seatId);
     } catch (err) {
-      console.log('Lock error:', err.message);
+      console.log("Lock error:", err.message);
     }
   }
 
@@ -53,7 +52,7 @@ const lockSeats = async (showId, seats, userId, ttl = 300) => {
 };
 
 /**
- * 🔓 Unlock multiple seats (Lua atomic - only if locked by user)
+ * 🔓 Unlock seats (atomic using Lua)
  */
 const unlockSeats = async (showId, seats, userId) => {
   if (!redis) return [];
@@ -73,12 +72,9 @@ const unlockSeats = async (showId, seats, userId) => {
 
     try {
       const result = await redis.eval(script, 1, key, userId);
-
-      if (result === 1) {
-        unlockedSeats.push(seatId);
-      }
+      if (result === 1) unlockedSeats.push(seatId);
     } catch (err) {
-      console.log('Unlock error:', err.message);
+      console.log("Unlock error:", err.message);
     }
   }
 
@@ -86,15 +82,15 @@ const unlockSeats = async (showId, seats, userId) => {
 };
 
 /**
- * 📊 Get single seat lock status
+ * 📊 Get seat lock status
  */
 const getSeatLockStatus = async (showId, seatId) => {
   if (!redis) return null;
 
   try {
     const key = `seat:${showId}:${seatId}`;
-
     const userId = await redis.get(key);
+
     if (!userId) return null;
 
     const ttl = await redis.ttl(key);
@@ -102,20 +98,20 @@ const getSeatLockStatus = async (showId, seatId) => {
     return {
       lockedBy: userId,
       ttl,
-      expiresAt: new Date(Date.now() + ttl * 1000).toISOString()
+      expiresAt: new Date(Date.now() + ttl * 1000).toISOString(),
     };
   } catch (err) {
-    console.log('Status error:', err.message);
+    console.log("Status error:", err.message);
     return null;
   }
 };
 
 /**
- * 🧹 Cleanup expired locks from Mongo (optional safety)
+ * 🧹 Cleanup expired locks from Mongo
  */
 const cleanupExpiredLockInMongo = async (showId) => {
   try {
-    const Show = require('../models/Show');
+    const Show = require("../models/Show");
 
     const show = await Show.findById(showId);
     if (!show) return;
@@ -127,9 +123,8 @@ const cleanupExpiredLockInMongo = async (showId) => {
     );
 
     await show.save();
-
   } catch (err) {
-    console.log('Cleanup error:', err.message);
+    console.log("Cleanup error:", err.message);
   }
 };
 
@@ -138,5 +133,5 @@ module.exports = {
   lockSeats,
   unlockSeats,
   getSeatLockStatus,
-  cleanupExpiredLockInMongo
+  cleanupExpiredLockInMongo,
 };
