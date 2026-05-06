@@ -43,7 +43,10 @@ export default function SeatPage() {
 
         // 🔒 locked seats (if backend sends)
         data.lockedSeats?.forEach(seat => {
-          seatMap[seat] = { status: "LOCKED" };
+          seatMap[seat.seatNumber] = {
+            status: "LOCKED",
+            lockedBy: seat.lockedBy
+          };
         });
 
         setSeats(seatMap);
@@ -185,8 +188,11 @@ export default function SeatPage() {
     const isSelected = selected.includes(seatId);
     const isMine = seat?.lockedBy === currentUser;
 
-    // 🟡 selected by YOU
-    if (isSelected) {
+    // 🟡 YOUR selected/locked seat
+    if (
+      isSelected ||
+      (seat?.status === "LOCKED" && isMine)
+    ) {
       return "bg-yellow-400 text-black border border-yellow-500";
     }
 
@@ -195,14 +201,9 @@ export default function SeatPage() {
       return "bg-gray-900 text-white cursor-not-allowed";
     }
 
-    // 🔒 temporarily locked by others
+    // 🔒 locked by others
     if (seat?.status === "LOCKED" && !isMine) {
       return "bg-gray-500 text-white cursor-not-allowed";
-    }
-
-    // 🟡 locked by you
-    if (seat?.status === "LOCKED" && isMine) {
-      return "bg-yellow-400 text-black border border-yellow-500";
     }
 
     // ⚪ available
