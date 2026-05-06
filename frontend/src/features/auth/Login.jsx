@@ -83,7 +83,7 @@ function Login() {
             w-full
             max-w-[420px]
             rounded-3xl
-            bg-[#f8f5ef]
+            bg-[#5a0a11]
             border
             border-[#e5ddd3]
             shadow-2xl
