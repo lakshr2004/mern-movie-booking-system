@@ -351,25 +351,6 @@ function MoviesPage() {
             </button>
           </Link>
 
-          <button
-            className="
-              bg-white/80
-              backdrop-blur-md
-              border
-              border-gray-200
-              hover:bg-white
-              text-[#333]
-              px-8
-              py-3.5
-              rounded-2xl
-              font-bold
-              shadow-lg
-              transition-all
-              duration-300
-            "
-          >
-            ▶ Watch Trailer
-          </button>
         </div>
 
         {/* SLIDER DOTS */}
