@@ -146,28 +146,28 @@ function MoviesPage() {
 
   return (
     <div className="bg-[#f8f3e9] min-h-screen overflow-hidden">
-{/* HERO SECTION */}
-<section className="relative overflow-hidden bg-[#edf1f5]">
+      {/* HERO SECTION */}
+      <section className="relative overflow-hidden bg-[#edf1f5]">
 
-  {/* SOFT BACKGROUND */}
-  <div className="absolute inset-0">
-    <img
-      src={currentMovie.poster}
-      alt={currentMovie.title}
-      className="w-full h-full object-cover blur-3xl opacity-[0.07] scale-125"
-    />
+        {/* SOFT BACKGROUND */}
+        <div className="absolute inset-0">
+          <img
+            src={currentMovie.poster}
+            alt={currentMovie.title}
+            className="w-full h-full object-cover blur-3xl opacity-[0.07] scale-125"
+          />
 
-    <div className="absolute inset-0 bg-[#edf1f5]/95" />
-  </div>
+          <div className="absolute inset-0 bg-[#edf1f5]/95" />
+        </div>
 
-  {/* MOBILE + TABLET ARROWS */}
-  <button
-    onClick={() =>
-      setCurrentSlide((prev) =>
-        prev === 0 ? movies.length - 1 : prev - 1
-      )
-    }
-    className="
+        {/* MOBILE + TABLET ARROWS */}
+        <button
+          onClick={() =>
+            setCurrentSlide((prev) =>
+              prev === 0 ? movies.length - 1 : prev - 1
+            )
+          }
+          className="
       absolute
       left-2
       sm:left-4
@@ -188,19 +188,19 @@ function MoviesPage() {
       transition-all
       duration-300
     "
-  >
-    <span className="text-[#5b0f1b] text-xl font-bold">
-      ‹
-    </span>
-  </button>
+        >
+          <span className="text-[#5b0f1b] text-xl font-bold">
+            ‹
+          </span>
+        </button>
 
-  <button
-    onClick={() =>
-      setCurrentSlide((prev) =>
-        prev === movies.length - 1 ? 0 : prev + 1
-      )
-    }
-    className="
+        <button
+          onClick={() =>
+            setCurrentSlide((prev) =>
+              prev === movies.length - 1 ? 0 : prev + 1
+            )
+          }
+          className="
       absolute
       right-2
       sm:right-4
@@ -221,59 +221,59 @@ function MoviesPage() {
       transition-all
       duration-300
     "
-  >
-    <span className="text-[#5b0f1b] text-xl font-bold">
-      ›
-    </span>
-  </button>
-
-  <div className="relative z-10 max-w-7xl mx-auto px-4">
-
-    {/* MOBILE */}
-    <div className="flex flex-col lg:hidden items-center text-center pt-6 pb-8">
-
-      {/* CONTENT */}
-      <Motion.div
-        key={currentMovie._id}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="w-full flex flex-col items-center"
-      >
-        <p className="text-[#8b1e3f] font-bold tracking-[0.35em] uppercase text-[11px] mb-2">
-          Featured Movie
-        </p>
-
-        <h1 className="text-[2rem] sm:text-5xl font-black text-[#222] leading-tight mb-3">
-          {currentMovie.title}
-        </h1>
-
-        {/* TAGS */}
-        <div className="flex flex-wrap justify-center gap-2 max-w-sm mb-4">
-          <span className="bg-[#8b1e3f] text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
-            {currentMovie.genre}
+        >
+          <span className="text-[#5b0f1b] text-xl font-bold">
+            ›
           </span>
+        </button>
 
-          <span className="bg-yellow-400 text-black px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-            ⭐ {currentMovie.rating}/10
-          </span>
+        <div className="relative z-10 max-w-7xl mx-auto px-4">
 
-          <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-md">
-            ⏱ {currentMovie.duration} mins
-          </span>
+          {/* MOBILE */}
+          <div className="flex flex-col lg:hidden items-center text-center pt-6 pb-8">
 
-          <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-md">
-            🌐 {currentMovie.movieLanguage}
-          </span>
-        </div>
+            {/* CONTENT */}
+            <Motion.div
+              key={currentMovie._id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="w-full flex flex-col items-center"
+            >
+              <p className="text-[#8b1e3f] font-bold tracking-[0.35em] uppercase text-[11px] mb-2">
+                Featured Movie
+              </p>
 
-        <p className="text-gray-600 text-sm max-w-xs sm:max-w-md leading-relaxed mb-4 line-clamp-2">
-          {currentMovie.description}
-        </p>
+              <h1 className="text-[2rem] sm:text-5xl font-black text-[#222] leading-tight mb-3">
+                {currentMovie.title}
+              </h1>
 
-        <Link to={`/movie/${currentMovie._id}`}>
-          <button
-            className="
+              {/* TAGS */}
+              <div className="flex flex-wrap justify-center gap-2 max-w-sm mb-4">
+                <span className="bg-[#8b1e3f] text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+                  {currentMovie.genre}
+                </span>
+
+                <span className="bg-yellow-400 text-black px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                  ⭐ {currentMovie.rating}/10
+                </span>
+
+                <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-md">
+                  ⏱ {currentMovie.duration} mins
+                </span>
+
+                <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-md">
+                  🌐 {currentMovie.movieLanguage}
+                </span>
+              </div>
+
+              <p className="text-gray-600 text-sm max-w-xs sm:max-w-md leading-relaxed mb-4 line-clamp-2">
+                {currentMovie.description}
+              </p>
+
+              <Link to={`/movie/${currentMovie._id}`}>
+                <button
+                  className="
               bg-[#8b1e3f]
               hover:bg-[#6d102c]
               text-white
@@ -287,44 +287,43 @@ function MoviesPage() {
               hover:scale-105
               mb-4
             "
-          >
-            {isAdmin ? "Edit Movie" : "Book Tickets"}
-          </button>
-        </Link>
+                >
+                  {isAdmin ? "Edit Movie" : "Book Tickets"}
+                </button>
+              </Link>
 
-        {/* DOTS */}
-        <div className="flex items-center justify-center gap-2 mb-5">
-          {movies.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentSlide(index)}
-              className={`
+              {/* DOTS */}
+              <div className="flex items-center justify-center gap-2 mb-5">
+                {movies.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentSlide(index)}
+                    className={`
                 rounded-full
                 transition-all
                 duration-300
-                ${
-                  currentSlide === index
-                    ? "w-6 h-2 bg-[#8b1e3f]"
-                    : "w-2 h-2 bg-gray-400"
-                }
+                ${currentSlide === index
+                        ? "w-6 h-2 bg-[#8b1e3f]"
+                        : "w-2 h-2 bg-gray-400"
+                      }
               `}
-            />
-          ))}
-        </div>
-      </Motion.div>
+                  />
+                ))}
+              </div>
+            </Motion.div>
 
-      {/* POSTER */}
-      <Motion.div
-        key={currentMovie.poster}
-        initial={{ opacity: 0, scale: 0.92 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4 }}
-        className="flex justify-center"
-      >
-        <img
-          src={currentMovie.poster}
-          alt={currentMovie.title}
-          className="
+            {/* POSTER */}
+            <Motion.div
+              key={currentMovie.poster}
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4 }}
+              className="flex justify-center"
+            >
+              <img
+                src={currentMovie.poster}
+                alt={currentMovie.title}
+                className="
             w-36
             sm:w-44
             md:w-52
@@ -335,25 +334,25 @@ function MoviesPage() {
             border
             border-white/60
           "
-        />
-      </Motion.div>
-    </div>
+              />
+            </Motion.div>
+          </div>
 
-    {/* LAPTOP + TABLET */}
-    <div className="hidden lg:grid lg:grid-cols-2 items-center gap-6 xl:gap-12 py-14">
+          {/* LAPTOP + TABLET */}
+          <div className="hidden lg:grid lg:grid-cols-2 items-center gap-6 xl:gap-12 py-14">
 
-      {/* POSTER */}
-      <Motion.div
-        key={currentMovie.poster}
-        initial={{ opacity: 0, x: -30 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.4 }}
-        className="flex justify-center"
-      >
-        <img
-          src={currentMovie.poster}
-          alt={currentMovie.title}
-          className="
+            {/* POSTER */}
+            <Motion.div
+              key={currentMovie.poster}
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4 }}
+              className="flex justify-center"
+            >
+              <img
+                src={currentMovie.poster}
+                alt={currentMovie.title}
+                className="
             w-60
             xl:w-72
             aspect-[2/3]
@@ -363,50 +362,50 @@ function MoviesPage() {
             border
             border-white/60
           "
-        />
-      </Motion.div>
+              />
+            </Motion.div>
 
-      {/* CONTENT */}
-      <Motion.div
-        key={currentMovie._id}
-        initial={{ opacity: 0, x: 30 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.4 }}
-        className="max-w-xl"
-      >
-        <p className="text-[#8b1e3f] font-bold tracking-[0.35em] uppercase text-xs mb-3">
-          Featured Movie
-        </p>
+            {/* CONTENT */}
+            <Motion.div
+              key={currentMovie._id}
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4 }}
+              className="max-w-xl"
+            >
+              <p className="text-[#8b1e3f] font-bold tracking-[0.35em] uppercase text-xs mb-3">
+                Featured Movie
+              </p>
 
-        <h1 className="text-5xl xl:text-6xl font-black text-[#222] leading-tight mb-5">
-          {currentMovie.title}
-        </h1>
+              <h1 className="text-5xl xl:text-6xl font-black text-[#222] leading-tight mb-5">
+                {currentMovie.title}
+              </h1>
 
-        <div className="flex flex-wrap gap-3 mb-5">
-          <span className="bg-[#8b1e3f] text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
-            {currentMovie.genre}
-          </span>
+              <div className="flex flex-wrap gap-3 mb-5">
+                <span className="bg-[#8b1e3f] text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+                  {currentMovie.genre}
+                </span>
 
-          <span className="bg-yellow-400 text-black px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-            ⭐ {currentMovie.rating}/10
-          </span>
+                <span className="bg-yellow-400 text-black px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                  ⭐ {currentMovie.rating}/10
+                </span>
 
-          <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-md">
-            ⏱ {currentMovie.duration} mins
-          </span>
+                <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-md">
+                  ⏱ {currentMovie.duration} mins
+                </span>
 
-          <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-md">
-            🌐 {currentMovie.movieLanguage}
-          </span>
-        </div>
+                <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-md">
+                  🌐 {currentMovie.movieLanguage}
+                </span>
+              </div>
 
-        <p className="text-gray-600 text-lg leading-relaxed mb-7 line-clamp-3">
-          {currentMovie.description}
-        </p>
+              <p className="text-gray-600 text-lg leading-relaxed mb-7 line-clamp-3">
+                {currentMovie.description}
+              </p>
 
-        <Link to={`/movie/${currentMovie._id}`}>
-          <button
-            className="
+              <Link to={`/movie/${currentMovie._id}`}>
+                <button
+                  className="
               bg-[#8b1e3f]
               hover:bg-[#6d102c]
               text-white
@@ -419,34 +418,33 @@ function MoviesPage() {
               duration-300
               hover:scale-105
             "
-          >
-            {isAdmin ? "Edit Movie" : "Book Tickets"}
-          </button>
-        </Link>
+                >
+                  {isAdmin ? "Edit Movie" : "Book Tickets"}
+                </button>
+              </Link>
 
-        {/* DOTS */}
-        <div className="flex items-center gap-2 mt-8">
-          {movies.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentSlide(index)}
-              className={`
+              {/* DOTS */}
+              <div className="flex items-center gap-2 mt-8">
+                {movies.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentSlide(index)}
+                    className={`
                 rounded-full
                 transition-all
                 duration-300
-                ${
-                  currentSlide === index
-                    ? "w-8 h-2 bg-[#8b1e3f]"
-                    : "w-2 h-2 bg-gray-400"
-                }
+                ${currentSlide === index
+                        ? "w-8 h-2 bg-[#8b1e3f]"
+                        : "w-2 h-2 bg-gray-400"
+                      }
               `}
-            />
-          ))}
+                  />
+                ))}
+              </div>
+            </Motion.div>
+          </div>
         </div>
-      </Motion.div>
-    </div>
-  </div>
-</section>
+      </section>
 
       {/* SEARCH + FILTER */}
       <section className="max-w-7xl mx-auto px-4 py-8">
@@ -498,24 +496,25 @@ function MoviesPage() {
       </div>
 
       {/* ALL MOVIES */}
-      <section className="max-w-[1600px] mx-auto px-4 pb-16">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
-          <h2 className="text-3xl sm:text-4xl font-black text-[#5b0f1b]">
+      <section className="max-w-[1400px] mx-auto px-3 sm:px-4 pb-14">
+
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl sm:text-4xl font-black text-[#5b0f1b]">
             All Movies
           </h2>
 
-          <span className="text-gray-500 font-medium text-sm sm:text-base">
-            {filteredMovies.length} Movies Available
+          <span className="text-gray-500 text-sm font-medium">
+            {filteredMovies.length} Movies
           </span>
         </div>
 
         <div
           className="
       flex
-      gap-5
+      gap-3
+      sm:gap-4
       overflow-x-auto
       scrollbar-hide
-      horizontal-scroll
       pb-3
       snap-x
       snap-mandatory
@@ -525,62 +524,49 @@ function MoviesPage() {
             <Link
               key={movie._id}
               to={`/movie/${movie._id}`}
+              className="snap-start flex-shrink-0"
             >
               <Motion.div
-                whileHover={{ y: -10 }}
-                transition={{ duration: 0.3 }}
+                whileHover={{ y: -6 }}
                 className="
-            snap-start
-            flex-shrink-0
-            w-[160px]
-            sm:w-[180px]
-            md:w-[210px]
-            lg:w-[230px]
-            xl:w-[250px]
-            bg-white/90
-            backdrop-blur-sm
-            rounded-3xl
+            w-[135px]
+            sm:w-[155px]
+            md:w-[170px]
+            lg:w-[190px]
+            bg-white
+            rounded-2xl
             overflow-hidden
-            shadow-lg
-            hover:shadow-2xl
+            shadow-md
+            hover:shadow-xl
             transition-all
             duration-300
-            border
-            border-white
           "
               >
                 <img
                   src={movie.poster}
                   alt={movie.title}
                   className="
-              h-[220px]
-              sm:h-[250px]
-              md:h-[290px]
-              lg:h-[330px]
-              xl:h-[350px]
               w-full
+              h-[190px]
+              sm:h-[220px]
+              md:h-[240px]
+              lg:h-[270px]
               object-cover
             "
                 />
 
-                <div className="p-4">
-                  <h3 className="font-bold text-base sm:text-lg truncate text-[#3d080f]">
+                <div className="p-3">
+                  <h3 className="font-bold text-[#3d080f] truncate text-sm sm:text-base">
                     {movie.title}
                   </h3>
 
-                  <div className="flex justify-between items-center mt-2 text-sm">
-                    <span className="text-gray-500 truncate">
-                      {movie.movieLanguage}
-                    </span>
-
-                    <span className="font-semibold text-yellow-600">
+                  <div className="flex justify-between items-center mt-2">
+                    <span className="text-yellow-600 font-bold text-xs sm:text-sm">
                       ⭐ {movie.rating}
                     </span>
-                  </div>
 
-                  <div className="mt-3">
-                    <span className="bg-[#fce7ef] text-[#8b1e3f] px-3 py-1 rounded-full text-xs font-semibold">
-                      {movie.genre}
+                    <span className="text-gray-500 text-xs truncate max-w-[60px]">
+                      {movie.movieLanguage}
                     </span>
                   </div>
                 </div>
@@ -596,20 +582,21 @@ function MoviesPage() {
       </div>
 
       {/* TOP RATED */}
-      <section className="max-w-[1600px] mx-auto px-4 py-10">
-        <div className="flex items-center justify-between mb-10">
-          <h2 className="text-3xl sm:text-4xl font-black text-[#5b0f1b]">
-            Top Rated Movies
+      <section className="max-w-[1400px] mx-auto px-3 sm:px-4 py-10">
+
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl sm:text-4xl font-black text-[#5b0f1b]">
+            Top Rated
           </h2>
         </div>
 
         <div
           className="
       flex
-      gap-5
+      gap-3
+      sm:gap-4
       overflow-x-auto
       scrollbar-hide
-      horizontal-scroll
       pb-3
       snap-x
       snap-mandatory
@@ -619,50 +606,43 @@ function MoviesPage() {
             <Link
               key={movie._id}
               to={`/movie/${movie._id}`}
+              className="snap-start flex-shrink-0"
             >
               <Motion.div
-                whileHover={{ scale: 1.04 }}
-                transition={{ duration: 0.3 }}
+                whileHover={{ y: -6 }}
                 className="
-            snap-start
-            flex-shrink-0
-            w-[160px]
-            sm:w-[180px]
-            md:w-[210px]
-            lg:w-[230px]
-            xl:w-[250px]
-            bg-white/90
-            backdrop-blur-sm
-            rounded-3xl
+            w-[135px]
+            sm:w-[155px]
+            md:w-[170px]
+            lg:w-[190px]
+            bg-white
+            rounded-2xl
             overflow-hidden
-            shadow-lg
-            hover:shadow-2xl
+            shadow-md
+            hover:shadow-xl
             transition-all
             duration-300
-            border
-            border-white
           "
               >
                 <img
                   src={movie.poster}
                   alt={movie.title}
                   className="
-              h-[220px]
-              sm:h-[250px]
-              md:h-[290px]
-              lg:h-[330px]
-              xl:h-[350px]
               w-full
+              h-[190px]
+              sm:h-[220px]
+              md:h-[240px]
+              lg:h-[270px]
               object-cover
             "
                 />
 
-                <div className="p-4">
-                  <h3 className="font-bold truncate text-[#3d080f]">
+                <div className="p-3">
+                  <h3 className="font-bold text-[#3d080f] truncate text-sm sm:text-base">
                     {movie.title}
                   </h3>
 
-                  <p className="text-yellow-600 font-bold mt-2">
+                  <p className="text-yellow-600 font-bold mt-2 text-xs sm:text-sm">
                     ⭐ {movie.rating}/10
                   </p>
                 </div>
@@ -678,9 +658,10 @@ function MoviesPage() {
       </div>
 
       {/* THEATRES */}
-      <section className="max-w-[1600px] mx-auto px-4 py-10 pb-20">
-        <div className="flex items-center justify-between mb-10">
-          <h2 className="text-3xl sm:text-4xl font-black text-[#5b0f1b]">
+      <section className="max-w-[1400px] mx-auto px-3 sm:px-4 py-10 pb-20">
+
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl sm:text-4xl font-black text-[#5b0f1b]">
             All Theatres
           </h2>
         </div>
@@ -688,10 +669,10 @@ function MoviesPage() {
         <div
           className="
       flex
-      gap-5
+      gap-3
+      sm:gap-4
       overflow-x-auto
       scrollbar-hide
-      horizontal-scroll
       pb-3
       snap-x
       snap-mandatory
@@ -700,60 +681,52 @@ function MoviesPage() {
           {theatres.map((theatre, index) => (
             <Motion.div
               key={theatre._id || index}
-              whileHover={{ y: -8 }}
-              transition={{ duration: 0.3 }}
+              whileHover={{ y: -5 }}
               className="
           snap-start
           flex-shrink-0
-          w-[240px]
-          sm:w-[270px]
-          md:w-[300px]
-          lg:w-[330px]
-          bg-white/90
-          backdrop-blur-sm
-          rounded-3xl
-          p-5
-          shadow-lg
-          hover:shadow-2xl
+          w-[220px]
+          sm:w-[240px]
+          md:w-[260px]
+          bg-white
+          rounded-2xl
+          p-4
+          shadow-md
+          hover:shadow-xl
           transition-all
           duration-300
-          border
-          border-white
         "
             >
-              <div className="flex items-start gap-4">
-                <div className="bg-[#fce7ef] text-[#8b1e3f] p-4 rounded-2xl text-3xl shadow">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-14 h-14 rounded-2xl bg-[#fce7ef] flex items-center justify-center text-2xl">
                   🎭
                 </div>
 
-                <div className="flex-1">
-                  <h3 className="font-black text-lg sm:text-xl text-[#3d080f]">
+                <div>
+                  <h3 className="font-bold text-[#3d080f] text-base sm:text-lg line-clamp-1">
                     {theatre.name || theatre.theatreName}
                   </h3>
 
-                  <p className="text-gray-500 mt-1 text-sm sm:text-base">
+                  <p className="text-gray-500 text-sm">
                     📍 {theatre.location}
                   </p>
-
-                  <div className="flex justify-between items-center mt-5">
-                    <span className="text-sm text-gray-600">
-                      Seats:
-                      <strong>
-                        {" "}
-                        {theatre.totalSeats || 100}
-                      </strong>
-                    </span>
-
-                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">
-                      Available
-                    </span>
-                  </div>
                 </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">
+                  Seats: {theatre.totalSeats || 100}
+                </span>
+
+                <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">
+                  Available
+                </span>
               </div>
             </Motion.div>
           ))}
         </div>
       </section>
+
     </div>
   );
 }
