@@ -1,32 +1,62 @@
-@import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+/* ========================= */
+/* GLOBAL */
+/* ========================= */
 
 html {
   scroll-behavior: smooth;
-  font-family: 'Google Sans', ui-sans-serif, system-ui, sans-serif;
 }
-@import "tailwindcss";
+
+body {
+  font-family: 'Google Sans', ui-sans-serif, system-ui, sans-serif;
+  background: #f8f3e9;
+  color: #1f2937;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 * {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
 }
 
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
+/* ========================= */
+/* SMOOTH SCROLLBAR HIDE */
+/* ========================= */
 
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ========================= */
+/* SCROLL SECTIONS */
+/* ========================= */
+
+.horizontal-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ========================= */
+/* ANIMATIONS */
+/* ========================= */
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translate3d(0, 20px, 0);
   }
+
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
@@ -34,10 +64,15 @@ html {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
 }
+
+/* ========================= */
+/* ANIMATION UTILITIES */
+/* ========================= */
 
 .animate-fade-in-up {
   animation: fadeInUp 0.5s ease-out forwards;
@@ -47,8 +82,15 @@ html {
   animation: fadeIn 0.4s ease-out forwards;
 }
 
+/* ========================= */
+/* BUTTON EFFECTS */
+/* ========================= */
+
 .btn-smooth {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background-color 0.25s ease;
 }
 
 .btn-smooth:hover {
@@ -56,11 +98,54 @@ html {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
+/* ========================= */
+/* CARD EFFECTS */
+/* ========================= */
+
 .card-smooth {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .card-smooth:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* ========================= */
+/* IMAGE OPTIMIZATION */
+/* ========================= */
+img {
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* ========================= */
+/* INPUTS */
+/* ========================= */
+
+input,
+select,
+button,
+textarea {
+  outline: none;
+  font-family: inherit;
+}
+
+/* ========================= */
+/* MOBILE OPTIMIZATION */
+/* ========================= */
+
+@media (max-width: 640px) {
+  .mobile-compact {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .mobile-text {
+    line-height: 1.4;
+  }
 }

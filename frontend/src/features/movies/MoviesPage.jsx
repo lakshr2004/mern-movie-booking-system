@@ -39,20 +39,20 @@ function MoviesPage() {
 
         const moviesData = Array.isArray(rawMovies)
           ? rawMovies.map((m, index) => ({
-              ...m,
-              _id: m._id || m.id || index.toString(),
-              title: m.title || "Untitled",
-              poster:
-                m.poster ||
-                "https://via.placeholder.com/400x600?text=Movie",
-              movieLanguage: m.movieLanguage || m.language || "N/A",
-              genre: m.genre || "Movie",
-              duration: m.duration || 120,
-              rating: Number(m.rating || 0),
-              description:
-                m.description ||
-                "Experience the ultimate cinematic journey with this amazing movie.",
-            }))
+            ...m,
+            _id: m._id || m.id || index.toString(),
+            title: m.title || "Untitled",
+            poster:
+              m.poster ||
+              "https://via.placeholder.com/400x600?text=Movie",
+            movieLanguage: m.movieLanguage || m.language || "N/A",
+            genre: m.genre || "Movie",
+            duration: m.duration || 120,
+            rating: Number(m.rating || 0),
+            description:
+              m.description ||
+              "Experience the ultimate cinematic journey with this amazing movie.",
+          }))
           : [];
 
         const rawTheatres =
@@ -100,7 +100,7 @@ function MoviesPage() {
       const matchesLanguage =
         selectedLanguage === "All" ||
         movie.movieLanguage?.toLowerCase() ===
-          selectedLanguage.toLowerCase();
+        selectedLanguage.toLowerCase();
 
       return matchesSearch && matchesGenre && matchesLanguage;
     });
@@ -146,27 +146,27 @@ function MoviesPage() {
 
   return (
     <div className="bg-[#f8f3e9] min-h-screen overflow-hidden">
-{/* HERO SECTION */}
-<section className="relative overflow-hidden bg-[#eceff1]">
-  {/* SOFT BACKGROUND */}
-  <div className="absolute inset-0">
-    <img
-      src={currentMovie.poster}
-      alt={currentMovie.title}
-      className="w-full h-full object-cover blur-3xl opacity-10 scale-125"
-    />
+      {/* HERO SECTION */}
+      <section className="relative overflow-hidden bg-[#eceff1]">
+        {/* SOFT BACKGROUND */}
+        <div className="absolute inset-0">
+          <img
+            src={currentMovie.poster}
+            alt={currentMovie.title}
+            className="w-full h-full object-cover blur-3xl opacity-10 scale-125"
+          />
 
-    <div className="absolute inset-0 bg-gradient-to-r from-[#eceff1]/95 via-[#eceff1]/92 to-[#f5f7fa]/95" />
-  </div>
+          <div className="absolute inset-0 bg-gradient-to-r from-[#eceff1]/95 via-[#eceff1]/92 to-[#f5f7fa]/95" />
+        </div>
 
-  {/* LEFT ARROW */}
-  <button
-    onClick={() =>
-      setCurrentSlide((prev) =>
-        prev === 0 ? movies.length - 1 : prev - 1
-      )
-    }
-    className="
+        {/* LEFT ARROW */}
+        <button
+          onClick={() =>
+            setCurrentSlide((prev) =>
+              prev === 0 ? movies.length - 1 : prev - 1
+            )
+          }
+          className="
       absolute
       left-2
       md:left-3
@@ -187,20 +187,20 @@ function MoviesPage() {
       duration-300
       hover:scale-110
     "
-  >
-    <span className="text-xl font-bold text-[#5b0f1b]">
-      ‹
-    </span>
-  </button>
+        >
+          <span className="text-xl font-bold text-[#5b0f1b]">
+            ‹
+          </span>
+        </button>
 
-  {/* RIGHT ARROW */}
-  <button
-    onClick={() =>
-      setCurrentSlide((prev) =>
-        prev === movies.length - 1 ? 0 : prev + 1
-      )
-    }
-    className="
+        {/* RIGHT ARROW */}
+        <button
+          onClick={() =>
+            setCurrentSlide((prev) =>
+              prev === movies.length - 1 ? 0 : prev + 1
+            )
+          }
+          className="
       absolute
       right-2
       md:right-3
@@ -221,62 +221,62 @@ function MoviesPage() {
       duration-300
       hover:scale-110
     "
-  >
-    <span className="text-xl font-bold text-[#5b0f1b]">
-      ›
-    </span>
-  </button>
-
-  {/* CONTENT */}
-  <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-10 lg:py-14">
-
-    {/* MOBILE LAYOUT */}
-    <div className="flex flex-col lg:hidden items-center text-center">
-
-      {/* CONTENT */}
-      <Motion.div
-        key={currentMovie._id}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full"
-      >
-        <p className="text-[#8b1e3f] font-bold tracking-[0.28em] uppercase mb-2 text-[11px] sm:text-xs">
-          Featured Movie
-        </p>
-
-        <h1 className="text-3xl sm:text-4xl font-black text-[#2d2d2d] mb-4">
-          {currentMovie.title}
-        </h1>
-
-        {/* TAGS */}
-        <div className="flex flex-wrap justify-center gap-2 mb-4">
-          <span className="bg-[#8b1e3f] text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
-            {currentMovie.genre}
+        >
+          <span className="text-xl font-bold text-[#5b0f1b]">
+            ›
           </span>
+        </button>
 
-          <span className="bg-yellow-400 text-black px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-            ⭐ {currentMovie.rating}/10
-          </span>
+        {/* CONTENT */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-10 lg:py-14">
 
-          <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-lg border border-gray-200">
-            ⏱ {currentMovie.duration} mins
-          </span>
+          {/* MOBILE LAYOUT */}
+          <div className="flex flex-col lg:hidden items-center text-center">
 
-          <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-lg border border-gray-200">
-            🌐 {currentMovie.movieLanguage}
-          </span>
-        </div>
+            {/* CONTENT */}
+            <Motion.div
+              key={currentMovie._id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="w-full"
+            >
+              <p className="text-[#8b1e3f] font-bold tracking-[0.28em] uppercase mb-2 text-[11px] sm:text-xs">
+                Featured Movie
+              </p>
 
-        {/* DESCRIPTION */}
-        <p className="text-gray-600 text-sm leading-relaxed max-w-md mx-auto mb-5 line-clamp-2">
-          {currentMovie.description}
-        </p>
+              <h1 className="text-3xl sm:text-4xl font-black text-[#2d2d2d] mb-4">
+                {currentMovie.title}
+              </h1>
 
-        {/* BUTTON */}
-        <Link to={`/movie/${currentMovie._id}`}>
-          <button
-            className="
+              {/* TAGS */}
+              <div className="flex flex-wrap justify-center gap-2 mb-4">
+                <span className="bg-[#8b1e3f] text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+                  {currentMovie.genre}
+                </span>
+
+                <span className="bg-yellow-400 text-black px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                  ⭐ {currentMovie.rating}/10
+                </span>
+
+                <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-lg border border-gray-200">
+                  ⏱ {currentMovie.duration} mins
+                </span>
+
+                <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-lg border border-gray-200">
+                  🌐 {currentMovie.movieLanguage}
+                </span>
+              </div>
+
+              {/* DESCRIPTION */}
+              <p className="text-gray-600 text-sm leading-relaxed max-w-md mx-auto mb-5 line-clamp-2">
+                {currentMovie.description}
+              </p>
+
+              {/* BUTTON */}
+              <Link to={`/movie/${currentMovie._id}`}>
+                <button
+                  className="
               bg-[#8b1e3f]
               hover:bg-[#6d102c]
               text-white
@@ -290,45 +290,44 @@ function MoviesPage() {
               duration-300
               mb-5
             "
-          >
-            {isAdmin ? "Edit Movie" : "Book Tickets"}
-          </button>
-        </Link>
+                >
+                  {isAdmin ? "Edit Movie" : "Book Tickets"}
+                </button>
+              </Link>
 
-        {/* DOTS */}
-        <div className="flex items-center justify-center gap-3 mb-5">
-          {movies.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentSlide(index)}
-              className={`
+              {/* DOTS */}
+              <div className="flex items-center justify-center gap-3 mb-5">
+                {movies.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentSlide(index)}
+                    className={`
                 transition-all duration-300 rounded-full
-                ${
-                  currentSlide === index
-                    ? "w-10 h-3 bg-[#8b1e3f]"
-                    : "w-3 h-3 bg-gray-400 hover:bg-gray-500"
-                }
+                ${currentSlide === index
+                        ? "w-10 h-3 bg-[#8b1e3f]"
+                        : "w-3 h-3 bg-gray-400 hover:bg-gray-500"
+                      }
               `}
-            />
-          ))}
-        </div>
-      </Motion.div>
+                  />
+                ))}
+              </div>
+            </Motion.div>
 
-      {/* POSTER */}
-      <Motion.div
-        key={currentMovie.poster}
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="flex justify-center"
-      >
-        <div className="relative group">
-          <div className="absolute -inset-2 bg-gradient-to-r from-[#8b1e3f]/20 to-yellow-400/20 blur-2xl rounded-[2rem]" />
+            {/* POSTER */}
+            <Motion.div
+              key={currentMovie.poster}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="flex justify-center"
+            >
+              <div className="relative group">
+                <div className="absolute -inset-2 bg-gradient-to-r from-[#8b1e3f]/20 to-yellow-400/20 blur-2xl rounded-[2rem]" />
 
-          <img
-            src={currentMovie.poster}
-            alt={currentMovie.title}
-            className="
+                <img
+                  src={currentMovie.poster}
+                  alt={currentMovie.title}
+                  className="
               relative
               w-36
               sm:w-44
@@ -340,29 +339,29 @@ function MoviesPage() {
               border
               border-white/60
             "
-          />
-        </div>
-      </Motion.div>
-    </div>
+                />
+              </div>
+            </Motion.div>
+          </div>
 
-    {/* TABLET + LAPTOP */}
-    <div className="hidden lg:grid lg:grid-cols-2 gap-4 xl:gap-8 items-center">
+          {/* TABLET + LAPTOP */}
+          <div className="hidden lg:grid lg:grid-cols-2 gap-4 xl:gap-8 items-center">
 
-      {/* POSTER */}
-      <Motion.div
-        key={currentMovie.poster}
-        initial={{ opacity: 0, x: -30 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
-        className="flex justify-center xl:justify-start"
-      >
-        <div className="relative group">
-          <div className="absolute -inset-2 bg-gradient-to-r from-[#8b1e3f]/20 to-yellow-400/20 blur-2xl rounded-[2rem]" />
+            {/* POSTER */}
+            <Motion.div
+              key={currentMovie.poster}
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              className="flex justify-center xl:justify-start"
+            >
+              <div className="relative group">
+                <div className="absolute -inset-2 bg-gradient-to-r from-[#8b1e3f]/20 to-yellow-400/20 blur-2xl rounded-[2rem]" />
 
-          <img
-            src={currentMovie.poster}
-            alt={currentMovie.title}
-            className="
+                <img
+                  src={currentMovie.poster}
+                  alt={currentMovie.title}
+                  className="
               relative
               w-64
               xl:w-[300px]
@@ -376,54 +375,54 @@ function MoviesPage() {
               duration-500
               group-hover:scale-[1.02]
             "
-          />
-        </div>
-      </Motion.div>
+                />
+              </div>
+            </Motion.div>
 
-      {/* CONTENT */}
-      <Motion.div
-        key={currentMovie._id}
-        initial={{ opacity: 0, x: 30 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-xl"
-      >
-        <p className="text-[#8b1e3f] font-bold tracking-[0.28em] uppercase mb-3 text-xs">
-          Featured Movie
-        </p>
+            {/* CONTENT */}
+            <Motion.div
+              key={currentMovie._id}
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              className="max-w-xl"
+            >
+              <p className="text-[#8b1e3f] font-bold tracking-[0.28em] uppercase mb-3 text-xs">
+                Featured Movie
+              </p>
 
-        <h1 className="text-5xl xl:text-6xl font-black text-[#2d2d2d] mb-5 leading-tight">
-          {currentMovie.title}
-        </h1>
+              <h1 className="text-5xl xl:text-6xl font-black text-[#2d2d2d] mb-5 leading-tight">
+                {currentMovie.title}
+              </h1>
 
-        {/* TAGS */}
-        <div className="flex flex-wrap gap-3 mb-5">
-          <span className="bg-[#8b1e3f] text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
-            {currentMovie.genre}
-          </span>
+              {/* TAGS */}
+              <div className="flex flex-wrap gap-3 mb-5">
+                <span className="bg-[#8b1e3f] text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+                  {currentMovie.genre}
+                </span>
 
-          <span className="bg-yellow-400 text-black px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-            ⭐ {currentMovie.rating}/10
-          </span>
+                <span className="bg-yellow-400 text-black px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                  ⭐ {currentMovie.rating}/10
+                </span>
 
-          <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-lg border border-gray-200">
-            ⏱ {currentMovie.duration} mins
-          </span>
+                <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-lg border border-gray-200">
+                  ⏱ {currentMovie.duration} mins
+                </span>
 
-          <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-lg border border-gray-200">
-            🌐 {currentMovie.movieLanguage}
-          </span>
-        </div>
+                <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-lg border border-gray-200">
+                  🌐 {currentMovie.movieLanguage}
+                </span>
+              </div>
 
-        {/* DESCRIPTION */}
-        <p className="text-gray-600 text-base xl:text-lg leading-relaxed mb-7 line-clamp-3">
-          {currentMovie.description}
-        </p>
+              {/* DESCRIPTION */}
+              <p className="text-gray-600 text-base xl:text-lg leading-relaxed mb-7 line-clamp-3">
+                {currentMovie.description}
+              </p>
 
-        {/* BUTTON */}
-        <Link to={`/movie/${currentMovie._id}`}>
-          <button
-            className="
+              {/* BUTTON */}
+              <Link to={`/movie/${currentMovie._id}`}>
+                <button
+                  className="
               bg-[#8b1e3f]
               hover:bg-[#6d102c]
               text-white
@@ -436,32 +435,31 @@ function MoviesPage() {
               transition-all
               duration-300
             "
-          >
-            {isAdmin ? "Edit Movie" : "Book Tickets"}
-          </button>
-        </Link>
+                >
+                  {isAdmin ? "Edit Movie" : "Book Tickets"}
+                </button>
+              </Link>
 
-        {/* DOTS */}
-        <div className="flex items-center gap-3 mt-10">
-          {movies.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentSlide(index)}
-              className={`
+              {/* DOTS */}
+              <div className="flex items-center gap-3 mt-10">
+                {movies.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentSlide(index)}
+                    className={`
                 transition-all duration-300 rounded-full
-                ${
-                  currentSlide === index
-                    ? "w-10 h-3 bg-[#8b1e3f]"
-                    : "w-3 h-3 bg-gray-400 hover:bg-gray-500"
-                }
+                ${currentSlide === index
+                        ? "w-10 h-3 bg-[#8b1e3f]"
+                        : "w-3 h-3 bg-gray-400 hover:bg-gray-500"
+                      }
               `}
-            />
-          ))}
+                  />
+                ))}
+              </div>
+            </Motion.div>
+          </div>
         </div>
-      </Motion.div>
-    </div>
-  </div>
-</section>
+      </section>
 
       {/* SEARCH + FILTER */}
       <section className="max-w-7xl mx-auto px-4 py-8">
@@ -513,7 +511,7 @@ function MoviesPage() {
       </div>
 
       {/* ALL MOVIES */}
-      <section className="max-w-7xl mx-auto px-4 pb-16">
+      <section className="max-w-[1600px] mx-auto px-4 pb-16">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
           <h2 className="text-3xl sm:text-4xl font-black text-[#5b0f1b]">
             All Movies
@@ -524,36 +522,58 @@ function MoviesPage() {
           </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+        <div
+          className="
+      flex
+      gap-5
+      overflow-x-auto
+      scrollbar-hide
+      horizontal-scroll
+      pb-3
+      snap-x
+      snap-mandatory
+    "
+        >
           {filteredMovies.map((movie) => (
-            <Link key={movie._id} to={`/movie/${movie._id}`}>
+            <Link
+              key={movie._id}
+              to={`/movie/${movie._id}`}
+            >
               <Motion.div
                 whileHover={{ y: -10 }}
                 transition={{ duration: 0.3 }}
                 className="
-                  bg-white/90
-                  backdrop-blur-sm
-                  rounded-3xl
-                  overflow-hidden
-                  shadow-lg
-                  hover:shadow-2xl
-                  transition-all
-                  duration-300
-                  border
-                  border-white
-                  h-full
-                "
+            snap-start
+            flex-shrink-0
+            w-[160px]
+            sm:w-[180px]
+            md:w-[210px]
+            lg:w-[230px]
+            xl:w-[250px]
+            bg-white/90
+            backdrop-blur-sm
+            rounded-3xl
+            overflow-hidden
+            shadow-lg
+            hover:shadow-2xl
+            transition-all
+            duration-300
+            border
+            border-white
+          "
               >
                 <img
                   src={movie.poster}
                   alt={movie.title}
                   className="
-                    h-[240px]
-                    sm:h-[280px]
-                    md:h-[320px]
-                    w-full
-                    object-cover
-                  "
+              h-[220px]
+              sm:h-[250px]
+              md:h-[290px]
+              lg:h-[330px]
+              xl:h-[350px]
+              w-full
+              object-cover
+            "
                 />
 
                 <div className="p-4">
@@ -589,42 +609,65 @@ function MoviesPage() {
       </div>
 
       {/* TOP RATED */}
-      <section className="max-w-7xl mx-auto px-4 py-10">
+      <section className="max-w-[1600px] mx-auto px-4 py-10">
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-3xl sm:text-4xl font-black text-[#5b0f1b]">
             Top Rated Movies
           </h2>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5">
+        <div
+          className="
+      flex
+      gap-5
+      overflow-x-auto
+      scrollbar-hide
+      horizontal-scroll
+      pb-3
+      snap-x
+      snap-mandatory
+    "
+        >
           {topRatedMovies.map((movie) => (
-            <Link key={movie._id} to={`/movie/${movie._id}`}>
+            <Link
+              key={movie._id}
+              to={`/movie/${movie._id}`}
+            >
               <Motion.div
                 whileHover={{ scale: 1.04 }}
                 transition={{ duration: 0.3 }}
                 className="
-                  bg-white/90
-                  backdrop-blur-sm
-                  rounded-3xl
-                  overflow-hidden
-                  shadow-lg
-                  hover:shadow-2xl
-                  transition-all
-                  duration-300
-                  border
-                  border-white
-                "
+            snap-start
+            flex-shrink-0
+            w-[160px]
+            sm:w-[180px]
+            md:w-[210px]
+            lg:w-[230px]
+            xl:w-[250px]
+            bg-white/90
+            backdrop-blur-sm
+            rounded-3xl
+            overflow-hidden
+            shadow-lg
+            hover:shadow-2xl
+            transition-all
+            duration-300
+            border
+            border-white
+          "
               >
                 <img
                   src={movie.poster}
                   alt={movie.title}
                   className="
-                    h-[220px]
-                    sm:h-[260px]
-                    md:h-[300px]
-                    w-full
-                    object-cover
-                  "
+              h-[220px]
+              sm:h-[250px]
+              md:h-[290px]
+              lg:h-[330px]
+              xl:h-[350px]
+              w-full
+              object-cover
+            "
                 />
 
                 <div className="p-4">
@@ -648,31 +691,48 @@ function MoviesPage() {
       </div>
 
       {/* THEATRES */}
-      <section className="max-w-7xl mx-auto px-4 py-10 pb-20">
+      <section className="max-w-[1600px] mx-auto px-4 py-10 pb-20">
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-3xl sm:text-4xl font-black text-[#5b0f1b]">
             All Theatres
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div
+          className="
+      flex
+      gap-5
+      overflow-x-auto
+      scrollbar-hide
+      horizontal-scroll
+      pb-3
+      snap-x
+      snap-mandatory
+    "
+        >
           {theatres.map((theatre, index) => (
             <Motion.div
               key={theatre._id || index}
               whileHover={{ y: -8 }}
               transition={{ duration: 0.3 }}
               className="
-                bg-white/90
-                backdrop-blur-sm
-                rounded-3xl
-                p-6
-                shadow-lg
-                hover:shadow-2xl
-                transition-all
-                duration-300
-                border
-                border-white
-              "
+          snap-start
+          flex-shrink-0
+          w-[240px]
+          sm:w-[270px]
+          md:w-[300px]
+          lg:w-[330px]
+          bg-white/90
+          backdrop-blur-sm
+          rounded-3xl
+          p-5
+          shadow-lg
+          hover:shadow-2xl
+          transition-all
+          duration-300
+          border
+          border-white
+        "
             >
               <div className="flex items-start gap-4">
                 <div className="bg-[#fce7ef] text-[#8b1e3f] p-4 rounded-2xl text-3xl shadow">
@@ -680,18 +740,19 @@ function MoviesPage() {
                 </div>
 
                 <div className="flex-1">
-                  <h3 className="font-black text-xl text-[#3d080f]">
+                  <h3 className="font-black text-lg sm:text-xl text-[#3d080f]">
                     {theatre.name || theatre.theatreName}
                   </h3>
 
-                  <p className="text-gray-500 mt-1">
+                  <p className="text-gray-500 mt-1 text-sm sm:text-base">
                     📍 {theatre.location}
                   </p>
 
                   <div className="flex justify-between items-center mt-5">
                     <span className="text-sm text-gray-600">
-                      Seats:{" "}
+                      Seats:
                       <strong>
+                        {" "}
                         {theatre.totalSeats || 100}
                       </strong>
                     </span>
