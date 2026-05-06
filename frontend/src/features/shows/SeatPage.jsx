@@ -15,7 +15,8 @@ export default function SeatPage() {
   const [loading, setLoading] = useState(true);
 
   // ✅ current user
-  const currentUser = JSON.parse(localStorage.getItem("user"))?.id;
+  const currentUser =
+  JSON.parse(localStorage.getItem("user"))?.user?._id;
 
   // ================= LOAD SHOW + SEATS =================
   useEffect(() => {
@@ -67,13 +68,23 @@ export default function SeatPage() {
     socket.on("seatLocked", ({ seats, lockedBy }) => {
       setSeats(prev => {
         const updated = { ...prev };
+
         seats.forEach(seat => {
-          updated[seat] = { status: "LOCKED", lockedBy };
+          updated[seat] = {
+            status: "LOCKED",
+            lockedBy
+          };
         });
+
         return updated;
       });
 
-      setSelected(prev => prev.filter(s => !seats.includes(s)));
+      // ✅ REMOVE ONLY IF LOCKED BY OTHER USER
+      if (lockedBy !== currentUser) {
+        setSelected(prev =>
+          prev.filter(s => !seats.includes(s))
+        );
+      }
     });
 
     socket.on("seatUnlocked", ({ seats }) => {
@@ -100,7 +111,12 @@ export default function SeatPage() {
       setSelected(prev => prev.filter(s => !seats.includes(s)));
     });
 
-    return () => socket.disconnect();
+    return () => {
+  socket.off("seatLocked");
+  socket.off("seatUnlocked");
+  socket.off("seatBooked");
+  socket.disconnect();
+};
   }, [showId]);
 
   // ================= CLICK =================
