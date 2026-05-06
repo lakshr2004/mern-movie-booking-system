@@ -156,7 +156,7 @@ function MoviesPage() {
       className="w-full h-full object-cover blur-3xl opacity-10 scale-125"
     />
 
-    <div className="absolute inset-0 bg-gradient-to-r from-[#eceff1]/95 via-[#eceff1]/90 to-[#f5f7fa]/95" />
+    <div className="absolute inset-0 bg-gradient-to-r from-[#eceff1]/95 via-[#eceff1]/92 to-[#f5f7fa]/95" />
   </div>
 
   {/* LEFT ARROW */}
@@ -169,7 +169,7 @@ function MoviesPage() {
     className="
       absolute
       left-2
-      sm:left-4
+      md:left-3
       top-1/2
       -translate-y-1/2
       z-30
@@ -180,8 +180,6 @@ function MoviesPage() {
       rounded-full
       w-10
       h-10
-      sm:w-12
-      sm:h-12
       flex
       items-center
       justify-center
@@ -190,7 +188,7 @@ function MoviesPage() {
       hover:scale-110
     "
   >
-    <span className="text-xl sm:text-2xl font-bold text-[#5b0f1b]">
+    <span className="text-xl font-bold text-[#5b0f1b]">
       ‹
     </span>
   </button>
@@ -205,7 +203,7 @@ function MoviesPage() {
     className="
       absolute
       right-2
-      sm:right-4
+      md:right-3
       top-1/2
       -translate-y-1/2
       z-30
@@ -216,8 +214,6 @@ function MoviesPage() {
       rounded-full
       w-10
       h-10
-      sm:w-12
-      sm:h-12
       flex
       items-center
       justify-center
@@ -226,50 +222,35 @@ function MoviesPage() {
       hover:scale-110
     "
   >
-    <span className="text-xl sm:text-2xl font-bold text-[#5b0f1b]">
+    <span className="text-xl font-bold text-[#5b0f1b]">
       ›
     </span>
   </button>
 
   {/* CONTENT */}
-  <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16">
-    
-    <div className="grid lg:grid-cols-2 gap-6 md:gap-8 lg:gap-12 items-center">
+  <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-10 lg:py-14">
 
-      {/* CONTENT FIRST ON MOBILE */}
+    {/* MOBILE LAYOUT */}
+    <div className="flex flex-col lg:hidden items-center text-center">
+
+      {/* CONTENT */}
       <Motion.div
         key={currentMovie._id}
-        initial={{ opacity: 0, x: 40 }}
-        animate={{ opacity: 1, x: 0 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="
-          order-1
-          lg:order-2
-          text-center
-          lg:text-left
-        "
+        className="w-full"
       >
-        <p className="text-[#8b1e3f] font-bold tracking-[0.3em] uppercase mb-3 text-xs sm:text-sm">
+        <p className="text-[#8b1e3f] font-bold tracking-[0.28em] uppercase mb-2 text-[11px] sm:text-xs">
           Featured Movie
         </p>
 
-        <h1
-          className="
-            text-3xl
-            sm:text-5xl
-            lg:text-6xl
-            xl:text-7xl
-            font-black
-            text-[#2d2d2d]
-            leading-tight
-            mb-5
-          "
-        >
+        <h1 className="text-3xl sm:text-4xl font-black text-[#2d2d2d] mb-4">
           {currentMovie.title}
         </h1>
 
         {/* TAGS */}
-        <div className="flex flex-wrap justify-center lg:justify-start gap-3 mb-6">
+        <div className="flex flex-wrap justify-center gap-2 mb-4">
           <span className="bg-[#8b1e3f] text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
             {currentMovie.genre}
           </span>
@@ -288,68 +269,34 @@ function MoviesPage() {
         </div>
 
         {/* DESCRIPTION */}
-        <p
-          className="
-            text-gray-600
-            text-sm
-            sm:text-base
-            lg:text-lg
-            leading-relaxed
-            max-w-2xl
-            mx-auto
-            lg:mx-0
-            mb-8
-            line-clamp-4
-          "
-        >
+        <p className="text-gray-600 text-sm leading-relaxed max-w-md mx-auto mb-5 line-clamp-2">
           {currentMovie.description}
         </p>
 
-        {/* BUTTONS */}
-        <div className="flex flex-wrap justify-center lg:justify-start gap-4">
-          <Link to={`/movie/${currentMovie._id}`}>
-            <button
-              className="
-                bg-[#8b1e3f]
-                hover:bg-[#6d102c]
-                text-white
-                px-8
-                py-3.5
-                rounded-2xl
-                font-bold
-                shadow-2xl
-                hover:scale-105
-                transition-all
-                duration-300
-              "
-            >
-              {isAdmin ? "Edit Movie" : "Book Tickets"}
-            </button>
-          </Link>
-
+        {/* BUTTON */}
+        <Link to={`/movie/${currentMovie._id}`}>
           <button
             className="
-              bg-white/80
-              backdrop-blur-md
-              border
-              border-gray-200
-              hover:bg-white
-              text-[#333]
+              bg-[#8b1e3f]
+              hover:bg-[#6d102c]
+              text-white
               px-8
-              py-3.5
+              py-3
               rounded-2xl
               font-bold
-              shadow-lg
+              shadow-2xl
+              hover:scale-105
               transition-all
               duration-300
+              mb-5
             "
           >
-            ▶ Watch Trailer
+            {isAdmin ? "Edit Movie" : "Book Tickets"}
           </button>
-        </div>
+        </Link>
 
-        {/* SLIDER DOTS */}
-        <div className="flex items-center justify-center lg:justify-start gap-3 mt-10">
+        {/* DOTS */}
+        <div className="flex items-center justify-center gap-3 mb-5">
           {movies.map((_, index) => (
             <button
               key={index}
@@ -367,22 +314,15 @@ function MoviesPage() {
         </div>
       </Motion.div>
 
-      {/* POSTER BELOW CONTENT ON MOBILE */}
+      {/* POSTER */}
       <Motion.div
         key={currentMovie.poster}
-        initial={{ opacity: 0, x: -40 }}
-        animate={{ opacity: 1, x: 0 }}
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
-        className="
-          flex
-          justify-center
-          lg:justify-start
-          order-2
-          lg:order-1
-        "
+        className="flex justify-center"
       >
         <div className="relative group">
-          {/* GLOW */}
           <div className="absolute -inset-2 bg-gradient-to-r from-[#8b1e3f]/20 to-yellow-400/20 blur-2xl rounded-[2rem]" />
 
           <img
@@ -392,21 +332,131 @@ function MoviesPage() {
               relative
               w-36
               sm:w-44
-              md:w-56
-              lg:w-72
-              xl:w-[320px]
+              md:w-52
               aspect-[2/3]
               object-cover
               rounded-[2rem]
               shadow-2xl
               border
               border-white/60
-              backdrop-blur-md
+            "
+          />
+        </div>
+      </Motion.div>
+    </div>
+
+    {/* TABLET + LAPTOP */}
+    <div className="hidden lg:grid lg:grid-cols-2 gap-4 xl:gap-8 items-center">
+
+      {/* POSTER */}
+      <Motion.div
+        key={currentMovie.poster}
+        initial={{ opacity: 0, x: -30 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
+        className="flex justify-center xl:justify-start"
+      >
+        <div className="relative group">
+          <div className="absolute -inset-2 bg-gradient-to-r from-[#8b1e3f]/20 to-yellow-400/20 blur-2xl rounded-[2rem]" />
+
+          <img
+            src={currentMovie.poster}
+            alt={currentMovie.title}
+            className="
+              relative
+              w-64
+              xl:w-[300px]
+              aspect-[2/3]
+              object-cover
+              rounded-[2rem]
+              shadow-2xl
+              border
+              border-white/60
               transition-all
               duration-500
               group-hover:scale-[1.02]
             "
           />
+        </div>
+      </Motion.div>
+
+      {/* CONTENT */}
+      <Motion.div
+        key={currentMovie._id}
+        initial={{ opacity: 0, x: 30 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-xl"
+      >
+        <p className="text-[#8b1e3f] font-bold tracking-[0.28em] uppercase mb-3 text-xs">
+          Featured Movie
+        </p>
+
+        <h1 className="text-5xl xl:text-6xl font-black text-[#2d2d2d] mb-5 leading-tight">
+          {currentMovie.title}
+        </h1>
+
+        {/* TAGS */}
+        <div className="flex flex-wrap gap-3 mb-5">
+          <span className="bg-[#8b1e3f] text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+            {currentMovie.genre}
+          </span>
+
+          <span className="bg-yellow-400 text-black px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+            ⭐ {currentMovie.rating}/10
+          </span>
+
+          <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-lg border border-gray-200">
+            ⏱ {currentMovie.duration} mins
+          </span>
+
+          <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-lg border border-gray-200">
+            🌐 {currentMovie.movieLanguage}
+          </span>
+        </div>
+
+        {/* DESCRIPTION */}
+        <p className="text-gray-600 text-base xl:text-lg leading-relaxed mb-7 line-clamp-3">
+          {currentMovie.description}
+        </p>
+
+        {/* BUTTON */}
+        <Link to={`/movie/${currentMovie._id}`}>
+          <button
+            className="
+              bg-[#8b1e3f]
+              hover:bg-[#6d102c]
+              text-white
+              px-8
+              py-3.5
+              rounded-2xl
+              font-bold
+              shadow-2xl
+              hover:scale-105
+              transition-all
+              duration-300
+            "
+          >
+            {isAdmin ? "Edit Movie" : "Book Tickets"}
+          </button>
+        </Link>
+
+        {/* DOTS */}
+        <div className="flex items-center gap-3 mt-10">
+          {movies.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={`
+                transition-all duration-300 rounded-full
+                ${
+                  currentSlide === index
+                    ? "w-10 h-3 bg-[#8b1e3f]"
+                    : "w-3 h-3 bg-gray-400 hover:bg-gray-500"
+                }
+              `}
+            />
+          ))}
         </div>
       </Motion.div>
     </div>
