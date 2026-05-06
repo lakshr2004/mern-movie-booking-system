@@ -23,55 +23,73 @@ function MoviesPage() {
   }, []);
 
   // FETCH DATA
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [moviesRes, theatresRes] = await Promise.all([
-          API.get("/movies"),
-          API.get("/theatres"),
-        ]);
+const fetchData = async () => {
+  try {
+    // ⚡ CACHE FIRST
+    const cachedMovies = sessionStorage.getItem("movies");
+    const cachedTheatres = sessionStorage.getItem("theatres");
 
-        const rawMovies =
-          moviesRes.data?.movies ||
-          moviesRes.data?.data ||
-          moviesRes.data ||
-          [];
+    if (cachedMovies && cachedTheatres) {
+      setMovies(JSON.parse(cachedMovies));
+      setTheatres(JSON.parse(cachedTheatres));
+      setLoading(false);
+    }
 
-        const moviesData = Array.isArray(rawMovies)
-          ? rawMovies.map((m, index) => ({
-            ...m,
-            _id: m._id || m.id || index.toString(),
-            title: m.title || "Untitled",
-            poster:
-              m.poster ||
-              "https://via.placeholder.com/400x600?text=Movie",
-            movieLanguage: m.movieLanguage || m.language || "N/A",
-            genre: m.genre || "Movie",
-            duration: m.duration || 120,
-            rating: Number(m.rating || 0),
-            description:
-              m.description ||
-              "Experience the ultimate cinematic journey with this amazing movie.",
-          }))
-          : [];
+    // ⚡ FETCH NEW DATA
+    const [moviesRes, theatresRes] = await Promise.all([
+      API.get("/movies"),
+      API.get("/theatres"),
+    ]);
 
-        const rawTheatres =
-          theatresRes.data?.theatres ||
-          theatresRes.data?.data ||
-          theatresRes.data ||
-          [];
+    const rawMovies =
+      moviesRes.data?.movies ||
+      moviesRes.data?.data ||
+      moviesRes.data ||
+      [];
 
-        setMovies(moviesData);
-        setTheatres(Array.isArray(rawTheatres) ? rawTheatres : []);
-      } catch (error) {
-        console.log("API ERROR:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    const moviesData = Array.isArray(rawMovies)
+      ? rawMovies.map((m, index) => ({
+          ...m,
+          _id: m._id || m.id || index.toString(),
+          title: m.title || "Untitled",
+          poster:
+            m.poster ||
+            "https://via.placeholder.com/400x600?text=Movie",
+          movieLanguage: m.movieLanguage || m.language || "N/A",
+          genre: m.genre || "Movie",
+          duration: m.duration || 120,
+          rating: Number(m.rating || 0),
+          description:
+            m.description ||
+            "Experience the ultimate cinematic journey with this amazing movie.",
+        }))
+      : [];
 
-    fetchData();
-  }, []);
+    const rawTheatres =
+      theatresRes.data?.theatres ||
+      theatresRes.data?.data ||
+      theatresRes.data ||
+      [];
+
+    // ⚡ SAVE CACHE
+    sessionStorage.setItem(
+      "movies",
+      JSON.stringify(moviesData)
+    );
+
+    sessionStorage.setItem(
+      "theatres",
+      JSON.stringify(rawTheatres)
+    );
+
+    setMovies(moviesData);
+    setTheatres(Array.isArray(rawTheatres) ? rawTheatres : []);
+  } catch (error) {
+    console.log("API ERROR:", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   // HERO AUTO SLIDE
   useEffect(() => {
@@ -106,10 +124,12 @@ function MoviesPage() {
     });
   }, [movies, searchQuery, selectedGenre, selectedLanguage]);
 
-  // TOP RATED
-  const topRatedMovies = [...movies]
+// TOP RATED
+const topRatedMovies = useMemo(() => {
+  return [...movies]
     .sort((a, b) => b.rating - a.rating)
     .slice(0, 6);
+}, [movies]);
 
   // UNIQUE VALUES
   const genres = [
@@ -152,10 +172,12 @@ function MoviesPage() {
         {/* SOFT BACKGROUND */}
         <div className="absolute inset-0">
           <img
-            src={currentMovie.poster}
-            alt={currentMovie.title}
-            className="w-full h-full object-cover blur-3xl opacity-[0.07] scale-125"
-          />
+  loading="lazy"
+  decoding="async"
+  src={currentMovie.poster}
+  alt={currentMovie.title}
+  className="hidden md:block w-full h-full object-cover blur-3xl opacity-[0.07] scale-125"
+/>
 
           <div className="absolute inset-0 bg-[#edf1f5]/95" />
         </div>
