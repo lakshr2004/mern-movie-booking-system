@@ -21,7 +21,7 @@ const movies = [
     rating: 8.4,
     description:
       "A mysterious café owner with a violent past gets hunted by dangerous gangsters who believe he is someone else.",
-    poster: "https://picsum.photos/300/450?random=1",
+    poster: "https://m.media-amazon.com/images/M/MV5BMDk5ODNjNzMtYzI5Yy00NmI3LWIwYzctMTFjZjcwN2I2Yzk2XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
   },
   {
     title: "Jawan",
@@ -31,7 +31,7 @@ const movies = [
     rating: 8.1,
     description:
       "A fearless vigilante takes on corruption and injustice while uncovering shocking truths from his past.",
-    poster: "https://picsum.photos/300/450?random=2",
+    poster: "https://resizing.flixster.com/lej1aNFjcromN2hYS5-638hSJ-k=/ems.cHJkLWVtcy1hc3NldHMvbW92aWVzL2FiOWE5MWYxLTc0MzctNGNjZi1hMjE0LWNhZmZiMDU2M2RhMS5qcGc=",
   },
   {
     title: "Interstellar",
@@ -41,7 +41,7 @@ const movies = [
     rating: 9.0,
     description:
       "A team of astronauts travel through a wormhole in search of a new home for humanity.",
-    poster: "https://picsum.photos/300/450?random=3",
+    poster: "https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p10543523_p_v8_as.jpg",
   },
   {
     title: "KGF Chapter 2",
@@ -51,7 +51,7 @@ const movies = [
     rating: 8.7,
     description:
       "Rocky rises as the king of the KGF empire while battling powerful enemies and political threats.",
-    poster: "https://picsum.photos/300/450?random=4",
+    poster: "https://m.media-amazon.com/images/S/pv-target-images/dbe30e1e25813a698e0da679a5968c380bd2d1b4e6966394d4c964c6b3301896.jpg",
   },
   {
     title: "Pushpa",
@@ -61,7 +61,7 @@ const movies = [
     rating: 8.3,
     description:
       "A fearless laborer climbs the ranks of the red sandalwood smuggling syndicate.",
-    poster: "https://picsum.photos/300/450?random=5",
+    poster: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6rhuYd0Lt3pH-GXNGrXnpcJ6nulhYkRTAbw&s",
   },
   {
     title: "Avengers Endgame",
@@ -71,7 +71,7 @@ const movies = [
     rating: 9.2,
     description:
       "The Avengers assemble one final time to reverse Thanos' destruction and restore the universe.",
-    poster: "https://picsum.photos/300/450?random=6",
+    poster: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ2TNwXA3uB2MhrSb6dBhJS0kdprQIPH1csIQ&s",
   },
   {
     title: "3 Idiots",
@@ -81,7 +81,7 @@ const movies = [
     rating: 9.1,
     description:
       "Three engineering students discover friendship, passion, and the true meaning of success.",
-    poster: "https://picsum.photos/300/450?random=7",
+    poster: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh8ekIejtwy_2YbnEQ6O0IjW9Vd33Jq6Ddig&s",
   },
   {
     title: "Vikram",
@@ -91,7 +91,7 @@ const movies = [
     rating: 8.8,
     description:
       "A retired black-ops commander returns to stop a deadly criminal syndicate.",
-    poster: "https://picsum.photos/300/450?random=8",
+    poster: "https://m.media-amazon.com/images/S/pv-target-images/00b65207aec0f97e1d57216fc41377ec9bbd922fde9368fce743a56120d62744.jpg",
   },
   {
     title: "RRR",
@@ -101,7 +101,7 @@ const movies = [
     rating: 8.9,
     description:
       "Two revolutionaries form an epic friendship while fighting against British rule in India.",
-    poster: "https://picsum.photos/300/450?random=9",
+    poster: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1FbK5wXaphQZAOZSA52vyaRYW9FzxgkfU1A&s",
   },
   {
     title: "Drishyam 2",
@@ -111,7 +111,7 @@ const movies = [
     rating: 8.6,
     description:
       "A clever family man struggles to protect his family as old secrets begin to resurface.",
-    poster: "https://picsum.photos/300/450?random=10",
+    poster: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTO3boZ8Yk2aYfEoLsYcesM7xZ82Mb0j99scQ&s",
   },
   {
     title: "The Dark Knight",
@@ -121,7 +121,7 @@ const movies = [
     rating: 9.4,
     description:
       "Batman faces the Joker, a criminal mastermind who throws Gotham City into chaos.",
-    poster: "https://picsum.photos/300/450?random=11",
+    poster: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_FMjpg_UX1000_.jpg",
   },
   {
     title: "Kantara",
@@ -131,7 +131,7 @@ const movies = [
     rating: 8.8,
     description:
       "A man becomes entangled in a mystical conflict involving tradition, nature, and power.",
-    poster: "https://picsum.photos/300/450?random=12",
+    poster: "https://i0.wp.com/whatsonsidsmind.com/wp-content/uploads/2024/08/fff9e-kantara-poster-1.jpeg?resize=730%2C730&ssl=1",
   },
   {
     title: "Master",
@@ -141,7 +141,7 @@ const movies = [
     rating: 8.0,
     description:
       "An alcoholic professor clashes with a ruthless gangster running crimes through a juvenile prison.",
-    poster: "https://picsum.photos/300/450?random=13",
+    poster: "https://cdn.district.in/movies-assets/images/cinema/Vijay-The-Master----Gallery-6e6877e0-4dcd-11f0-a68c-6d02d77cb994.jpg",
   },
   {
     title: "Dangal",
@@ -151,7 +151,7 @@ const movies = [
     rating: 8.9,
     description:
       "A former wrestler trains his daughters to become world-class wrestling champions.",
-    poster: "https://picsum.photos/300/450?random=14",
+    poster: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRD2wrDzLQ1T52VmWXe_DrESa9Btogma_B-Ew&s",
   },
   {
     title: "Spider-Man No Way Home",
@@ -161,7 +161,7 @@ const movies = [
     rating: 8.7,
     description:
       "Spider-Man faces villains from alternate universes after a magical spell goes wrong.",
-    poster: "https://picsum.photos/300/450?random=15",
+    poster: "https://m.media-amazon.com/images/I/81y0foYjoFL._AC_UF1000,1000_QL80_.jpg",
   },
   {
     title: "Baahubali 2",
@@ -171,7 +171,7 @@ const movies = [
     rating: 8.8,
     description:
       "The truth behind Amarendra Baahubali’s death is revealed in this epic kingdom saga.",
-    poster: "https://picsum.photos/300/450?random=16",
+    poster: "https://m.media-amazon.com/images/I/711eHgGtnFL._AC_UF1000,1000_QL80_.jpg",
   },
   {
     title: "Jailer",
@@ -181,7 +181,7 @@ const movies = [
     rating: 8.2,
     description:
       "A retired jailer goes on a brutal mission after his family is threatened by criminals.",
-    poster: "https://picsum.photos/300/450?random=17",
+    poster: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfhy5O3Hg1267cap3s1gAZ03IABZ78o6V93g&s",
   },
   {
     title: "Inception",
@@ -191,7 +191,7 @@ const movies = [
     rating: 9.0,
     description:
       "A skilled thief enters dreams to steal secrets but is tasked with planting an idea instead.",
-    poster: "https://picsum.photos/300/450?random=18",
+    poster: "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_.jpg",
   },
   {
     title: "777 Charlie",
@@ -201,7 +201,7 @@ const movies = [
     rating: 8.9,
     description:
       "A lonely man’s life changes completely after bonding with a spirited dog named Charlie.",
-    poster: "https://picsum.photos/300/450?random=19",
+    poster: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYX-JrHzAJpJuA3sONOAbpb35H00M8vsIZmw&s",
   },
   {
     title: "Premam",
@@ -211,7 +211,7 @@ const movies = [
     rating: 8.5,
     description:
       "A heartfelt coming-of-age love story that follows different phases of a young man’s life.",
-    poster: "https://picsum.photos/300/450?random=20",
+    poster: "https://m.media-amazon.com/images/S/pv-target-images/8af17eda51c974669fda316b5eb5dab8de1ff652e3b3ff0e651b6d4421a01b82.jpg",
   },
 ];
 
