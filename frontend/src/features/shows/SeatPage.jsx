@@ -16,7 +16,7 @@ export default function SeatPage() {
 
   // ✅ current user
   const currentUser =
-  JSON.parse(localStorage.getItem("user"))?.user?._id;
+    JSON.parse(localStorage.getItem("user"))?.user?._id;
 
   // ================= LOAD SHOW + SEATS =================
   useEffect(() => {
@@ -112,11 +112,11 @@ export default function SeatPage() {
     });
 
     return () => {
-  socket.off("seatLocked");
-  socket.off("seatUnlocked");
-  socket.off("seatBooked");
-  socket.disconnect();
-};
+      socket.off("seatLocked");
+      socket.off("seatUnlocked");
+      socket.off("seatBooked");
+      socket.disconnect();
+    };
   }, [showId]);
 
   // ================= CLICK =================
@@ -185,24 +185,24 @@ export default function SeatPage() {
     const isSelected = selected.includes(seatId);
     const isMine = seat?.lockedBy === currentUser;
 
-    // 🟡 YOUR selection
+    // 🟡 selected by YOU
     if (isSelected) {
-      return "bg-yellow-400 text-black";
+      return "bg-yellow-400 text-black border border-yellow-500";
     }
 
-    // ⚫ booked (always)
+    // ⚫ permanently booked
     if (seat?.status === "BOOKED") {
-      return "bg-gray-800 text-white cursor-not-allowed";
+      return "bg-gray-900 text-white cursor-not-allowed";
     }
 
-    // ⚫ locked by others
+    // 🔒 temporarily locked by others
     if (seat?.status === "LOCKED" && !isMine) {
-      return "bg-gray-800 text-white cursor-not-allowed";
+      return "bg-gray-500 text-white cursor-not-allowed";
     }
 
-    // 🟡 locked by you (fallback)
+    // 🟡 locked by you
     if (seat?.status === "LOCKED" && isMine) {
-      return "bg-yellow-400 text-black";
+      return "bg-yellow-400 text-black border border-yellow-500";
     }
 
     // ⚪ available
@@ -257,6 +257,29 @@ export default function SeatPage() {
             </div>
 
           </div>
+        </div>
+      </div>
+
+
+      <div className="flex justify-center gap-6 mb-6 text-sm flex-wrap">
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-white border border-gray-300 rounded"></div>
+          <span>Available</span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-yellow-400 rounded"></div>
+          <span>Your Seat</span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-gray-500 rounded"></div>
+          <span>Locked</span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-gray-900 rounded"></div>
+          <span>Booked</span>
         </div>
       </div>
 
