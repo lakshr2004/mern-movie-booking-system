@@ -6,32 +6,37 @@ const showSchema = new mongoose.Schema({
     ref: "Movie",
     required: true,
   },
+
   theatre: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Theatre",
     required: true,
   },
+
+  // ✅ FIXED
   showTime: {
-    type: Date,
+    type: String,
     required: true,
   },
+
   price: {
     type: Number,
     required: true,
+    default: 200,
   },
+
   bookedSeats: {
     type: [String],
     default: [],
   },
+
   totalSeats: {
     type: Number,
-    default: 100
-  }
+    default: 100,
+  },
 });
 
-// Ensure schema transforms (no seat status virtuals/methods)
-showSchema.set('toJSON', { virtuals: false });
-showSchema.set('toObject', { virtuals: false });
+showSchema.set("toJSON", { virtuals: false });
+showSchema.set("toObject", { virtuals: false });
 
 module.exports = mongoose.model("Show", showSchema);
-
