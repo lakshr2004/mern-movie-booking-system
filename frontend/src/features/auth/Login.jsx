@@ -2,13 +2,20 @@ import { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion as Motion } from "framer-motion";
 import { toast } from "react-toastify";
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import {
+  FaEnvelope,
+  FaLock,
+  FaEye,
+  FaEyeSlash,
+} from "react-icons/fa";
+
 import API from "../../services/api";
 import { AuthContext } from "./AuthContext";
 import logo from "../../assets/logo.jpeg";
 
 function Login() {
   const { login } = useContext(AuthContext);
+
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -17,110 +24,279 @@ function Login() {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+
   const [loading, setLoading] = useState(false);
 
+  // 🚀 FAST LOGIN
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+
+    // prevent multiple clicks
+    if (loading) return;
 
     try {
-      const res = await API.post("/auth/login", form);
-      login(res.data);
-      toast.success(`Welcome ${res.data.user?.name || "User"}`);
-      navigate("/", { replace: true });
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || "Invalid username or password";
-      toast.error(errorMessage);
-    }
+      setLoading(true);
 
-    setLoading(false);
+      const res = await API.post("/auth/login", {
+        email: form.email.trim(),
+        password: form.password,
+      });
+
+      // ✅ Save user instantly
+      login(res.data);
+
+      // ✅ Success toast
+      toast.success(
+        `Welcome ${res.data?.user?.name || "User"}`
+      );
+
+      // ✅ Instant navigation
+      navigate("/", { replace: true });
+
+    } catch (error) {
+
+      console.error(error);
+
+      const errorMessage =
+        error.response?.data?.message ||
+        "Invalid email or password";
+
+      toast.error(errorMessage);
+
+    } finally {
+
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-1 flex items-center justify-center relative px-3 sm:px-4 py-6 sm:py-8">
-        <div className="absolute inset-0 bg-black/50"></div>
+    <div className="min-h-screen flex flex-col bg-[#f5f1eb]">
 
-        <Motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4 }}
-          className="relative backdrop-blur-lg bg-[#7a0d16] border border-white/20 p-5 sm:p-8 md:p-10 rounded-2xl w-[95%] sm:w-[90%] max-w-[380px] sm:max-w-[420px] text-white shadow-2xl mx-3 sm:mx-auto"
+      <main className="flex-1 flex items-center justify-center px-4 py-8">
+
+        {/* CARD */}
+        <Motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.35 }}
+          className="
+            w-full
+            max-w-[420px]
+            rounded-3xl
+            bg-[#f8f5ef]
+            border
+            border-[#e5ddd3]
+            shadow-2xl
+            p-6
+            sm:p-8
+          "
         >
+
+          {/* LOGO */}
           <Motion.img
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
+            transition={{ delay: 0.1 }}
             src={logo}
             alt="logo"
-            className="w-40 sm:w-48 md:w-56 mx-auto mb-4"
+            className="w-40 sm:w-48 mx-auto mb-5"
           />
 
-          <Motion.h2 
+          {/* TITLE */}
+          <Motion.h2
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-            className="text-2xl sm:text-3xl font-bold text-center mb-2"
+            transition={{ delay: 0.15 }}
+            className="
+              text-3xl
+              font-bold
+              text-center
+              text-[#3b2f2f]
+              mb-2
+            "
           >
-            Login
+            Welcome Back
           </Motion.h2>
 
-          <p className="text-center text-gray-200 mb-5 sm:mb-6 text-sm sm:text-base">
-            Book your next movie experience
+          <p className="text-center text-[#7a6f67] mb-7">
+            Login to continue booking movies
           </p>
 
-          <form onSubmit={handleSubmit}>
-            <div className="flex items-center bg-[#5a0a11] rounded-lg mb-3 sm:mb-4 px-3 focus-within:ring-2 focus-within:ring-[#ff6b81]">
-              <FaEnvelope className="text-gray-300 text-sm sm:text-base" />
+          {/* FORM */}
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-5"
+          >
+
+            {/* EMAIL */}
+            <div
+              className="
+                flex
+                items-center
+                rounded-2xl
+                bg-white
+                border
+                border-[#ddd3c7]
+                px-4
+                focus-within:border-[#8b5e3c]
+                transition
+              "
+            >
+              <FaEnvelope className="text-[#8b7d74]" />
+
               <input
                 type="email"
-                placeholder="Email"
                 required
-                className="w-full p-2.5 sm:p-3 bg-transparent outline-none text-sm sm:text-base"
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                autoComplete="email"
+                placeholder="Enter your email"
+                value={form.email}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    email: e.target.value,
+                  })
+                }
+                className="
+                  w-full
+                  bg-transparent
+                  outline-none
+                  px-3
+                  py-4
+                  text-[#2d2d2d]
+                  placeholder:text-[#a89f96]
+                "
               />
             </div>
 
-            <div className="flex items-center bg-[#5a0a11] rounded-lg mb-4 sm:mb-6 px-3 focus-within:ring-2 focus-within:ring-[#ff6b81]">
-              <FaLock className="text-gray-300 text-sm sm:text-base" />
+            {/* PASSWORD */}
+            <div
+              className="
+                flex
+                items-center
+                rounded-2xl
+                bg-white
+                border
+                border-[#ddd3c7]
+                px-4
+                focus-within:border-[#8b5e3c]
+                transition
+              "
+            >
+              <FaLock className="text-[#8b7d74]" />
+
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder="Password"
                 required
-                className="w-full p-2.5 sm:p-3 bg-transparent outline-none text-sm sm:text-base"
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                autoComplete="current-password"
+                placeholder="Enter your password"
+                value={form.password}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    password: e.target.value,
+                  })
+                }
+                className="
+                  w-full
+                  bg-transparent
+                  outline-none
+                  px-3
+                  py-4
+                  text-[#2d2d2d]
+                  placeholder:text-[#a89f96]
+                "
               />
+
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="text-gray-300 text-sm"
+                onClick={() =>
+                  setShowPassword(!showPassword)
+                }
+                className="
+                  text-[#8b7d74]
+                  hover:text-[#3b2f2f]
+                  transition
+                "
               >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
+                {showPassword ? (
+                  <FaEyeSlash />
+                ) : (
+                  <FaEye />
+                )}
               </button>
             </div>
 
+            {/* BUTTON */}
             <Motion.button
+              whileHover={{
+                scale: loading ? 1 : 1.02,
+              }}
+              whileTap={{
+                scale: loading ? 1 : 0.98,
+              }}
               type="submit"
               disabled={loading}
-              className="w-full bg-white text-black hover:bg-[#c43b60] py-2.5 sm:py-3 rounded-xl font-semibold transition shadow-lg text-sm sm:text-base"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              className={`
+                w-full
+                py-4
+                rounded-2xl
+                font-semibold
+                text-white
+                transition-all
+                duration-200
+                shadow-lg
+                ${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-[#7a0d16] hover:bg-[#5f0911]"
+                }
+              `}
             >
-              {loading ? "Logging in..." : "Login"}
+              {loading ? (
+                <div className="flex items-center justify-center gap-2">
+
+                  <div
+                    className="
+                      w-5
+                      h-5
+                      border-2
+                      border-white
+                      border-t-transparent
+                      rounded-full
+                      animate-spin
+                    "
+                  />
+
+                  Logging in...
+
+                </div>
+              ) : (
+                "Login"
+              )}
             </Motion.button>
           </form>
 
-          <p className="text-sm text-center mt-4 sm:mt-5">
-            Don't have an account?{" "}
-            <Link to="/register" className="underline font-semibold">
+          {/* REGISTER */}
+          <p className="text-center text-sm text-[#6f655d] mt-6">
+            Don&apos;t have an account?{" "}
+
+            <Link
+              to="/register"
+              className="
+                font-semibold
+                text-[#7a0d16]
+                hover:underline
+              "
+            >
               Register
             </Link>
           </p>
+
         </Motion.div>
+
       </main>
     </div>
   );
 }
 
 export default Login;
-
