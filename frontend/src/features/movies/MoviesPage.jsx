@@ -301,7 +301,7 @@ function MoviesPage() {
       {/* TOP RATED */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-4xl font-bold text-white mb-10">
+          <h2 className="text-4xl font-bold text-[#5b0f1b] mb-10">
             Top Rated Movies
           </h2>
 
