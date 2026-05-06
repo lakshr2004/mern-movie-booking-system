@@ -253,6 +253,7 @@ const seedDatabase = async () => {
     console.log("====================================");
 
     process.exit();
+    
 
   } catch (error) {
     console.log(error);
