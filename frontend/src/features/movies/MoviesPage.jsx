@@ -228,7 +228,7 @@ function MoviesPage() {
   </button>
 
   {/* CONTENT */}
-  <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+  <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-12 lg:py-16">
     <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
       
       {/* POSTER LEFT */}
