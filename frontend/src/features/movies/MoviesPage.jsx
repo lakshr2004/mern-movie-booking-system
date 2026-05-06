@@ -22,74 +22,82 @@ function MoviesPage() {
     window.scrollTo(0, 0);
   }, []);
 
-  // FETCH DATA
-const fetchData = async () => {
-  try {
-    // ⚡ CACHE FIRST
-    const cachedMovies = sessionStorage.getItem("movies");
-    const cachedTheatres = sessionStorage.getItem("theatres");
+// FETCH DATA
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const cachedMovies = sessionStorage.getItem("movies");
+      const cachedTheatres = sessionStorage.getItem("theatres");
 
-    if (cachedMovies && cachedTheatres) {
-      setMovies(JSON.parse(cachedMovies));
-      setTheatres(JSON.parse(cachedTheatres));
+      // ✅ LOAD FROM CACHE FIRST
+      if (cachedMovies && cachedTheatres) {
+        setMovies(JSON.parse(cachedMovies));
+        setTheatres(JSON.parse(cachedTheatres));
+        setLoading(false);
+      }
+
+      // ✅ FETCH FRESH DATA
+      const [moviesRes, theatresRes] = await Promise.all([
+        API.get("/movies"),
+        API.get("/theatres"),
+      ]);
+
+      const rawMovies =
+        moviesRes.data?.movies ||
+        moviesRes.data?.data ||
+        moviesRes.data ||
+        [];
+
+      const moviesData = Array.isArray(rawMovies)
+        ? rawMovies.map((m, index) => ({
+            ...m,
+            _id: m._id || m.id || index.toString(),
+            title: m.title || "Untitled",
+            poster:
+              m.poster ||
+              "https://via.placeholder.com/400x600?text=Movie",
+            movieLanguage: m.movieLanguage || m.language || "N/A",
+            genre: m.genre || "Movie",
+            duration: m.duration || 120,
+            rating: Number(m.rating || 0),
+            description:
+              m.description ||
+              "Experience the ultimate cinematic journey with this amazing movie.",
+          }))
+        : [];
+
+      const rawTheatres =
+        theatresRes.data?.theatres ||
+        theatresRes.data?.data ||
+        theatresRes.data ||
+        [];
+
+      // ✅ SAVE CACHE
+      sessionStorage.setItem(
+        "movies",
+        JSON.stringify(moviesData)
+      );
+
+      sessionStorage.setItem(
+        "theatres",
+        JSON.stringify(rawTheatres)
+      );
+
+      setMovies(moviesData);
+      setTheatres(Array.isArray(rawTheatres) ? rawTheatres : []);
+
+    } catch (err) {
+      console.log("Fetch Error:", err);
+
+      sessionStorage.removeItem("movies");
+      sessionStorage.removeItem("theatres");
+    } finally {
       setLoading(false);
     }
+  };
 
-    // ⚡ FETCH NEW DATA
-    const [moviesRes, theatresRes] = await Promise.all([
-      API.get("/movies"),
-      API.get("/theatres"),
-    ]);
-
-    const rawMovies =
-      moviesRes.data?.movies ||
-      moviesRes.data?.data ||
-      moviesRes.data ||
-      [];
-
-    const moviesData = Array.isArray(rawMovies)
-      ? rawMovies.map((m, index) => ({
-          ...m,
-          _id: m._id || m.id || index.toString(),
-          title: m.title || "Untitled",
-          poster:
-            m.poster ||
-            "https://via.placeholder.com/400x600?text=Movie",
-          movieLanguage: m.movieLanguage || m.language || "N/A",
-          genre: m.genre || "Movie",
-          duration: m.duration || 120,
-          rating: Number(m.rating || 0),
-          description:
-            m.description ||
-            "Experience the ultimate cinematic journey with this amazing movie.",
-        }))
-      : [];
-
-    const rawTheatres =
-      theatresRes.data?.theatres ||
-      theatresRes.data?.data ||
-      theatresRes.data ||
-      [];
-
-    // ⚡ SAVE CACHE
-    sessionStorage.setItem(
-      "movies",
-      JSON.stringify(moviesData)
-    );
-
-    sessionStorage.setItem(
-      "theatres",
-      JSON.stringify(rawTheatres)
-    );
-
-    setMovies(moviesData);
-    setTheatres(Array.isArray(rawTheatres) ? rawTheatres : []);
-  } catch (error) {
-    console.log("API ERROR:", error);
-  } finally {
-    setLoading(false);
-  }
-};
+  fetchData();
+}, []);
 
   // HERO AUTO SLIDE
   useEffect(() => {
