@@ -146,137 +146,134 @@ function MoviesPage() {
 
   return (
     <div className="bg-[#f8f3e9] min-h-screen overflow-hidden">
-      {/* HERO SECTION */}
-      <section className="relative overflow-hidden bg-[#eceff1]">
-        {/* SOFT BACKGROUND */}
-        <div className="absolute inset-0">
-          <img
-            src={currentMovie.poster}
-            alt={currentMovie.title}
-            className="w-full h-full object-cover blur-3xl opacity-10 scale-125"
-          />
+{/* HERO SECTION */}
+<section className="relative overflow-hidden bg-[#edf1f5]">
 
-          <div className="absolute inset-0 bg-gradient-to-r from-[#eceff1]/95 via-[#eceff1]/92 to-[#f5f7fa]/95" />
-        </div>
+  {/* SOFT BACKGROUND */}
+  <div className="absolute inset-0">
+    <img
+      src={currentMovie.poster}
+      alt={currentMovie.title}
+      className="w-full h-full object-cover blur-3xl opacity-[0.07] scale-125"
+    />
 
-        {/* LEFT ARROW */}
-        <button
-          onClick={() =>
-            setCurrentSlide((prev) =>
-              prev === 0 ? movies.length - 1 : prev - 1
-            )
-          }
-          className="
+    <div className="absolute inset-0 bg-[#edf1f5]/95" />
+  </div>
+
+  {/* MOBILE + TABLET ARROWS */}
+  <button
+    onClick={() =>
+      setCurrentSlide((prev) =>
+        prev === 0 ? movies.length - 1 : prev - 1
+      )
+    }
+    className="
       absolute
       left-2
-      md:left-3
-      top-1/2
+      sm:left-4
+      top-[48%]
       -translate-y-1/2
       z-30
-      bg-white/80
-      backdrop-blur-md
-      hover:bg-white
+      bg-white/90
       shadow-xl
       rounded-full
       w-10
       h-10
+      sm:w-11
+      sm:h-11
       flex
       items-center
       justify-center
+      hover:scale-110
       transition-all
       duration-300
-      hover:scale-110
     "
-        >
-          <span className="text-xl font-bold text-[#5b0f1b]">
-            ‹
-          </span>
-        </button>
+  >
+    <span className="text-[#5b0f1b] text-xl font-bold">
+      ‹
+    </span>
+  </button>
 
-        {/* RIGHT ARROW */}
-        <button
-          onClick={() =>
-            setCurrentSlide((prev) =>
-              prev === movies.length - 1 ? 0 : prev + 1
-            )
-          }
-          className="
+  <button
+    onClick={() =>
+      setCurrentSlide((prev) =>
+        prev === movies.length - 1 ? 0 : prev + 1
+      )
+    }
+    className="
       absolute
       right-2
-      md:right-3
-      top-1/2
+      sm:right-4
+      top-[48%]
       -translate-y-1/2
       z-30
-      bg-white/80
-      backdrop-blur-md
-      hover:bg-white
+      bg-white/90
       shadow-xl
       rounded-full
       w-10
       h-10
+      sm:w-11
+      sm:h-11
       flex
       items-center
       justify-center
+      hover:scale-110
       transition-all
       duration-300
-      hover:scale-110
     "
-        >
-          <span className="text-xl font-bold text-[#5b0f1b]">
-            ›
+  >
+    <span className="text-[#5b0f1b] text-xl font-bold">
+      ›
+    </span>
+  </button>
+
+  <div className="relative z-10 max-w-7xl mx-auto px-4">
+
+    {/* MOBILE */}
+    <div className="flex flex-col lg:hidden items-center text-center pt-6 pb-8">
+
+      {/* CONTENT */}
+      <Motion.div
+        key={currentMovie._id}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="w-full flex flex-col items-center"
+      >
+        <p className="text-[#8b1e3f] font-bold tracking-[0.35em] uppercase text-[11px] mb-2">
+          Featured Movie
+        </p>
+
+        <h1 className="text-[2rem] sm:text-5xl font-black text-[#222] leading-tight mb-3">
+          {currentMovie.title}
+        </h1>
+
+        {/* TAGS */}
+        <div className="flex flex-wrap justify-center gap-2 max-w-sm mb-4">
+          <span className="bg-[#8b1e3f] text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+            {currentMovie.genre}
           </span>
-        </button>
 
-        {/* CONTENT */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-10 lg:py-14">
+          <span className="bg-yellow-400 text-black px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+            ⭐ {currentMovie.rating}/10
+          </span>
 
-          {/* MOBILE LAYOUT */}
-          <div className="flex flex-col lg:hidden items-center text-center">
+          <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-md">
+            ⏱ {currentMovie.duration} mins
+          </span>
 
-            {/* CONTENT */}
-            <Motion.div
-              key={currentMovie._id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="w-full"
-            >
-              <p className="text-[#8b1e3f] font-bold tracking-[0.28em] uppercase mb-2 text-[11px] sm:text-xs">
-                Featured Movie
-              </p>
+          <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-md">
+            🌐 {currentMovie.movieLanguage}
+          </span>
+        </div>
 
-              <h1 className="text-3xl sm:text-4xl font-black text-[#2d2d2d] mb-4">
-                {currentMovie.title}
-              </h1>
+        <p className="text-gray-600 text-sm max-w-xs sm:max-w-md leading-relaxed mb-4 line-clamp-2">
+          {currentMovie.description}
+        </p>
 
-              {/* TAGS */}
-              <div className="flex flex-wrap justify-center gap-2 mb-4">
-                <span className="bg-[#8b1e3f] text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
-                  {currentMovie.genre}
-                </span>
-
-                <span className="bg-yellow-400 text-black px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-                  ⭐ {currentMovie.rating}/10
-                </span>
-
-                <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-lg border border-gray-200">
-                  ⏱ {currentMovie.duration} mins
-                </span>
-
-                <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-lg border border-gray-200">
-                  🌐 {currentMovie.movieLanguage}
-                </span>
-              </div>
-
-              {/* DESCRIPTION */}
-              <p className="text-gray-600 text-sm leading-relaxed max-w-md mx-auto mb-5 line-clamp-2">
-                {currentMovie.description}
-              </p>
-
-              {/* BUTTON */}
-              <Link to={`/movie/${currentMovie._id}`}>
-                <button
-                  className="
+        <Link to={`/movie/${currentMovie._id}`}>
+          <button
+            className="
               bg-[#8b1e3f]
               hover:bg-[#6d102c]
               text-white
@@ -284,145 +281,132 @@ function MoviesPage() {
               py-3
               rounded-2xl
               font-bold
-              shadow-2xl
-              hover:scale-105
+              shadow-xl
               transition-all
               duration-300
-              mb-5
+              hover:scale-105
+              mb-4
             "
-                >
-                  {isAdmin ? "Edit Movie" : "Book Tickets"}
-                </button>
-              </Link>
+          >
+            {isAdmin ? "Edit Movie" : "Book Tickets"}
+          </button>
+        </Link>
 
-              {/* DOTS */}
-              <div className="flex items-center justify-center gap-3 mb-5">
-                {movies.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentSlide(index)}
-                    className={`
-                transition-all duration-300 rounded-full
-                ${currentSlide === index
-                        ? "w-10 h-3 bg-[#8b1e3f]"
-                        : "w-3 h-3 bg-gray-400 hover:bg-gray-500"
-                      }
+        {/* DOTS */}
+        <div className="flex items-center justify-center gap-2 mb-5">
+          {movies.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={`
+                rounded-full
+                transition-all
+                duration-300
+                ${
+                  currentSlide === index
+                    ? "w-6 h-2 bg-[#8b1e3f]"
+                    : "w-2 h-2 bg-gray-400"
+                }
               `}
-                  />
-                ))}
-              </div>
-            </Motion.div>
+            />
+          ))}
+        </div>
+      </Motion.div>
 
-            {/* POSTER */}
-            <Motion.div
-              key={currentMovie.poster}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-              className="flex justify-center"
-            >
-              <div className="relative group">
-                <div className="absolute -inset-2 bg-gradient-to-r from-[#8b1e3f]/20 to-yellow-400/20 blur-2xl rounded-[2rem]" />
+      {/* POSTER */}
+      <Motion.div
+        key={currentMovie.poster}
+        initial={{ opacity: 0, scale: 0.92 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4 }}
+        className="flex justify-center"
+      >
+        <img
+          src={currentMovie.poster}
+          alt={currentMovie.title}
+          className="
+            w-36
+            sm:w-44
+            md:w-52
+            aspect-[2/3]
+            object-cover
+            rounded-[2rem]
+            shadow-2xl
+            border
+            border-white/60
+          "
+        />
+      </Motion.div>
+    </div>
 
-                <img
-                  src={currentMovie.poster}
-                  alt={currentMovie.title}
-                  className="
-              relative
-              w-36
-              sm:w-44
-              md:w-52
-              aspect-[2/3]
-              object-cover
-              rounded-[2rem]
-              shadow-2xl
-              border
-              border-white/60
-            "
-                />
-              </div>
-            </Motion.div>
-          </div>
+    {/* LAPTOP + TABLET */}
+    <div className="hidden lg:grid lg:grid-cols-2 items-center gap-6 xl:gap-12 py-14">
 
-          {/* TABLET + LAPTOP */}
-          <div className="hidden lg:grid lg:grid-cols-2 gap-4 xl:gap-8 items-center">
+      {/* POSTER */}
+      <Motion.div
+        key={currentMovie.poster}
+        initial={{ opacity: 0, x: -30 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.4 }}
+        className="flex justify-center"
+      >
+        <img
+          src={currentMovie.poster}
+          alt={currentMovie.title}
+          className="
+            w-60
+            xl:w-72
+            aspect-[2/3]
+            object-cover
+            rounded-[2rem]
+            shadow-2xl
+            border
+            border-white/60
+          "
+        />
+      </Motion.div>
 
-            {/* POSTER */}
-            <Motion.div
-              key={currentMovie.poster}
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-              className="flex justify-center xl:justify-start"
-            >
-              <div className="relative group">
-                <div className="absolute -inset-2 bg-gradient-to-r from-[#8b1e3f]/20 to-yellow-400/20 blur-2xl rounded-[2rem]" />
+      {/* CONTENT */}
+      <Motion.div
+        key={currentMovie._id}
+        initial={{ opacity: 0, x: 30 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.4 }}
+        className="max-w-xl"
+      >
+        <p className="text-[#8b1e3f] font-bold tracking-[0.35em] uppercase text-xs mb-3">
+          Featured Movie
+        </p>
 
-                <img
-                  src={currentMovie.poster}
-                  alt={currentMovie.title}
-                  className="
-              relative
-              w-64
-              xl:w-[300px]
-              aspect-[2/3]
-              object-cover
-              rounded-[2rem]
-              shadow-2xl
-              border
-              border-white/60
-              transition-all
-              duration-500
-              group-hover:scale-[1.02]
-            "
-                />
-              </div>
-            </Motion.div>
+        <h1 className="text-5xl xl:text-6xl font-black text-[#222] leading-tight mb-5">
+          {currentMovie.title}
+        </h1>
 
-            {/* CONTENT */}
-            <Motion.div
-              key={currentMovie._id}
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-              className="max-w-xl"
-            >
-              <p className="text-[#8b1e3f] font-bold tracking-[0.28em] uppercase mb-3 text-xs">
-                Featured Movie
-              </p>
+        <div className="flex flex-wrap gap-3 mb-5">
+          <span className="bg-[#8b1e3f] text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+            {currentMovie.genre}
+          </span>
 
-              <h1 className="text-5xl xl:text-6xl font-black text-[#2d2d2d] mb-5 leading-tight">
-                {currentMovie.title}
-              </h1>
+          <span className="bg-yellow-400 text-black px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+            ⭐ {currentMovie.rating}/10
+          </span>
 
-              {/* TAGS */}
-              <div className="flex flex-wrap gap-3 mb-5">
-                <span className="bg-[#8b1e3f] text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
-                  {currentMovie.genre}
-                </span>
+          <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-md">
+            ⏱ {currentMovie.duration} mins
+          </span>
 
-                <span className="bg-yellow-400 text-black px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-                  ⭐ {currentMovie.rating}/10
-                </span>
+          <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-md">
+            🌐 {currentMovie.movieLanguage}
+          </span>
+        </div>
 
-                <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-lg border border-gray-200">
-                  ⏱ {currentMovie.duration} mins
-                </span>
+        <p className="text-gray-600 text-lg leading-relaxed mb-7 line-clamp-3">
+          {currentMovie.description}
+        </p>
 
-                <span className="bg-white text-[#333] px-4 py-2 rounded-full text-sm font-medium shadow-lg border border-gray-200">
-                  🌐 {currentMovie.movieLanguage}
-                </span>
-              </div>
-
-              {/* DESCRIPTION */}
-              <p className="text-gray-600 text-base xl:text-lg leading-relaxed mb-7 line-clamp-3">
-                {currentMovie.description}
-              </p>
-
-              {/* BUTTON */}
-              <Link to={`/movie/${currentMovie._id}`}>
-                <button
-                  className="
+        <Link to={`/movie/${currentMovie._id}`}>
+          <button
+            className="
               bg-[#8b1e3f]
               hover:bg-[#6d102c]
               text-white
@@ -430,36 +414,39 @@ function MoviesPage() {
               py-3.5
               rounded-2xl
               font-bold
-              shadow-2xl
-              hover:scale-105
+              shadow-xl
               transition-all
               duration-300
+              hover:scale-105
             "
-                >
-                  {isAdmin ? "Edit Movie" : "Book Tickets"}
-                </button>
-              </Link>
+          >
+            {isAdmin ? "Edit Movie" : "Book Tickets"}
+          </button>
+        </Link>
 
-              {/* DOTS */}
-              <div className="flex items-center gap-3 mt-10">
-                {movies.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentSlide(index)}
-                    className={`
-                transition-all duration-300 rounded-full
-                ${currentSlide === index
-                        ? "w-10 h-3 bg-[#8b1e3f]"
-                        : "w-3 h-3 bg-gray-400 hover:bg-gray-500"
-                      }
+        {/* DOTS */}
+        <div className="flex items-center gap-2 mt-8">
+          {movies.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={`
+                rounded-full
+                transition-all
+                duration-300
+                ${
+                  currentSlide === index
+                    ? "w-8 h-2 bg-[#8b1e3f]"
+                    : "w-2 h-2 bg-gray-400"
+                }
               `}
-                  />
-                ))}
-              </div>
-            </Motion.div>
-          </div>
+            />
+          ))}
         </div>
-      </section>
+      </Motion.div>
+    </div>
+  </div>
+</section>
 
       {/* SEARCH + FILTER */}
       <section className="max-w-7xl mx-auto px-4 py-8">
