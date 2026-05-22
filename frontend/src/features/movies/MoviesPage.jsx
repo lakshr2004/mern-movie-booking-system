@@ -22,34 +22,34 @@ function MoviesPage() {
     window.scrollTo(0, 0);
   }, []);
 
-// FETCH DATA
-useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const cachedMovies = sessionStorage.getItem("movies");
-      const cachedTheatres = sessionStorage.getItem("theatres");
+  // FETCH DATA
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const cachedMovies = sessionStorage.getItem("movies");
+        const cachedTheatres = sessionStorage.getItem("theatres");
 
-      // ✅ LOAD FROM CACHE FIRST
-      if (cachedMovies && cachedTheatres) {
-        setMovies(JSON.parse(cachedMovies));
-        setTheatres(JSON.parse(cachedTheatres));
-        setLoading(false);
-      }
+        // ✅ LOAD FROM CACHE FIRST
+        if (cachedMovies && cachedTheatres) {
+          setMovies(JSON.parse(cachedMovies));
+          setTheatres(JSON.parse(cachedTheatres));
+          setLoading(false);
+        }
 
-      // ✅ FETCH FRESH DATA
-      const [moviesRes, theatresRes] = await Promise.all([
-        API.get("/movies"),
-        API.get("/theatres"),
-      ]);
+        // ✅ FETCH FRESH DATA
+        const [moviesRes, theatresRes] = await Promise.all([
+          API.get("/movies"),
+          API.get("/theatres"),
+        ]);
 
-      const rawMovies =
-        moviesRes.data?.movies ||
-        moviesRes.data?.data ||
-        moviesRes.data ||
-        [];
+        const rawMovies =
+          moviesRes.data?.movies ||
+          moviesRes.data?.data ||
+          moviesRes.data ||
+          [];
 
-      const moviesData = Array.isArray(rawMovies)
-        ? rawMovies.map((m, index) => ({
+        const moviesData = Array.isArray(rawMovies)
+          ? rawMovies.map((m, index) => ({
             ...m,
             _id: m._id || m.id || index.toString(),
             title: m.title || "Untitled",
@@ -64,40 +64,40 @@ useEffect(() => {
               m.description ||
               "Experience the ultimate cinematic journey with this amazing movie.",
           }))
-        : [];
+          : [];
 
-      const rawTheatres =
-        theatresRes.data?.theatres ||
-        theatresRes.data?.data ||
-        theatresRes.data ||
-        [];
+        const rawTheatres =
+          theatresRes.data?.theatres ||
+          theatresRes.data?.data ||
+          theatresRes.data ||
+          [];
 
-      // ✅ SAVE CACHE
-      sessionStorage.setItem(
-        "movies",
-        JSON.stringify(moviesData)
-      );
+        // ✅ SAVE CACHE
+        sessionStorage.setItem(
+          "movies",
+          JSON.stringify(moviesData)
+        );
 
-      sessionStorage.setItem(
-        "theatres",
-        JSON.stringify(rawTheatres)
-      );
+        sessionStorage.setItem(
+          "theatres",
+          JSON.stringify(rawTheatres)
+        );
 
-      setMovies(moviesData);
-      setTheatres(Array.isArray(rawTheatres) ? rawTheatres : []);
+        setMovies(moviesData);
+        setTheatres(Array.isArray(rawTheatres) ? rawTheatres : []);
 
-    } catch (err) {
-      console.log("Fetch Error:", err);
+      } catch (err) {
+        console.log("Fetch Error:", err);
 
-      sessionStorage.removeItem("movies");
-      sessionStorage.removeItem("theatres");
-    } finally {
-      setLoading(false);
-    }
-  };
+        sessionStorage.removeItem("movies");
+        sessionStorage.removeItem("theatres");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchData();
-}, []);
+    fetchData();
+  }, []);
 
   // HERO AUTO SLIDE
   useEffect(() => {
@@ -132,12 +132,12 @@ useEffect(() => {
     });
   }, [movies, searchQuery, selectedGenre, selectedLanguage]);
 
-// TOP RATED
-const topRatedMovies = useMemo(() => {
-  return [...movies]
-    .sort((a, b) => b.rating - a.rating)
-    .slice(0, 6);
-}, [movies]);
+  // TOP RATED
+  const topRatedMovies = useMemo(() => {
+    return [...movies]
+      .sort((a, b) => b.rating - a.rating)
+      .slice(0, 8);
+  }, [movies]);
 
   // UNIQUE VALUES
   const genres = [
@@ -180,12 +180,12 @@ const topRatedMovies = useMemo(() => {
         {/* SOFT BACKGROUND */}
         <div className="absolute inset-0">
           <img
-  loading="lazy"
-  decoding="async"
-  src={currentMovie.poster}
-  alt={currentMovie.title}
-  className="hidden md:block w-full h-full object-cover blur-3xl opacity-[0.07] scale-125"
-/>
+            loading="lazy"
+            decoding="async"
+            src={currentMovie.poster}
+            alt={currentMovie.title}
+            className="hidden md:block w-full h-full object-cover blur-3xl opacity-[0.07] scale-125"
+          />
 
           <div className="absolute inset-0 bg-[#edf1f5]/95" />
         </div>
@@ -526,7 +526,7 @@ const topRatedMovies = useMemo(() => {
       </div>
 
       {/* ALL MOVIES */}
-      <section className="max-w-[1400px] mx-auto px-3 sm:px-4 pb-14">
+      <section className="w-[80%] mx-auto px-3 sm:px-4 pb-14">
 
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl sm:text-4xl font-black text-[#5b0f1b]">
@@ -612,7 +612,7 @@ const topRatedMovies = useMemo(() => {
       </div>
 
       {/* TOP RATED */}
-      <section className="max-w-[1400px] mx-auto px-3 sm:px-4 py-10">
+      <section className="w-[80%] mx-auto px-3 sm:px-4 py-10">
 
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl sm:text-4xl font-black text-[#5b0f1b]">
