@@ -322,9 +322,10 @@ export default function SeatPage() {
           disabled={!selected.length}
           className="px-6 sm:px-8 py-2.5 sm:py-3 md:py-3.5 bg-gray-800 hover:bg-gray-900 text-white font-medium rounded-xl disabled:opacity-40 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-all text-sm sm:text-base md:text-lg min-w-[220px]"
         >
-          Proceed to Checkout
+          Proceed to Book Ticket
         </button>
       </div>
+
 
     </div>
   );
