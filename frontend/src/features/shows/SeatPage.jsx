@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { lockSeats, unlockSeats, bookSeats, getShowSeats } from "../../services/api";
+import { lockSeats, unlockSeats, getShowSeats } from "../../services/api";
+
 import { connectSocket, joinShow } from "../../services/socket";
 
 const rows = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
@@ -166,20 +167,24 @@ export default function SeatPage() {
     }
   };
 
-  // ================= BOOK =================
-  const handleBook = async () => {
+  // ================= CART (Proceed to Checkout) =================
+  const handleProceedToCheckout = () => {
     if (!selected.length) return;
 
-    try {
-      await bookSeats(showId, selected);
+    localStorage.setItem(
+      "pendingCart",
+      JSON.stringify({
+        showId,
+        seats: selected,
+        // showData contains required info
+        movieName: showData?.movieName || null,
+        theatreName: showData?.theatreName || null,
+        showTime: showData?.showTime || null,
+        price: showData?.price || 0
+      })
+    );
 
-      alert("Booking successful 🎉");
-
-      setSelected([]);
-      navigate("/my-bookings");
-    } catch (err) {
-      alert(err.response?.data?.message || "Booking failed");
-    }
+    navigate("/cart");
   };
 
   // ================= STYLE =================
@@ -313,11 +318,11 @@ export default function SeatPage() {
       {/* BUTTON */}
       <div className="text-center mt-6 sm:mt-8 md:mt-10">
         <button
-          onClick={handleBook}
+          onClick={handleProceedToCheckout}
           disabled={!selected.length}
-          className="px-6 sm:px-8 py-2.5 sm:py-3 md:py-3.5 bg-gray-800 hover:bg-gray-900 text-white font-medium rounded-xl disabled:opacity-40 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-all text-sm sm:text-base md:text-lg min-w-[140px]"
+          className="px-6 sm:px-8 py-2.5 sm:py-3 md:py-3.5 bg-gray-800 hover:bg-gray-900 text-white font-medium rounded-xl disabled:opacity-40 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-all text-sm sm:text-base md:text-lg min-w-[220px]"
         >
-          Book {selected.length || 0} Seat{selected.length !== 1 ? 's' : ''}
+          Proceed to Checkout
         </button>
       </div>
 

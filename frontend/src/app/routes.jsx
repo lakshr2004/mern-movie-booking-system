@@ -10,6 +10,8 @@ import SeatPage from "../features/shows/SeatPage";
 import MyBookings from "../features/bookings/MyBookings";
 import ContactPage from "../features/contact/ContactPage";
 import ProtectedRoute from "../components/layout/ProtectedRoute";
+import CartPage from "../features/bookings/CartPage.jsx";
+
 
 
 function AppRoutes() {
@@ -21,6 +23,8 @@ function AppRoutes() {
       <Route path="/register" element={<Register />} />
       <Route path="/my-bookings" element={<MyBookings />} />
       <Route path="/contact" element={<ContactPage />} />
+      <Route path="/cart" element={<CartPage />} />
+
 
       <Route
         path="/theatres/:movieId"
