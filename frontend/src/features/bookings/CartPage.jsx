@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { bookSeats } from "../../services/api";
+import { toast } from "react-toastify";
 
 export default function CartPage() {
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ export default function CartPage() {
   const total = useMemo(() => {
     const price = Number(cart?.price || 0);
     return seatsCount * price;
-  }, [cart, seatsCount]);
+  }, [seatsCount, cart]);
 
   const handleBookTickets = async () => {
     if (!cart?.showId || !cart?.seats?.length) {
@@ -41,8 +42,27 @@ export default function CartPage() {
     try {
       setError(null);
       await bookSeats(cart.showId, cart.seats);
+
+      const movieName = cart.movieName || "Movie";
+      const timing = cart.showTime || "Timing";
+      const seatNames = cart.seats?.join(", ") || "Seats";
+
       localStorage.removeItem("pendingCart");
-      navigate("/my-bookings");
+
+      toast.success(
+        `Booking successful!\n${movieName}\nSeats: ${seatNames}\nTiming: ${timing}`,
+        {
+          position: "top-right",
+          autoClose: 4000,
+          hideProgressBar: true,
+          theme: "colored"
+        }
+      );
+
+      // Redirect after toast
+      navigate("/my-bookings", {
+        state: { bookingToast: { movieName, timing, seatNames } }
+      });
     } catch (err) {
       setError(err?.response?.data?.message || "Booking failed");
     }

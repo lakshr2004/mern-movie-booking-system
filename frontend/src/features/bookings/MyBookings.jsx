@@ -2,12 +2,25 @@ import { useEffect, useState } from "react";
 import MovieCard from "../movies/MovieCard.jsx";
 import { motion } from "framer-motion";
 import API from "../../services/api";
+import { useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
+
 
 function MyBookings() {
+  const location = useLocation();
   const [bookings, setBookings] = useState([]);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const bookingToast = location?.state?.bookingToast;
+    if (bookingToast?.movieName) {
+      toast.success(
+        `Booking successful!\n${bookingToast.movieName}\nSeats: ${bookingToast.seatNames}\nTiming: ${bookingToast.timing}`,
+        { position: "top-right", autoClose: 4000, hideProgressBar: true, theme: "colored" }
+      );
+    }
+
     const fetchBookings = async () => {
       try {
         const res = await API.get("/booking/my");
