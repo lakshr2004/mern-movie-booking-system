@@ -124,7 +124,7 @@ export default function CartPage() {
               <div className="w-full sm:w-44 sm:flex-shrink-0 flex justify-center sm:justify-start">
                 <div className="relative w-[180px] sm:w-[160px] rounded-2xl overflow-hidden shadow-2xl">
                   <img
-                    src={cart.moviePoster || cart.poster || cart.image || "https://picsum.photos/240/360"}
+                    src={cart.moviePoster || cart.poster || cart.image || cart.posterUrl || cart.imageUrl || "https://picsum.photos/240/360"}
                     alt={cart.movieName || "Movie poster"}
                     onError={(e) => {
                       e.currentTarget.src = "https://picsum.photos/240/360";
