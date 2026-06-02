@@ -299,7 +299,7 @@ function MovieDetailsPage() {
                           transition-all
                         "
                       >
-                        Proceed to Checkout
+                        Book Tickets
                       </button>
 
                     </div>
