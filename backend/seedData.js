@@ -1,6 +1,10 @@
+const dns = require("dns");
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
+
 const mongoose = require("mongoose");
 const readline = require("readline");
 require("dotenv").config();
+
 
 const Movie = require("./models/Movie");
 const Theatre = require("./models/Theatre");
