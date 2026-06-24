@@ -74,7 +74,7 @@ function ShowsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.1 }}
             whileHover={{ scale: 1.05, y: -5 }}
-            onClick={() => navigate("/theatres/" + movieId)}
+            onClick={() => navigate(`/theatres/${movieId}?time=${time}`)}
             className="bg-white/70 backdrop-blur-lg border border-[#e0d6c5] rounded-xl p-4 sm:p-6 cursor-pointer text-center shadow-md hover:shadow-xl transition-all"
           >
             <p className="text-lg sm:text-xl font-bold text-[#4b2e1e]">{time}</p>

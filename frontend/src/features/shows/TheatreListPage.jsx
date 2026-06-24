@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { motion as Motion } from "framer-motion";
 import API from "../../services/api";
 
 function TheatreListPage() {
   const { movieId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const selectedTime = searchParams.get("time");
   const [shows, setShows] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -15,7 +17,15 @@ function TheatreListPage() {
         const res = await API.get("/shows/movie/" + movieId);
         // Show all shows for this movie (theatre selection)
         const filtered = res.data
-          .filter((show) => show && show.showTime && show.theatre);
+          .filter((show) => show && show.showTime && show.theatre)
+          .filter((show) => {
+            if (!selectedTime) return true;
+            const date = new Date(show.showTime);
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const time = `${hours}:${minutes}`;
+            return time === selectedTime;
+          });
         setShows(filtered);
       } catch (error) {
         console.log(error);
@@ -24,7 +34,7 @@ function TheatreListPage() {
       }
     };
     fetchShows();
-  }, [movieId]);
+  }, [movieId, selectedTime]);
 
   // Skeleton loader for theatre list
   if (loading) {
