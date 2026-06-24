@@ -62,13 +62,6 @@ app.use("/api/booking", bookingRoutes);
 app.use("/api", contactRoutes);
 app.use("/api/theatres", require("./routes/theatreRoutes"));
 
-// DATABASE
-mongoose.connect(process.env.MONGO_URI).then(async () => {
-  console.log("MongoDB Connected");
-
-  await seedDefaultData();
-});
-
 // SOCKET EVENTS
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id, "userId:", socket.userId);
@@ -109,9 +102,49 @@ setInterval(async () => {
   }
 }, 30000);
 
-// SERVER
+// DATABASE & SERVER STARTUP
 const PORT = process.env.PORT || 5000;
 
-server.listen(PORT, () =>
-  console.log(`Server running on port ${PORT}`)
-);
+const connectDBAndStartServer = async () => {
+  try {
+    // Disable command buffering on Mongoose to prevent hanging queries
+    mongoose.set("bufferCommands", false);
+
+    console.log("Connecting to Primary MongoDB (Atlas)...");
+    await mongoose.connect(process.env.MONGO_URI, {
+      serverSelectionTimeoutMS: 5000, // Timeout fast after 5s
+    });
+    console.log("✅ Primary MongoDB Connected Successfully");
+
+    await seedDefaultData();
+
+    // Start listening
+    server.listen(PORT, () =>
+      console.log(`Server running on port ${PORT}`)
+    );
+  } catch (primaryErr) {
+    console.warn("⚠️ Primary MongoDB Connection Failed:", primaryErr.message);
+    console.log("🔄 Attempting fallback to Local MongoDB (mongodb://127.0.0.1:27017/movieDB)...");
+    
+    try {
+      const localUri = "mongodb://127.0.0.1:27017/movieDB";
+      await mongoose.connect(localUri, {
+        serverSelectionTimeoutMS: 5000,
+      });
+      console.log("✅ Local Fallback MongoDB Connected Successfully");
+
+      await seedDefaultData();
+
+      // Start listening
+      server.listen(PORT, () =>
+        console.log(`Server running on port ${PORT}`)
+      );
+    } catch (localErr) {
+      console.error("❌ Critical Error: Both Primary and Local Fallback MongoDB Connections Failed!");
+      console.error("Local connection error:", localErr.message);
+      process.exit(1); // Fail fast
+    }
+  }
+};
+
+connectDBAndStartServer();
