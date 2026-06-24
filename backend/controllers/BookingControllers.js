@@ -98,18 +98,13 @@ exports.bookSeats = async (req, res) => {
     const { showId, seats } = req.body;
     const currentUserId = (req.user.id || req.user._id).toString();
 
+    // 1. Initial check: Verify the show exists
     const show = await Show.findById(showId);
     if (!show) return res.status(404).json({ message: "Show not found" });
 
+    // 2. Lock check: Verify all requested seats are locked by the current user
     const invalidSeats = [];
-
     for (const seat of seats) {
-      // Already booked
-      if (show.bookedSeats.includes(seat)) {
-        invalidSeats.push(seat);
-        continue;
-      }
-
       // Check Redis lock
       const redisLock = await getSeatLockStatus(showId, seat);
 
@@ -125,21 +120,49 @@ exports.bookSeats = async (req, res) => {
       });
     }
 
-    // 🔓 Remove lock
+    // 3. Atomic Database Update: Reserve the seats in MongoDB
+    // This query is thread-safe and guarantees no double booking can occur.
+    const updatedShow = await Show.findOneAndUpdate(
+      {
+        _id: showId,
+        bookedSeats: { $nin: seats } // None of the seats must be already booked
+      },
+      {
+        $push: { bookedSeats: { $each: seats } }
+      },
+      { new: true }
+    );
+
+    // If the document is not found, one or more seats were booked concurrently
+    if (!updatedShow) {
+      return res.status(400).json({
+        message: "One or more seats have already been booked by another user",
+        seats
+      });
+    }
+
+    // 4. 🔓 Remove temporary Redis locks now that database write is successful
     await unlockSeats(showId, seats, currentUserId);
 
-    // 💾 Save booking
-    const booking = await Booking.create({
-      user: currentUserId,
-      movie: show.movie,
-      show: showId,
-      seats,
-      totalPrice: seats.length * show.price,
-    });
+    // 5. 💾 Save booking document with self-recovery rollback
+    let booking;
+    try {
+      booking = await Booking.create({
+        user: currentUserId,
+        movie: show.movie,
+        show: showId,
+        seats,
+        totalPrice: seats.length * show.price,
+      });
+    } catch (bookingErr) {
+      // Rollback: Pull the reserved seats if the booking document creation fails
+      await Show.findByIdAndUpdate(showId, {
+        $pull: { bookedSeats: { $in: seats } }
+      });
+      throw bookingErr;
+    }
 
-    show.bookedSeats.push(...seats);
-    await show.save();
-
+    // 6. Broadcast successful booking via Socket.IO
     if (global.io) {
       global.io.to(`show-${showId}`).emit("seatBooked", {
         seats

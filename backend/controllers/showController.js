@@ -70,6 +70,22 @@ exports.updateShow = async (req, res) => {
   try {
     const { movie, theatre, showTime, price } = req.body;
 
+    const existingShow = await Show.findById(req.params.id);
+    if (!existingShow) return res.status(404).json({ message: "Show not found" });
+
+    // Prevent critical changes (movie, theatre, show time) if the show has active bookings
+    if (existingShow.bookedSeats && existingShow.bookedSeats.length > 0) {
+      const isMovieChanged = movie && movie.toString() !== existingShow.movie.toString();
+      const isTheatreChanged = theatre && theatre.toString() !== existingShow.theatre.toString();
+      const isShowTimeChanged = showTime && showTime !== existingShow.showTime;
+
+      if (isMovieChanged || isTheatreChanged || isShowTimeChanged) {
+        return res.status(400).json({
+          message: "Cannot modify show details (movie, theatre, show time) once tickets have been booked."
+        });
+      }
+    }
+
     const show = await Show.findByIdAndUpdate(
       req.params.id,
       { movie, theatre, showTime, price },
@@ -78,7 +94,6 @@ exports.updateShow = async (req, res) => {
       .populate("movie")
       .populate("theatre");
 
-    if (!show) return res.status(404).json({ message: "Show not found" });
     res.json(show);
   } catch (error) {
     res.status(500).json({ message: error.message });

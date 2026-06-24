@@ -75,7 +75,12 @@ function TheatreListPage() {
             >
 
               <h2 className="text-base sm:text-lg font-bold text-[#4b2e1e]">{show.theatre.name}</h2>
-              <p className="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">{show.theatre.location}</p>
+              <p className="text-xs sm:text-sm text-gray-500 mb-1 sm:mb-2">{show.theatre.location}</p>
+              {show.showTime && (
+                <p className="text-xs sm:text-sm text-amber-800 font-semibold mb-2 sm:mb-3">
+                  ⏰ Show Time: {new Date(show.showTime).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
+                </p>
+              )}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
                 <p className="text-pink-600 font-semibold text-sm sm:text-base">Price: Rs. {show.price}</p>
                 <p className={`text-xs sm:text-sm font-semibold ${availableSeats < 20 ? "text-red-500" : "text-green-600"}`}>{availableSeats} Seats Available</p>
