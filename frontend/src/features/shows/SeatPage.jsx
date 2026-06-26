@@ -29,6 +29,7 @@ export default function SeatPage() {
         // 🎬 show info
         setShowData({
           movieName: data.movie?.title,
+          moviePoster: data.movie?.poster,  // ADD THIS LINE
           theatreName: data.theatre?.name,
           showTime: new Date(data.showTime).toLocaleString(),
           price: data.price
@@ -171,18 +172,16 @@ export default function SeatPage() {
   const handleProceedToCheckout = () => {
     if (!selected.length) return;
 
-    localStorage.setItem(
-      "pendingCart",
-      JSON.stringify({
-        showId,
-        seats: selected,
-        // showData contains required info
-        movieName: showData?.movieName || null,
-        theatreName: showData?.theatreName || null,
-        showTime: showData?.showTime || null,
-        price: showData?.price || 0
-      })
-    );
+    const pendingCart = {
+      showId,
+      seats: selected,
+      movieName: showData?.movieName || null,
+      moviePoster: showData?.moviePoster || null,  // ADD THIS LINE
+      theatreName: showData?.theatreName || null,
+      showTime: showData?.showTime || null,
+      price: showData?.price || 0
+    };
+    localStorage.setItem("pendingCart", JSON.stringify(pendingCart));
 
     navigate("/cart");
   };
@@ -198,7 +197,7 @@ export default function SeatPage() {
       isSelected ||
       (seat?.status === "LOCKED" && isMine)
     ) {
-      return "bg-yellow-400 text-black border border-yellow-500";
+      return "bg-[#8b1e3f] text-white border border-[#5b0f1b]";
     }
 
     // ⚫ permanently booked
@@ -208,29 +207,29 @@ export default function SeatPage() {
 
     // 🔒 locked by others
     if (seat?.status === "LOCKED" && !isMine) {
-      return "bg-gray-500 text-white cursor-not-allowed";
+      return "bg-amber-500 text-white border border-amber-600 cursor-not-allowed";
     }
 
     // ⚪ available
-    return "bg-white border border-gray-300 hover:bg-gray-100";
+    return "bg-[#e6f4ea] border border-[#a3cfbb] text-[#137333] hover:bg-[#d2ebd9]";
   };
 
   if (loading) return <div className="text-center mt-20">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-[#f8f8f8] p-3 sm:p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-[#f8f3e9] p-3 sm:p-4 md:p-6 lg:p-8">
 
       {/* HEADER */}
       <div className="max-w-4xl mx-auto mb-8 text-center">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2 leading-tight">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#5b0f1b] mb-2 leading-tight">
           {showData?.movieName}
         </h1>
-        <p className="text-sm sm:text-base md:text-lg text-gray-600 mb-2">
+        <p className="text-sm sm:text-base md:text-lg text-gray-700 mb-2">
           {showData?.theatreName} • {showData?.showTime}
         </p>
         {/* 💰 PRICE CARD */}
         <div className="mt-4 flex justify-center">
-          <div className="bg-white shadow-lg rounded-xl px-3 sm:px-4 md:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-center justify-center  sm:gap-4 border border-gray-200 w-full max-w-md mx-auto">
+          <div className="bg-white shadow-lg rounded-xl px-3 sm:px-4 md:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-center justify-center  sm:gap-4 border border-[#e7dac8] w-full max-w-md mx-auto">
 
             {/* price per seat */}
             <div className="text-center">
@@ -257,7 +256,7 @@ export default function SeatPage() {
             {/* total */}
             <div className="text-center">
               <p className="text-xs sm:text-sm text-gray-500">Total</p>
-              <p className="text-lg sm:text-xl md:text-2xl font-bold text-green-600">
+              <p className="text-lg sm:text-xl md:text-2xl font-bold text-[#8b1e3f]">
                 ₹{selected.length * (showData?.price || 0)}
               </p>
             </div>
@@ -267,19 +266,19 @@ export default function SeatPage() {
       </div>
 
 
-      <div className="flex justify-center gap-6 mb-6 text-sm flex-wrap">
+      <div className="flex justify-center gap-6 mb-6 text-sm flex-wrap text-gray-700">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-white border border-gray-300 rounded"></div>
+          <div className="w-4 h-4 bg-[#e6f4ea] border border-[#a3cfbb] rounded"></div>
           <span>Available</span>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-yellow-400 rounded"></div>
+          <div className="w-4 h-4 bg-[#8b1e3f] rounded"></div>
           <span>Your Seat</span>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-gray-500 rounded"></div>
+          <div className="w-4 h-4 bg-amber-500 rounded"></div>
           <span>Locked</span>
         </div>
 
@@ -290,29 +289,32 @@ export default function SeatPage() {
       </div>
 
       {/* SCREEN */}
-      <div className="text-center mb-4 sm:mb-6 md:mb-8 text-xs sm:text-sm md:text-base text-gray-500 font-mono tracking-wider">
-        -------- SCREEN --------
+      <div className="max-w-md mx-auto mb-6 sm:mb-8">
+        <div className="h-1.5 w-full bg-[#8b1e3f] rounded-full shadow-[0_4px_12px_rgba(139,30,63,0.3)]"></div>
+        <p className="text-center text-[10px] sm:text-xs text-[#8b1e3f]/65 font-bold uppercase tracking-[0.25em] mt-1.5">Screen this way</p>
       </div>
 
       {/* GRID */}
-      <div className="space-y-1.5 sm:space-y-2 md:space-y-2.5 max-w-4xl mx-auto">
-        {rows.map(row => (
-          <div key={row} className="flex justify-center gap-1 sm:gap-1.5 md:gap-2">
-            {Array.from({ length: 10 }, (_, i) => {
-              const seatId = `${row}${i + 1}`;
+      <div className="space-y-1.5 sm:space-y-2 md:space-y-2.5 max-w-4xl mx-auto overflow-x-auto scrollbar-hide py-4 px-2">
+        <div className="min-w-[340px] flex flex-col gap-1.5 sm:gap-2">
+          {rows.map(row => (
+            <div key={row} className="flex justify-center gap-1 sm:gap-1.5 md:gap-2">
+              {Array.from({ length: 10 }, (_, i) => {
+                const seatId = `${row}${i + 1}`;
 
-              return (
-                <button
-                  key={seatId}
-                  onClick={() => handleClick(seatId)}
-                  className={`min-w-[32px] w-8 sm:w-9 md:w-10 lg:w-11 h-8 sm:h-9 md:h-10 lg:h-11 rounded-lg font-medium text-xs sm:text-sm md:text-base shadow-sm hover:shadow-md active:scale-95 transition-all ${getStyle(seatId)}`}
-                >
-                  {seatId}
-                </button>
-              );
-            })}
-          </div>
-        ))}
+                return (
+                  <button
+                    key={seatId}
+                    onClick={() => handleClick(seatId)}
+                    className={`min-w-[32px] w-8 sm:w-9 md:w-10 lg:w-11 h-8 sm:h-9 md:h-10 lg:h-11 rounded-lg font-medium text-xs sm:text-sm md:text-base shadow-sm hover:shadow-md active:scale-95 transition-all cursor-pointer ${getStyle(seatId)}`}
+                  >
+                    {seatId}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* BUTTON */}
@@ -320,7 +322,7 @@ export default function SeatPage() {
         <button
           onClick={handleProceedToCheckout}
           disabled={!selected.length}
-          className="px-6 sm:px-8 py-2.5 sm:py-3 md:py-3.5 bg-gray-800 hover:bg-gray-900 text-white font-medium rounded-xl disabled:opacity-40 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-all text-sm sm:text-base md:text-lg min-w-[220px]"
+          className="px-6 sm:px-8 py-2.5 sm:py-3 md:py-3.5 bg-[#8b1e3f] hover:bg-[#5b0f1b] text-white font-medium rounded-xl disabled:opacity-40 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-all text-sm sm:text-base md:text-lg min-w-[220px] cursor-pointer"
         >
           Proceed to Book Ticket
         </button>

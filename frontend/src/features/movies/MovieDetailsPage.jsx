@@ -231,8 +231,8 @@ function MovieDetailsPage() {
                           items-center
                           justify-center
                           gap-2
-                          bg-blue-600
-                          hover:bg-blue-700
+                          bg-[#8b1e3f]
+                          hover:bg-[#5b0f1b]
                           text-white
                           px-6
                           py-3
@@ -243,6 +243,7 @@ function MovieDetailsPage() {
                           shadow-lg
                           hover:scale-105
                           transition-all
+                          cursor-pointer
                         "
                       >
                         ✏ Edit Movie
@@ -262,9 +263,11 @@ function MovieDetailsPage() {
                           items-center
                           justify-center
                           gap-2
-                          bg-[#8b1e3f]
-                          hover:bg-[#b02a4f]
-                          text-white
+                          bg-[#faf7f2]
+                          hover:bg-[#f5efe6]
+                          text-[#8b1e3f]
+                          border
+                          border-[#8b1e3f]
                           px-6
                           py-3
                           rounded-xl
@@ -273,6 +276,7 @@ function MovieDetailsPage() {
                           font-bold
                           shadow-lg
                           transition-all
+                          cursor-pointer
                         "
                       >
                         ▶ Watch Trailer
@@ -286,9 +290,9 @@ function MovieDetailsPage() {
                           items-center
                           justify-center
                           gap-2
-                          bg-yellow-400
-                          hover:bg-yellow-300
-                          text-black
+                          bg-[#8b1e3f]
+                          hover:bg-[#5b0f1b]
+                          text-white
                           px-6
                           py-3
                           rounded-xl
@@ -297,6 +301,7 @@ function MovieDetailsPage() {
                           font-bold
                           shadow-lg
                           transition-all
+                          cursor-pointer
                         "
                       >
                         Book Tickets
@@ -317,13 +322,15 @@ function MovieDetailsPage() {
       {/* TRAILER MODAL */}
       {showTrailerModal && (
 
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-[#5b0f1b]/85 flex items-center justify-center z-50 p-4">
 
           <Motion.div
             initial={{ scale: 0.85, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             className="
-              bg-[#5b0f1b]
+              bg-[#faf7f2]
+              border
+              border-[#e7dac8]
               rounded-3xl
               p-6
               sm:p-8
@@ -337,14 +344,14 @@ function MovieDetailsPage() {
             <div className="mb-5">
 
               <div className="w-20 h-20 bg-[#8b1e3f] rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-4xl text-white">🎬</span>
+                <span className="text-4xl text-[#f8f3e9]">🎬</span>
               </div>
 
-              <h3 className="text-2xl font-bold text-white mb-2">
+              <h3 className="text-2xl font-bold text-[#5b0f1b] mb-2">
                 Coming Soon
               </h3>
 
-              <p className="text-[#e8dcd6]">
+              <p className="text-[#4b2e1e]">
                 Trailer feature will be available soon.
               </p>
 
@@ -354,13 +361,14 @@ function MovieDetailsPage() {
               onClick={() => setShowTrailerModal(false)}
               className="
                 bg-[#8b1e3f]
-                hover:bg-[#b02a4f]
+                hover:bg-[#5b0f1b]
                 text-white
                 px-8
                 py-3
                 rounded-xl
                 font-bold
                 transition-all
+                cursor-pointer
               "
             >
               Close

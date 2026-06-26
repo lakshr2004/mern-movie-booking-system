@@ -61,7 +61,7 @@ function ShowsPage() {
 
   return (
     <Motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen bg-[#f8f3e9] px-4 sm:px-6 py-8 md:py-14">
-      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-[#6b3e26] mb-8 md:mb-12">
+      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-[#8b1e3f] mb-8 md:mb-12">
         Select Showtime
       </h1>
 
@@ -75,9 +75,9 @@ function ShowsPage() {
             transition={{ delay: idx * 0.1 }}
             whileHover={{ scale: 1.05, y: -5 }}
             onClick={() => navigate(`/theatres/${movieId}?time=${time}`)}
-            className="bg-white/70 backdrop-blur-lg border border-[#e0d6c5] rounded-xl p-4 sm:p-6 cursor-pointer text-center shadow-md hover:shadow-xl transition-all"
+            className="bg-white border border-[#e7dac8] hover:border-[#8b1e3f] rounded-xl p-4 sm:p-6 cursor-pointer text-center shadow-md hover:shadow-xl transition-all"
           >
-            <p className="text-lg sm:text-xl font-bold text-[#4b2e1e]">{time}</p>
+            <p className="text-lg sm:text-xl font-bold text-[#8b1e3f]">{time}</p>
             <p className="text-xs sm:text-sm text-gray-600 mt-1">{timeShows.length} Theatres</p>
           </Motion.div>
         ))}

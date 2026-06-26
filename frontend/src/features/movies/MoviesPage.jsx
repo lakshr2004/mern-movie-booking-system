@@ -175,7 +175,7 @@ function MoviesPage() {
   return (
     <div className="bg-[#f8f3e9] min-h-screen overflow-hidden">
       {/* HERO SECTION */}
-      <section className="relative overflow-hidden bg-[#edf1f5]">
+      <section className="relative overflow-hidden bg-[#fcfaf6]">
 
         {/* SOFT BACKGROUND */}
         <div className="absolute inset-0">
@@ -187,7 +187,7 @@ function MoviesPage() {
             className="hidden md:block w-full h-full object-cover blur-3xl opacity-[0.07] scale-125"
           />
 
-          <div className="absolute inset-0 bg-[#edf1f5]/95" />
+          <div className="absolute inset-0 bg-[#fcfaf6]/95" />
         </div>
 
         {/* MOBILE + TABLET ARROWS */}
@@ -219,7 +219,7 @@ function MoviesPage() {
       duration-300
     "
         >
-          <span className="text-[#5b0f1b] text-xl font-bold">
+          <span className="text-[#8b1e3f] text-xl font-bold">
             ‹
           </span>
         </button>
@@ -252,7 +252,7 @@ function MoviesPage() {
       duration-300
     "
         >
-          <span className="text-[#5b0f1b] text-xl font-bold">
+          <span className="text-[#8b1e3f] text-xl font-bold">
             ›
           </span>
         </button>
@@ -284,7 +284,7 @@ function MoviesPage() {
                   {currentMovie.genre}
                 </span>
 
-                <span className="bg-yellow-400 text-black px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                <span className="bg-[#8b1e3f] text-[#f8f3e9] px-4 py-2 rounded-full text-sm font-bold shadow-lg">
                   ⭐ {currentMovie.rating}/10
                 </span>
 
@@ -334,7 +334,7 @@ function MoviesPage() {
                 duration-300
                 ${currentSlide === index
                         ? "w-6 h-2 bg-[#8b1e3f]"
-                        : "w-2 h-2 bg-gray-400"
+                        : "w-2 h-2 bg-[#e7dac8]"
                       }
               `}
                   />
@@ -416,7 +416,7 @@ function MoviesPage() {
                   {currentMovie.genre}
                 </span>
 
-                <span className="bg-yellow-400 text-black px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                <span className="bg-[#8b1e3f] text-[#f8f3e9] px-4 py-2 rounded-full text-sm font-bold shadow-lg">
                   ⭐ {currentMovie.rating}/10
                 </span>
 
@@ -465,7 +465,7 @@ function MoviesPage() {
                 duration-300
                 ${currentSlide === index
                         ? "w-8 h-2 bg-[#8b1e3f]"
-                        : "w-2 h-2 bg-gray-400"
+                        : "w-2 h-2 bg-[#e7dac8]"
                       }
               `}
                   />
@@ -476,21 +476,20 @@ function MoviesPage() {
         </div>
       </section>
 
-      {/* SEARCH + FILTER */}
       <section className="max-w-7xl mx-auto px-4 py-8">
-        <div className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-5 sm:p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 border border-white">
+        <div className="bg-[#faf7f2]/80 backdrop-blur-lg rounded-3xl shadow-xl p-5 sm:p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 border border-[#e7dac8]">
           <input
             type="text"
             placeholder="Search movies..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="border border-gray-200 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#8b1e3f]"
+            className="border border-[#e7dac8] rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#8b1e3f] bg-white text-[#2e1c14]"
           />
 
           <select
             value={selectedGenre}
             onChange={(e) => setSelectedGenre(e.target.value)}
-            className="border border-gray-200 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#8b1e3f]"
+            className="border border-[#e7dac8] rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#8b1e3f] bg-white text-[#2e1c14]"
           >
             {genres.map((genre, i) => (
               <option key={i}>{genre}</option>
@@ -500,7 +499,7 @@ function MoviesPage() {
           <select
             value={selectedLanguage}
             onChange={(e) => setSelectedLanguage(e.target.value)}
-            className="border border-gray-200 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#8b1e3f]"
+            className="border border-[#e7dac8] rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#8b1e3f] bg-white text-[#2e1c14]"
           >
             {languages.map((lang, i) => (
               <option key={i}>{lang}</option>
@@ -513,7 +512,7 @@ function MoviesPage() {
               setSelectedGenre("All");
               setSelectedLanguage("All");
             }}
-            className="bg-[#8b1e3f] hover:bg-[#6d102c] text-white rounded-2xl px-4 py-3 font-semibold transition-all duration-300 shadow-lg"
+            className="bg-[#8b1e3f] hover:bg-[#5b0f1b] text-white rounded-2xl px-4 py-3 font-semibold transition-all duration-300 shadow-lg cursor-pointer"
           >
             Reset Filters
           </button>
@@ -591,7 +590,7 @@ function MoviesPage() {
                   </h3>
 
                   <div className="flex justify-between items-center mt-2">
-                    <span className="text-yellow-600 font-bold text-xs sm:text-sm">
+                    <span className="text-[#8b1e3f] font-bold text-xs sm:text-sm">
                       ⭐ {movie.rating}
                     </span>
 
@@ -672,7 +671,7 @@ function MoviesPage() {
                     {movie.title}
                   </h3>
 
-                  <p className="text-yellow-600 font-bold mt-2 text-xs sm:text-sm">
+                  <p className="text-[#8b1e3f] font-bold mt-2 text-xs sm:text-sm">
                     ⭐ {movie.rating}/10
                   </p>
                 </div>

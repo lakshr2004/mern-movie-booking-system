@@ -57,4 +57,16 @@ export const unlockSeats = (showId, seats) =>
 export const bookSeats = (showId, seats) =>
   API.post("/booking/book", { showId, seats });
 
+//
+// 💳 PAYMENT APIs
+//
+export const createPaymentOrder = (showId, seats, amount) =>
+  API.post("/payment/create-order", { showId, seats, amount });
+
+export const verifyPayment = (payload) =>
+  API.post("/payment/verify-payment", payload);
+
+export const cancelPaymentOrder = (razorpayOrderId) =>
+  API.post("/payment/cancel-order", { razorpay_order_id: razorpayOrderId });
+
 export default API;

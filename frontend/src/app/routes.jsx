@@ -11,8 +11,7 @@ import MyBookings from "../features/bookings/MyBookings";
 import ContactPage from "../features/contact/ContactPage";
 import ProtectedRoute from "../components/layout/ProtectedRoute";
 import CartPage from "../features/bookings/CartPage.jsx";
-
-
+import BookingConfirmation from "../features/bookings/BookingConfirmation";
 
 function AppRoutes() {
   return (
@@ -24,6 +23,14 @@ function AppRoutes() {
       <Route path="/my-bookings" element={<MyBookings />} />
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/cart" element={<CartPage />} />
+      <Route
+        path="/booking-confirmation"
+        element={
+          <ProtectedRoute>
+            <BookingConfirmation />
+          </ProtectedRoute>
+        }
+      />
 
 
       <Route

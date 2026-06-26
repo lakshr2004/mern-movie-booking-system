@@ -64,7 +64,7 @@ function TheatreListPage() {
 
   return (
     <Motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen bg-[#f8f3e9] px-4 sm:px-6 py-8 md:py-14">
-      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-[#6b3e26] mb-8 md:mb-12">
+      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-[#8b1e3f] mb-8 md:mb-12">
         Available Theatres
       </h1>
       <div className="space-y-4 sm:space-y-6 max-w-4xl mx-auto">
@@ -81,19 +81,19 @@ function TheatreListPage() {
               transition={{ delay: idx * 0.1 }}
               whileHover={{ scale: 1.02 }}
               onClick={() => navigate(`/seat/${show._id}`)}
-              className="bg-white border border-[#e5dccb] p-4 sm:p-6 rounded-xl shadow-md hover:shadow-xl transition-all cursor-pointer"
+              className="bg-white border border-[#e7dac8] hover:border-[#8b1e3f] p-4 sm:p-6 rounded-xl shadow-md hover:shadow-xl transition-all cursor-pointer"
             >
 
               <h2 className="text-base sm:text-lg font-bold text-[#4b2e1e]">{show.theatre.name}</h2>
               <p className="text-xs sm:text-sm text-gray-500 mb-1 sm:mb-2">{show.theatre.location}</p>
               {show.showTime && (
-                <p className="text-xs sm:text-sm text-amber-800 font-semibold mb-2 sm:mb-3">
+                <p className="text-xs sm:text-sm text-[#8b1e3f] font-semibold mb-2 sm:mb-3">
                   ⏰ Show Time: {new Date(show.showTime).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
                 </p>
               )}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
-                <p className="text-pink-600 font-semibold text-sm sm:text-base">Price: Rs. {show.price}</p>
-                <p className={`text-xs sm:text-sm font-semibold ${availableSeats < 20 ? "text-red-500" : "text-green-600"}`}>{availableSeats} Seats Available</p>
+                <p className="text-[#8b1e3f] font-semibold text-sm sm:text-base">Price: Rs. {show.price}</p>
+                <p className={`text-xs sm:text-sm font-semibold ${availableSeats < 20 ? "text-[#5b0f1b]" : "text-green-600"}`}>{availableSeats} Seats Available</p>
               </div>
             </Motion.div>
           );

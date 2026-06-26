@@ -54,11 +54,11 @@ function MyBookings() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f5efe6]">
+      <div className="min-h-screen flex items-center justify-center bg-[#f8f3e9]">
         <motion.p 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-[#7a3e1d] text-lg sm:text-xl"
+          className="text-[#8b1e3f] text-lg sm:text-xl font-bold"
         >
           Loading bookings...
         </motion.p>
@@ -70,13 +70,13 @@ function MyBookings() {
     <motion.div 
       initial={{ opacity: 0 }} 
       animate={{ opacity: 1 }} 
-      className="min-h-screen bg-[#f5efe6] px-4 sm:px-6 lg:px-12 py-8 sm:py-12"
+      className="min-h-screen bg-[#f8f3e9] px-4 sm:px-6 lg:px-12 py-8 sm:py-12"
     >
       <motion.h1 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center text-[#7a3e1d] mb-8 sm:mb-12"
+        className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center text-[#8b1e3f] mb-8 sm:mb-12"
       >
         My Bookings
       </motion.h1>
@@ -91,7 +91,7 @@ function MyBookings() {
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center text-gray-500 bg-white p-6 sm:p-10 rounded-xl shadow"
+            className="text-center text-gray-500 bg-[#faf7f2] border border-[#e7dac8] p-6 sm:p-10 rounded-xl shadow"
           >
             No bookings found
           </motion.div>
@@ -102,25 +102,29 @@ function MyBookings() {
             key={b._id}
             variants={itemVariants}
             whileHover={{ scale: 1.01, y: -3 }}
-            className="bg-white border border-[#e7dac8] rounded-xl shadow-md hover:shadow-lg transition flex flex-col sm:flex-row gap-4 sm:gap-6 p-4 sm:p-6"
+            className="bg-[#faf7f2] border border-[#e7dac8] rounded-xl shadow-md hover:shadow-lg transition flex flex-col sm:flex-row gap-4 sm:gap-6 p-4 sm:p-6"
           >
-<div className="w-full sm:w-36 h-48 flex-shrink-0 pointer-events-none overflow-hidden rounded-lg">
+            <div className="w-full sm:w-36 h-48 flex-shrink-0 pointer-events-none overflow-hidden rounded-lg">
               <MovieCard movie={b.movie || {}} />
             </div>
             <div className="flex-1 space-y-2 sm:space-y-3">
 
               <p className="text-gray-600 text-sm sm:text-base">
-                Theatre: <span className="font-semibold">{b.show?.theatre?.name || "N/A"}</span>
+                Theatre: <span className="font-semibold text-[#2e1c14]">{b.show?.theatre?.name || "N/A"}</span>
               </p>
               <p className="text-gray-600 text-sm sm:text-base">
-                Location: <span className="font-semibold">{b.show?.theatre?.location || "N/A"}</span>
+                Location: <span className="font-semibold text-[#2e1c14]">{b.show?.theatre?.location || "N/A"}</span>
               </p>
               <p className="text-gray-600 text-sm sm:text-base">
-                Show Time: <span className="font-semibold">{b.show?.showTime ? new Date(b.show.showTime).toLocaleString() : 'N/A'}</span> | Seats: <span className="font-semibold">{b.seats?.join(', ') || 'N/A'}</span> | Price: ₹<span className="font-semibold">{b.totalPrice || 0}</span>
+                Show Time: <span className="font-semibold text-[#2e1c14]">{b.show?.showTime ? new Date(b.show.showTime).toLocaleString() : 'N/A'}</span> | Seats: <span className="font-semibold text-[#2e1c14]">{b.seats?.join(', ') || 'N/A'}</span> | Price: ₹<span className="font-semibold text-[#8b1e3f]">{b.totalPrice || 0}</span>
               </p>
 
               <div className="pt-2">
-                <span className="bg-[#8b1e3f] text-white px-3 sm:px-4 py-1 rounded-full text-xs sm:text-sm">Confirmed</span>
+                {b.status === "failed" || b.status === "cancelled" ? (
+                  <span className="bg-[#5b0f1b] text-white px-3 sm:px-4 py-1 rounded-full text-xs sm:text-sm font-semibold">Cancelled</span>
+                ) : (
+                  <span className="bg-[#8b1e3f] text-white px-3 sm:px-4 py-1 rounded-full text-xs sm:text-sm font-semibold">Confirmed</span>
+                )}
               </div>
             </div>
           </motion.div>

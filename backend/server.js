@@ -61,6 +61,7 @@ app.use("/api/shows", require("./routes/showRoutes"));
 app.use("/api/booking", bookingRoutes);
 app.use("/api", contactRoutes);
 app.use("/api/theatres", require("./routes/theatreRoutes"));
+app.use("/api/payment", require("./routes/paymentRoutes"));
 
 // SOCKET EVENTS
 io.on("connection", (socket) => {
@@ -79,6 +80,7 @@ io.on("connection", (socket) => {
 
 // Seat lock cleanup cron (every 30s)
 setInterval(async () => {
+  // 1. Temporary Redis locks cleanup
   try {
     const { redis } = require("./utils/redis");
 
@@ -93,12 +95,41 @@ setInterval(async () => {
 
           global.io
             .to(`show-${showId}`)
-            .emit("seatUnlocked", { seat: seatId });
+            .emit("seatUnlocked", { seats: [seatId] });
         }
       }
     }
   } catch (err) {
-    console.log("Cleanup cron error:", err.message);
+    console.log("Redis cleanup cron error:", err.message);
+  }
+
+  // 2. Pending bookings cleanup (older than 5 minutes)
+  try {
+    const expiredTime = new Date(Date.now() - 5 * 60 * 1000);
+    const expiredBookings = await Booking.find({
+      payment_status: "pending",
+      createdAt: { $lt: expiredTime }
+    });
+
+    for (const booking of expiredBookings) {
+      console.log(`Auto-expiring pending booking ${booking._id} for show ${booking.show}`);
+      booking.payment_status = "failed";
+      await booking.save();
+
+      // Pull seats from MongoDB Show.bookedSeats
+      await Show.findByIdAndUpdate(booking.show, {
+        $pull: { bookedSeats: { $in: booking.seats } }
+      });
+
+      // Broadcast seatUnlocked to all clients
+      if (global.io) {
+        global.io.to(`show-${booking.show}`).emit("seatUnlocked", {
+          seats: booking.seats
+        });
+      }
+    }
+  } catch (bookingCleanupErr) {
+    console.log("Pending booking cleanup error:", bookingCleanupErr.message);
   }
 }, 30000);
 
