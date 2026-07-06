@@ -73,7 +73,7 @@ exports.createRazorpayOrder = async (req, res) => {
       const options = {
         amount,
         currency: "INR",
-        receipt: `receipt_show_${showId}_${Date.now()}`,
+        receipt: `rcpt_${showId.toString().substring(18)}_${Date.now()}`,
       };
 
       if (process.env.RAZORPAY_KEY_ID === "rzp_test_bookingKey123") {
