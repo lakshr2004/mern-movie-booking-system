@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { lockSeats, unlockSeats, getShowSeats } from "../../services/api";
+import { lockSeats, unlockSeats, getShowSeats, getShowSeatsStatus } from "../../services/api";
 
 import { connectSocket, joinShow } from "../../services/socket";
 
@@ -15,45 +15,35 @@ export default function SeatPage() {
   const [showData, setShowData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ current user
-  const currentUser =
-    JSON.parse(localStorage.getItem("user"))?.user?._id;
+  // ✅ current user (handle both id and _id formats from auth token/payload)
+  const userObj = JSON.parse(localStorage.getItem("user"));
+  const currentUser = userObj?.user?.id || userObj?.user?._id || userObj?.id || userObj?._id;
 
   // ================= LOAD SHOW + SEATS =================
   useEffect(() => {
     const loadShow = async () => {
       try {
-        const res = await getShowSeats(showId);
-        const data = res.data;
+        const [showRes, seatsRes] = await Promise.all([
+          getShowSeats(showId),
+          getShowSeatsStatus(showId)
+        ]);
+        const showDataVal = showRes.data;
+        const seatsDataVal = seatsRes.data;
 
         // 🎬 show info
         setShowData({
-          movieName: data.movie?.title,
-          moviePoster: data.movie?.poster,  // ADD THIS LINE
-          theatreName: data.theatre?.name,
-          showTime: new Date(data.showTime).toLocaleString(),
-          price: data.price
+          movieName: showDataVal.movie?.title,
+          moviePoster: showDataVal.movie?.poster,
+          theatreName: showDataVal.theatre?.name,
+          showTime: new Date(showDataVal.showTime).toLocaleString(),
+          price: showDataVal.price
         });
 
-        // 🔥 IMPORTANT: initialize seat state
-        const seatMap = {};
+        // 🔥 IMPORTANT: initialize seat state with Redis lock status
+        setSeats(seatsDataVal.seatsStatus || {});
 
-        // 🔴 booked seats
-        data.bookedSeats?.forEach(seat => {
-          seatMap[seat] = { status: "BOOKED" };
-        });
-
-        // 🔒 locked seats (if backend sends)
-        data.lockedSeats?.forEach(seat => {
-          seatMap[seat.seatNumber] = {
-            status: "LOCKED",
-            lockedBy: seat.lockedBy
-          };
-        });
-
-        setSeats(seatMap);
-
-      } catch {
+      } catch (err) {
+        console.error("Failed to load show seats details:", err);
         alert("Failed to load show");
       } finally {
         setLoading(false);

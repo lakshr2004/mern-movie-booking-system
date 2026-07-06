@@ -202,6 +202,7 @@ async function seedDatabase() {
 
 async function start() {
   try {
+    mongoose.set("bufferCommands", false);
     console.log("Connecting to Primary MongoDB (Atlas)...");
     await mongoose.connect(process.env.MONGO_URI, {
       serverSelectionTimeoutMS: 5000,

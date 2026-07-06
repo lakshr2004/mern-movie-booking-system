@@ -45,6 +45,9 @@ API.interceptors.response.use(
 export const getShowSeats = (showId) =>
   API.get(`/shows/${showId}`);
 
+export const getShowSeatsStatus = (showId) =>
+  API.get(`/shows/${showId}/seats`);
+
 //
 // 🎟️ BOOKING APIs
 //
