@@ -66,12 +66,21 @@ exports.createRazorpayOrder = async (req, res) => {
       });
     }
 
-    // 4. Create order on Razorpay
+    // 4. Calculate authoritative ticket amount server-side (including convenience fee & GST)
+    // NEVER trust client-supplied req.body.amount
+    const ticketPrice = seats.length * show.price;
+    const convenienceFee = 30;
+    const taxableAmount = ticketPrice + convenienceFee;
+    const cgst = parseFloat((taxableAmount * 0.09).toFixed(2));
+    const sgst = parseFloat((taxableAmount * 0.09).toFixed(2));
+    const calculatedTotalAmount = parseFloat((ticketPrice + convenienceFee + cgst + sgst).toFixed(2));
+    const amountInPaise = Math.round(calculatedTotalAmount * 100);
+
+    // 5. Create order on Razorpay using ONLY server-calculated amount
     let razorpayOrder;
     try {
-      const amount = req.body.amount || (seats.length * show.price * 100); // in paise
       const options = {
-        amount,
+        amount: amountInPaise,
         currency: "INR",
         receipt: `rcpt_${showId.toString().substring(18)}_${Date.now()}`,
       };
@@ -80,7 +89,7 @@ exports.createRazorpayOrder = async (req, res) => {
         console.log("Mock Mode Active: Generating mock Razorpay order...");
         razorpayOrder = {
           id: `order_mock_${Math.random().toString(36).substring(2, 11)}`,
-          amount,
+          amount: amountInPaise,
           currency: "INR",
         };
       } else {
@@ -96,17 +105,15 @@ exports.createRazorpayOrder = async (req, res) => {
       return res.status(500).json({ message: "Failed to initiate payment with Razorpay" });
     }
 
-    // 5. Create Pending Booking document in MongoDB
+    // 6. Create Pending Booking document in MongoDB using ONLY server-calculated total
     let booking;
     try {
-      const reqAmount = req.body.amount;
-      const finalPrice = reqAmount ? (reqAmount / 100) : (seats.length * show.price);
       booking = await Booking.create({
         user: currentUserId,
         movie: show.movie,
         show: showId,
         seats,
-        totalPrice: finalPrice,
+        totalPrice: calculatedTotalAmount,
         payment_status: "pending",
         razorpay_order_id: razorpayOrder.id,
       });

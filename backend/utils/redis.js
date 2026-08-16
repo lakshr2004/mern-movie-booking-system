@@ -36,6 +36,7 @@ const lockSeats = async (showId, seats, userId, ttl = 300) => {
   if (!redis) return [];
 
   const lockedSeats = [];
+  let allAcquired = true;
 
   for (const seatId of seats) {
     const key = `seat:${showId}:${seatId}`;
@@ -48,10 +49,24 @@ const lockSeats = async (showId, seats, userId, ttl = 300) => {
         // Add to sorted set tracker
         const expiryTime = Date.now() + (ttl * 1000);
         await redis.zadd("seat-lock-expiry", expiryTime, `${showId}:${seatId}:${userId}`);
+      } else {
+        // Seat already locked by another user - break and rollback
+        allAcquired = false;
+        break;
       }
     } catch (err) {
       console.log("Lock error:", err.message);
+      allAcquired = false;
+      break;
     }
+  }
+
+  // Rollback: If any requested seat failed to lock, release all seats acquired by this attempt
+  if (!allAcquired) {
+    if (lockedSeats.length > 0) {
+      await unlockSeats(showId, lockedSeats, userId);
+    }
+    return [];
   }
 
   return lockedSeats;

@@ -33,6 +33,25 @@ exports.lockSeatsController = async (req, res) => {
     const { showId, seats } = req.body;
     const userId = (req.user.id || req.user._id).toString();
 
+    if (!showId || !seats || !seats.length) {
+      return res.status(400).json({ message: "Show ID and seats are required" });
+    }
+
+    const show = await Show.findById(showId);
+    if (!show) {
+      return res.status(404).json({ message: "Show not found" });
+    }
+
+    // Prevent locking seats that are already permanently booked in MongoDB
+    const alreadyBooked = seats.filter(s => show.bookedSeats && show.bookedSeats.includes(s));
+    if (alreadyBooked.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "One or more requested seats are already permanently booked",
+        bookedSeats: alreadyBooked
+      });
+    }
+
     const lockedSeats = await lockSeats(showId, seats, userId);
 
     if (lockedSeats.length === 0) {

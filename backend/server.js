@@ -63,13 +63,15 @@ const seedDefaultData = async () => {
     const User = require("./models/User");
     const adminExists = await User.findOne({ role: "admin" });
     if (!adminExists) {
+      const adminEmail = process.env.ADMIN_EMAIL || "admin@ticket.in";
+      const adminPassword = process.env.ADMIN_PASS || process.env.ADMIN_PASSWORD || "AdminPass123!";
       await User.create({
         name: "Admin User",
-        email: "admin@ticket.in",
-        password: "password123",
+        email: adminEmail,
+        password: adminPassword,
         role: "admin",
       });
-      console.log("✅ Seeded default Admin user: admin@ticket.in / password123");
+      console.log(`✅ Seeded default Admin user: ${adminEmail}`);
     }
   } catch (err) {
     console.log("Admin seed error:", err.message);

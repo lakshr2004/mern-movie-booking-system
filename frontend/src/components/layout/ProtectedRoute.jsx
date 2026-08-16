@@ -6,10 +6,7 @@ function ProtectedRoute({ children, adminOnly = false, userOnly = false }) {
   const { user, getUserRole } = useContext(AuthContext);
 
   if (!user) {
-    if (adminOnly) {
-      return <Navigate to="/login" replace />;
-    }
-    return children;
+    return <Navigate to="/login" replace />;
   }
 
   const role = getUserRole();
