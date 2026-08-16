@@ -20,7 +20,6 @@ router.post("/cancel-order", protect, cancelPaymentOrder);
 // 🪝 Razorpay Webhook (NOT protected, requires raw body for signature check)
 router.post(
   "/webhook",
-  express.raw({ type: "application/json" }),
   handleWebhook
 );
 

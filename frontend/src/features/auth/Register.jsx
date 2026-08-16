@@ -28,8 +28,9 @@ function Register() {
       setTimeout(() => {
         navigate("/login", { replace: true });
       }, 1500);
-    } catch {
-      toast.error("Registration failed");
+    } catch (err) {
+      const message = err?.response?.data?.message || "Registration failed. Please try again.";
+      toast.error(message);
     }
 
     setLoading(false);

@@ -8,9 +8,7 @@ const {
   getAllShows,
   updateShow,
   deleteShow,
-  getShowSeatsStatus,
-  lockSeats,
-  unlockSeats
+  getShowSeatsStatus
 } = require("../controllers/showController");
 
 
@@ -20,8 +18,6 @@ const { protect, adminOnly } = require("../middleware/authMiddleware");
 router.get("/movie/:movieId", getShowsByMovie);
 router.get("/:id", getShowById);
 router.get("/:id/seats", protect, getShowSeatsStatus);
-router.post("/:id/lock", protect, lockSeats);
-router.post("/:id/unlock", protect, unlockSeats);
 
 // Admin routes (protected)
 

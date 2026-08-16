@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { lockSeats, unlockSeats, getShowSeats, getShowSeatsStatus } from "../../services/api";
-
 import { connectSocket, joinShow } from "../../services/socket";
 
 const rows = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
@@ -15,7 +14,7 @@ export default function SeatPage() {
   const [showData, setShowData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ current user (handle both id and _id formats from auth token/payload)
+  // Current user (handle both id and _id formats from auth token/payload)
   const userObj = JSON.parse(localStorage.getItem("user"));
   const currentUser = userObj?.user?.id || userObj?.user?._id || userObj?.id || userObj?._id;
 
@@ -30,7 +29,6 @@ export default function SeatPage() {
         const showDataVal = showRes.data;
         const seatsDataVal = seatsRes.data;
 
-        // 🎬 show info
         setShowData({
           movieName: showDataVal.movie?.title,
           moviePoster: showDataVal.movie?.poster,
@@ -39,9 +37,11 @@ export default function SeatPage() {
           price: showDataVal.price
         });
 
-        // 🔥 IMPORTANT: initialize seat state with Redis lock status
         setSeats(seatsDataVal.seatsStatus || {});
-
+        const bookedSeatIds = Object.keys(seatsDataVal.seatsStatus || {}).filter(
+          s => seatsDataVal.seatsStatus[s]?.status === "BOOKED"
+        );
+        setSelected(prev => prev.filter(s => !bookedSeatIds.includes(s)));
       } catch (err) {
         console.error("Failed to load show seats details:", err);
         alert("Failed to load show");
@@ -63,22 +63,17 @@ export default function SeatPage() {
     socket.on("seatLocked", ({ seats, lockedBy }) => {
       setSeats(prev => {
         const updated = { ...prev };
-
         seats.forEach(seat => {
           updated[seat] = {
             status: "LOCKED",
             lockedBy
           };
         });
-
         return updated;
       });
 
-      // ✅ REMOVE ONLY IF LOCKED BY OTHER USER
       if (lockedBy !== currentUser) {
-        setSelected(prev =>
-          prev.filter(s => !seats.includes(s))
-        );
+        setSelected(prev => prev.filter(s => !seats.includes(s)));
       }
     });
 
@@ -112,39 +107,28 @@ export default function SeatPage() {
       socket.off("seatBooked");
       socket.disconnect();
     };
-  }, [showId]);
+  }, [showId, currentUser]);
 
   // ================= CLICK =================
   const handleClick = async (seatId) => {
     const seat = seats[seatId];
     const isSelected = selected.includes(seatId);
 
-    // ❌ booked → ignore
     if (seat?.status === "BOOKED") return;
-
-    // ❌ locked by others → ignore
     if (seat?.status === "LOCKED" && seat.lockedBy !== currentUser) return;
 
     try {
-      // 🔁 DESELECT
       if (isSelected) {
         await unlockSeats(showId, [seatId]);
-
         setSelected(prev => prev.filter(s => s !== seatId));
-
         setSeats(prev => ({
           ...prev,
           [seatId]: { status: "AVAILABLE" }
         }));
-      }
-      // 🔒 SELECT
-      else {
+      } else {
         const res = await lockSeats(showId, [seatId]);
-
         if (res.data.success) {
           setSelected(prev => [...prev, seatId]);
-
-          // 🔥 instant UI update
           setSeats(prev => ({
             ...prev,
             [seatId]: { status: "LOCKED", lockedBy: currentUser }
@@ -166,7 +150,7 @@ export default function SeatPage() {
       showId,
       seats: selected,
       movieName: showData?.movieName || null,
-      moviePoster: showData?.moviePoster || null,  // ADD THIS LINE
+      moviePoster: showData?.moviePoster || null,
       theatreName: showData?.theatreName || null,
       showTime: showData?.showTime || null,
       price: showData?.price || 0
@@ -182,113 +166,108 @@ export default function SeatPage() {
     const isSelected = selected.includes(seatId);
     const isMine = seat?.lockedBy === currentUser;
 
-    // 🟡 YOUR selected/locked seat
-    if (
-      isSelected ||
-      (seat?.status === "LOCKED" && isMine)
-    ) {
-      return "bg-[#8b1e3f] text-white border border-[#5b0f1b]";
-    }
-
-    // ⚫ permanently booked
     if (seat?.status === "BOOKED") {
       return "bg-gray-900 text-white cursor-not-allowed";
     }
 
-    // 🔒 locked by others
+    if (isSelected || (seat?.status === "LOCKED" && isMine)) {
+      return "bg-[#8b1e3f] text-white border border-[#5b0f1b]";
+    }
+
     if (seat?.status === "LOCKED" && !isMine) {
       return "bg-amber-500 text-white border border-amber-600 cursor-not-allowed";
     }
 
-    // ⚪ available
     return "bg-[#e6f4ea] border border-[#a3cfbb] text-[#137333] hover:bg-[#d2ebd9]";
   };
 
-  if (loading) return <div className="text-center mt-20">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f8f3e9] flex items-center justify-center p-4">
+        <div className="text-center font-bold text-[#5b0f1b]">Loading seats...</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-[#f8f3e9] p-3 sm:p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-[#f8f3e9] p-3 sm:p-4 md:p-6 lg:p-8 pb-32">
 
       {/* HEADER */}
-      <div className="max-w-4xl mx-auto mb-8 text-center">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#5b0f1b] mb-2 leading-tight">
+      <div className="max-w-4xl mx-auto mb-6 text-center">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#5b0f1b] mb-1.5 leading-tight">
           {showData?.movieName}
         </h1>
-        <p className="text-sm sm:text-base md:text-lg text-gray-700 mb-2">
-          {showData?.theatreName} • {showData?.showTime}
+        <p className="text-xs sm:text-sm md:text-base text-gray-700 mb-3 font-medium">
+          📍 {showData?.theatreName} • 🕒 {showData?.showTime}
         </p>
-        {/* 💰 PRICE CARD */}
-        <div className="mt-4 flex justify-center">
-          <div className="bg-white shadow-lg rounded-xl px-3 sm:px-4 md:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-center justify-center  sm:gap-4 border border-[#e7dac8] w-full max-w-md mx-auto">
 
-            {/* price per seat */}
+        {/* PRICE SUMMARY CARD */}
+        <div className="mt-3 flex justify-center">
+          <div className="bg-white shadow-md rounded-2xl p-3 sm:p-4 flex items-center justify-around border border-[#e7dac8] w-full max-w-sm sm:max-w-md mx-auto">
             <div className="text-center">
-              <p className="text-xs sm:text-sm text-gray-500">Price</p>
-              <p className="text-base sm:text-lg md:text-xl font-semibold text-gray-800">
+              <p className="text-[11px] sm:text-xs text-gray-500 font-medium">Price/Seat</p>
+              <p className="text-sm sm:text-base font-bold text-gray-800">
                 ₹{showData?.price}
               </p>
             </div>
 
-            {/* divider */}
-            <div className="h-8 w-px bg-gray-300"></div>
+            <div className="h-6 w-px bg-gray-200"></div>
 
-            {/* seats */}
             <div className="text-center">
-              <p className="text-xs sm:text-sm text-gray-500">Seats</p>
-              <p className="text-base sm:text-lg md:text-xl font-semibold text-gray-800">
-                {selected.length}
+              <p className="text-[11px] sm:text-xs text-gray-500 font-medium">Selected</p>
+              <p className="text-sm sm:text-base font-bold text-gray-800">
+                {selected.length} Seats
               </p>
             </div>
 
-            {/* divider */}
-            <div className="h-8 w-px bg-gray-300"></div>
+            <div className="h-6 w-px bg-gray-200"></div>
 
-            {/* total */}
             <div className="text-center">
-              <p className="text-xs sm:text-sm text-gray-500">Total</p>
-              <p className="text-lg sm:text-xl md:text-2xl font-bold text-[#8b1e3f]">
+              <p className="text-[11px] sm:text-xs text-gray-500 font-medium">Total</p>
+              <p className="text-base sm:text-lg font-black text-[#8b1e3f]">
                 ₹{selected.length * (showData?.price || 0)}
               </p>
             </div>
-
           </div>
         </div>
       </div>
 
-
-      <div className="flex justify-center gap-6 mb-6 text-sm flex-wrap text-gray-700">
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-[#e6f4ea] border border-[#a3cfbb] rounded"></div>
+      {/* SEAT LEGEND */}
+      <div className="flex justify-center gap-3 sm:gap-6 mb-6 text-xs sm:text-sm flex-wrap text-gray-700 font-medium max-w-2xl mx-auto">
+        <div className="flex items-center gap-1.5">
+          <div className="w-3.5 h-3.5 bg-[#e6f4ea] border border-[#a3cfbb] rounded-md"></div>
           <span>Available</span>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-[#8b1e3f] rounded"></div>
-          <span>Your Seat</span>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3.5 h-3.5 bg-[#8b1e3f] rounded-md"></div>
+          <span>Selected</span>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-amber-500 rounded"></div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3.5 h-3.5 bg-amber-500 rounded-md"></div>
           <span>Locked</span>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-gray-900 rounded"></div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3.5 h-3.5 bg-gray-900 rounded-md"></div>
           <span>Booked</span>
         </div>
       </div>
 
-      {/* SCREEN */}
-      <div className="max-w-md mx-auto mb-6 sm:mb-8">
-        <div className="h-1.5 w-full bg-[#8b1e3f] rounded-full shadow-[0_4px_12px_rgba(139,30,63,0.3)]"></div>
-        <p className="text-center text-[10px] sm:text-xs text-[#8b1e3f]/65 font-bold uppercase tracking-[0.25em] mt-1.5">Screen this way</p>
+      {/* CINEMA SCREEN INDICATOR */}
+      <div className="max-w-sm sm:max-w-md mx-auto mb-6 sm:mb-8 text-center">
+        <div className="h-1.5 w-full bg-gradient-to-r from-transparent via-[#8b1e3f] to-transparent rounded-full shadow-[0_4px_12px_rgba(139,30,63,0.3)]"></div>
+        <p className="text-center text-[10px] sm:text-xs text-[#8b1e3f] font-black uppercase tracking-[0.2em] mt-2">
+          SCREEN THIS WAY
+        </p>
       </div>
 
-      {/* GRID */}
-      <div className="space-y-1.5 sm:space-y-2 md:space-y-2.5 max-w-4xl mx-auto overflow-x-auto scrollbar-hide py-4 px-2">
-        <div className="min-w-[340px] flex flex-col gap-1.5 sm:gap-2">
+      {/* SEAT GRID CONTAINER (RESPONSIVE CONTAINMENT & ACCESSIBLE TOUCH TARGETS) */}
+      <div className="w-full max-w-4xl mx-auto overflow-x-auto scrollbar-hide py-2 px-1">
+        <div className="min-w-[390px] flex flex-col gap-1.5 sm:gap-2 items-center">
           {rows.map(row => (
-            <div key={row} className="flex justify-center gap-1 sm:gap-1.5 md:gap-2">
+            <div key={row} className="flex justify-center gap-1 sm:gap-1.5 md:gap-2 w-full">
               {Array.from({ length: 10 }, (_, i) => {
                 const seatId = `${row}${i + 1}`;
 
@@ -296,7 +275,7 @@ export default function SeatPage() {
                   <button
                     key={seatId}
                     onClick={() => handleClick(seatId)}
-                    className={`min-w-[32px] w-8 sm:w-9 md:w-10 lg:w-11 h-8 sm:h-9 md:h-10 lg:h-11 rounded-lg font-medium text-xs sm:text-sm md:text-base shadow-sm hover:shadow-md active:scale-95 transition-all cursor-pointer ${getStyle(seatId)}`}
+                    className={`w-9 sm:w-10 md:w-11 h-9 sm:h-10 md:h-11 rounded-lg font-bold text-xs md:text-sm shadow-sm hover:shadow-md active:scale-95 transition-all cursor-pointer flex items-center justify-center shrink-0 ${getStyle(seatId)}`}
                   >
                     {seatId}
                   </button>
@@ -307,17 +286,38 @@ export default function SeatPage() {
         </div>
       </div>
 
-      {/* BUTTON */}
-      <div className="text-center mt-6 sm:mt-8 md:mt-10">
-        <button
-          onClick={handleProceedToCheckout}
-          disabled={!selected.length}
-          className="px-6 sm:px-8 py-2.5 sm:py-3 md:py-3.5 bg-[#8b1e3f] hover:bg-[#5b0f1b] text-white font-medium rounded-xl disabled:opacity-40 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-all text-sm sm:text-base md:text-lg min-w-[220px] cursor-pointer"
-        >
-          Proceed to Book Ticket
-        </button>
-      </div>
+      {/* STICKY BOTTOM ACTION BAR */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#faf7f2]/95 backdrop-blur-md border-t border-[#e7dac8] p-3 sm:p-4 shadow-lg flex items-center justify-between max-w-full">
+        <div className="max-w-4xl mx-auto w-full flex items-center justify-between gap-3 sm:gap-4">
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] sm:text-xs text-gray-500 font-medium truncate">Selected Seats</p>
+            {/* Compact summary for mobile */}
+            <p className="sm:hidden text-xs font-black text-[#5b0f1b] truncate">
+              {selected.length === 0
+                ? "None"
+                : selected.length > 2
+                ? `${selected.length} Seats (${selected.slice(0, 2).join(", ")}...)`
+                : selected.join(", ")}
+            </p>
+            {/* Fuller summary for tablet/desktop */}
+            <p className="hidden sm:block text-sm md:text-base font-black text-[#5b0f1b] truncate">
+              {selected.length === 0
+                ? "None"
+                : selected.length > 4
+                ? `${selected.slice(0, 3).join(", ")} +${selected.length - 3} more`
+                : selected.join(", ")}
+            </p>
+          </div>
 
+          <button
+            onClick={handleProceedToCheckout}
+            disabled={!selected.length}
+            className="px-4 sm:px-8 py-2.5 sm:py-3 bg-[#8b1e3f] hover:bg-[#5b0f1b] text-white font-extrabold rounded-xl disabled:opacity-40 disabled:cursor-not-allowed shadow-md hover:shadow-xl transition-all text-xs sm:text-sm md:text-base cursor-pointer shrink-0"
+          >
+            Proceed to Book (₹{selected.length * (showData?.price || 0)})
+          </button>
+        </div>
+      </div>
 
     </div>
   );

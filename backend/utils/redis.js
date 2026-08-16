@@ -42,7 +42,13 @@ const lockSeats = async (showId, seats, userId, ttl = 300) => {
 
     try {
       const result = await redis.set(key, userId, "EX", ttl, "NX");
-      if (result === "OK") lockedSeats.push(seatId);
+      if (result === "OK") {
+        lockedSeats.push(seatId);
+        
+        // Add to sorted set tracker
+        const expiryTime = Date.now() + (ttl * 1000);
+        await redis.zadd("seat-lock-expiry", expiryTime, `${showId}:${seatId}:${userId}`);
+      }
     } catch (err) {
       console.log("Lock error:", err.message);
     }
@@ -72,7 +78,12 @@ const unlockSeats = async (showId, seats, userId) => {
 
     try {
       const result = await redis.eval(script, 1, key, userId);
-      if (result === 1) unlockedSeats.push(seatId);
+      if (result === 1) {
+        unlockedSeats.push(seatId);
+
+        // Remove from sorted set tracker
+        await redis.zrem("seat-lock-expiry", `${showId}:${seatId}:${userId}`);
+      }
     } catch (err) {
       console.log("Unlock error:", err.message);
     }

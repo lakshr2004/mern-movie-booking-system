@@ -213,9 +213,15 @@ exports.verifyPaymentSignature = async (req, res) => {
       return res.status(404).json({ message: "Booking record not found" });
     }
 
+    const showIdTarget = booking.show._id || booking.show;
+    // Permanently mark seats as booked in Show model in MongoDB
+    await Show.findByIdAndUpdate(showIdTarget, {
+      $addToSet: { bookedSeats: { $each: booking.seats } },
+    });
+
     // 3. Broadcast successful seat booking
     if (global.io) {
-      global.io.to(`show-${booking.show._id || booking.show}`).emit("seatBooked", {
+      global.io.to(`show-${showIdTarget.toString()}`).emit("seatBooked", {
         seats: booking.seats,
       });
     }
@@ -318,9 +324,14 @@ exports.handleWebhook = async (req, res) => {
         booking.razorpay_signature = "webhook_verified"; // signature verified via webhook signature instead
         await booking.save();
 
+        // Permanently mark seats as booked in Show model
+        await Show.findByIdAndUpdate(booking.show, {
+          $addToSet: { bookedSeats: { $each: booking.seats } },
+        });
+
         // Broadcast seatBooked
         if (global.io) {
-          global.io.to(`show-${booking.show}`).emit("seatBooked", {
+          global.io.to(`show-${booking.show.toString()}`).emit("seatBooked", {
             seats: booking.seats,
           });
         }

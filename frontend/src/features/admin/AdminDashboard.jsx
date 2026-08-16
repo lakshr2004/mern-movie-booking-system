@@ -1,194 +1,301 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import API from "../../services/api";
 import { toast } from "react-toastify";
 
 function AdminDashboard() {
-  const [searchParams] = useSearchParams();
-  const initialTab = searchParams.get("tab");
-  const [activeTab, setActiveTab] = useState(
-    initialTab && ["movies", "theatres", "shows"].includes(initialTab) ? initialTab : "movies"
-  );
+  const [activeSection, setActiveSection] = useState("movies");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const [movies, setMovies] = useState([]);
-  const [theatres, setTheatres] = useState([]);
-  const [shows, setShows] = useState([]);
+  // Paginated Data States
+  const [moviesData, setMoviesData] = useState({ movies: [], total: 0, page: 1, pages: 1 });
+  const [bookingsData, setBookingsData] = useState({ bookings: [], total: 0, page: 1, pages: 1 });
+  const [usersData, setUsersData] = useState({ users: [], total: 0, page: 1, pages: 1 });
+  const [stats, setStats] = useState({ totalRevenue: 0, totalBookings: 0, confirmedBookingsCount: 0, totalUsers: 0, totalMovies: 0 });
 
+  const [loading, setLoading] = useState(false);
+
+  // Pagination Page Numbers
+  const [moviePage, setMoviePage] = useState(1);
+  const [bookingPage, setBookingPage] = useState(1);
+  const [userPage, setUserPage] = useState(1);
+
+  // Movie Form Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [movieForm, setMovieForm] = useState({
+    title: "",
+    description: "",
+    duration: 120,
+    genre: "Action",
+    movieLanguage: "Hindi",
+    poster: "",
+    certificate: "UA",
+    rating: 8.5,
+  });
 
-  const [movieForm, setMovieForm] = useState({ title: "", description: "", duration: "", genre: "", movieLanguage: "", poster: "" });
-  const [theatreForm, setTheatreForm] = useState({ name: "", location: "", totalSeats: 100 });
-  const [showForm, setShowForm] = useState({ movie: "", theatre: "", showTime: "", price: 200 });
-
-const fetchMovies = async () => {
-  try {
-    const res = await API.get("/movies");
-
-    // 🔥 HANDLE ALL POSSIBLE FORMATS
-    const raw =
-      res.data?.movies ||
-      res.data?.data ||
-      res.data;
-
-    if (!Array.isArray(raw)) {
-      console.log("Movies not array:", raw);
-      setMovies([]);
-      return;
+  // Fetch Movies (Paginated)
+  const fetchMovies = async (page = 1) => {
+    try {
+      setLoading(true);
+      const res = await API.get(`/admin/movies?page=${page}&limit=10`);
+      setMoviesData(res.data);
+    } catch (err) {
+      console.error("Fetch Admin Movies Error:", err);
+      toast.error("Failed to load movies list");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const formatted = raw.map((m) => ({
-      ...m,
-      _id: m._id || m.id,
-      title: m.title || m.name || "Untitled",
-      description: m.description || "",
-      duration: m.duration || 120,
-      genre: m.genre || "Movie",
-      movieLanguage: m.movieLanguage || m.language || "N/A",
-      poster:
-        m.poster ||
-        m.image ||
-        "https://via.placeholder.com/300x450?text=No+Image",
-    }));
+  // Fetch Bookings (Paginated)
+  const fetchBookings = async (page = 1) => {
+    try {
+      setLoading(true);
+      const res = await API.get(`/admin/bookings?page=${page}&limit=10`);
+      setBookingsData(res.data);
+    } catch (err) {
+      console.error("Fetch Admin Bookings Error:", err);
+      toast.error("Failed to load bookings list");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    setMovies(formatted);
-  } catch (err) {
-    console.log("Fetch Movies Error:", err);
-  }
-};
+  // Fetch Users (Paginated)
+  const fetchUsers = async (page = 1) => {
+    try {
+      setLoading(true);
+      const res = await API.get(`/admin/users?page=${page}&limit=10`);
+      setUsersData(res.data);
+    } catch (err) {
+      console.error("Fetch Admin Users Error:", err);
+      toast.error("Failed to load users list");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-const fetchTheatres = async () => {
-  try {
-    const res = await API.get("/theatres");
+  // Fetch Stats (Non-Paginated)
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const res = await API.get("/admin/stats");
+      setStats(res.data);
+    } catch (err) {
+      console.error("Fetch Admin Stats Error:", err);
+      toast.error("Failed to load dashboard stats");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const data = res.data.theatres || res.data;
-
-    setTheatres(Array.isArray(data) ? data : []);
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-const fetchShows = async () => {
-  try {
-    const res = await API.get("/shows");
-
-    const data = res.data.shows || res.data;
-
-    setShows(Array.isArray(data) ? data : []);
-  } catch (err) {
-    console.log(err);
-  }
-};
-
+  // Trigger fetches based on active section and page changes
   useEffect(() => {
-    fetchMovies(); fetchTheatres(); fetchShows();
-  }, [searchParams]);
+    if (activeSection === "movies") fetchMovies(moviePage);
+    else if (activeSection === "bookings") fetchBookings(bookingPage);
+    else if (activeSection === "users") fetchUsers(userPage);
+    else if (activeSection === "stats") fetchStats();
+  }, [activeSection, moviePage, bookingPage, userPage]);
 
+  // Modal Handlers
   const openAddModal = () => {
     setEditingId(null);
-    setMovieForm({ title: "", description: "", duration: "", genre: "", movieLanguage: "", poster: "" });
-    setTheatreForm({ name: "", location: "", totalSeats: 100 });
-    setShowForm({ movie: "", theatre: "", showTime: "", price: 200 });
+    setMovieForm({
+      title: "",
+      description: "",
+      duration: 120,
+      genre: "Action",
+      movieLanguage: "Hindi",
+      poster: "",
+      certificate: "UA",
+      rating: 8.5,
+    });
     setIsModalOpen(true);
   };
+
   const closeModal = () => setIsModalOpen(false);
 
   const handleMovieSubmit = async (e) => {
     e.preventDefault();
-    try { if (editingId) await API.put("/movies/" + editingId, movieForm); else await API.post("/movies", movieForm); toast.success(editingId ? "Movie updated" : "Movie added"); closeModal(); fetchMovies(); }
-    catch (err) { toast.error("Failed"); }
-  };
-  const handleTheatreSubmit = async (e) => {
-    e.preventDefault();
-    try { if (editingId) await API.put("/theatres/" + editingId, theatreForm); else await API.post("/theatres", theatreForm); toast.success(editingId ? "Theatre updated" : "Theatre added"); closeModal(); fetchTheatres(); }
-    catch (err) { toast.error("Failed"); }
-  };
-  const handleShowSubmit = async (e) => {
-    e.preventDefault();
-    try { if (editingId) await API.put("/shows/" + editingId, showForm); else await API.post("/shows", showForm); toast.success(editingId ? "Show updated" : "Show added"); closeModal(); fetchShows(); }
-    catch (err) { toast.error("Failed"); }
-  };
-
-  const deleteMovie = async (id) => { if (window.confirm("Delete movie?")) { try { await API.delete("/movies/" + id); toast.success("Deleted"); fetchMovies(); } catch (err) { toast.error("Failed"); } } };
-  const deleteTheatre = async (id) => { if (window.confirm("Delete theatre?")) { try { await API.delete("/theatres/" + id); toast.success("Deleted"); fetchTheatres(); } catch (err) { toast.error("Failed"); } } };
-  const deleteShow = async (id) => { if (window.confirm("Delete show?")) { try { await API.delete("/shows/" + id); toast.success("Deleted"); fetchShows(); } catch (err) { toast.error("Failed"); } } };
-
-  const editMovie = (movie) => { setMovieForm({ title: movie.title, description: movie.description, duration: movie.duration, genre: movie.genre, movieLanguage: movie.movieLanguage, poster: movie.poster }); setEditingId(movie._id); setIsModalOpen(true); };
-  const editTheatre = (theatre) => { setTheatreForm({ name: theatre.name, location: theatre.location, totalSeats: theatre.totalSeats }); setEditingId(theatre._id); setIsModalOpen(true); };
-  const editShow = (show) => {
-    if (!show?.movie?._id || !show?.theatre?._id) {
-      toast.error("Cannot edit: missing movie or theatre data");
-      return;
+    try {
+      if (editingId) {
+        await API.put(`/admin/movies/${editingId}`, movieForm);
+        toast.success("Movie updated successfully");
+      } else {
+        await API.post("/admin/movies", movieForm);
+        toast.success("Movie created successfully");
+      }
+      closeModal();
+      fetchMovies(moviePage);
+    } catch (err) {
+      console.error("Movie save error:", err);
+      toast.error(err.response?.data?.message || "Failed to save movie");
     }
-    const showDate = new Date(show.showTime);
-    setShowForm({
-      movie: show.movie._id,
-      theatre: show.theatre._id,
-      showTime: showDate.toISOString().slice(0, 16),
-      price: show.price,
+  };
+
+  const editMovie = (movie) => {
+    setMovieForm({
+      title: movie.title || "",
+      description: movie.description || movie.story || "",
+      duration: movie.duration || 120,
+      genre: movie.genre || "Action",
+      movieLanguage: movie.movieLanguage || movie.language || "Hindi",
+      poster: movie.poster || "",
+      certificate: movie.certificate || "UA",
+      rating: movie.rating || 8.5,
     });
-    setEditingId(show._id);
+    setEditingId(movie._id);
     setIsModalOpen(true);
   };
 
-  const tabs = [
-    { id: "movies", label: "Movies", icon: "\uD83C\uDFAC" },
-    { id: "theatres", label: "Theatres", icon: "\uD83C\uDFE2" },
-    { id: "shows", label: "Shows", icon: "\uD83C\uDF9F\uFE0F" },
+  const deleteMovie = async (id) => {
+    if (window.confirm("Are you sure you want to delete this movie?")) {
+      try {
+        await API.delete(`/admin/movies/${id}`);
+        toast.success("Movie deleted");
+        fetchMovies(moviePage);
+      } catch (err) {
+        toast.error("Failed to delete movie");
+      }
+    }
+  };
+
+  const sections = [
+    { id: "movies", label: "Movies (Manage)", icon: "🎬" },
+    { id: "bookings", label: "Bookings", icon: "🎟️" },
+    { id: "users", label: "Users", icon: "👥" },
+    { id: "stats", label: "Revenue / Stats", icon: "📊" }
   ];
 
-  const TabButton = ({ tab }) => (
-    <button
-      key={tab.id}
-      onClick={() => setActiveTab(tab.id)}
-      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-left font-medium ${activeTab === tab.id ? "bg-[#8b1e3f] text-white shadow-lg" : "text-gray-400 hover:bg-[#8b1e3f]/10 hover:text-[#8b1e3f]"}`}
-    >
-      <span className="text-xl">{tab.icon}</span>
-      {tab.label}
-    </button>
-  );
+  // Helper Pagination Component (Condensed on mobile, full on desktop)
+  const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
+    if (totalPages <= 1) return null;
 
-  const MobileTabPill = ({ tab }) => (
-    <button
-      key={tab.id}
-      onClick={() => setActiveTab(tab.id)}
-      className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${activeTab === tab.id ? "bg-[#8b1e3f] text-white shadow" : "bg-gray-100 text-[#8b1e3f] hover:bg-[#8b1e3f]/10"}`}
-    >
-      <span>{tab.icon}</span>
-      {tab.label}
-    </button>
-  );
+    const pages = [];
+    for (let i = 1; i <= totalPages; i++) pages.push(i);
+
+    return (
+      <div className="flex items-center justify-between px-3.5 sm:px-6 py-3.5 border-t border-[#e7dac8] bg-[#faf7f2] gap-2">
+        <span className="text-xs font-bold text-[#4b2e1e] shrink-0">
+          Page {currentPage} of {totalPages}
+        </span>
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <button
+            disabled={currentPage === 1}
+            onClick={() => onPageChange(currentPage - 1)}
+            className="px-2.5 sm:px-3 py-1.5 rounded-lg border border-[#e7dac8] bg-white text-xs font-bold text-[#5b0f1b] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#8b1e3f] hover:text-white transition cursor-pointer"
+          >
+            Prev
+          </button>
+          
+          {/* Numeric Page Buttons - Shown only on sm and up */}
+          <div className="hidden sm:flex items-center gap-1.5">
+            {pages.map((p) => (
+              <button
+                key={p}
+                onClick={() => onPageChange(p)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                  currentPage === p
+                    ? "bg-[#8b1e3f] text-white shadow-sm"
+                    : "bg-white text-[#4b2e1e] border border-[#e7dac8] hover:bg-[#8b1e3f]/10"
+                }`}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => onPageChange(currentPage + 1)}
+            className="px-2.5 sm:px-3 py-1.5 rounded-lg border border-[#e7dac8] bg-white text-xs font-bold text-[#5b0f1b] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#8b1e3f] hover:text-white transition cursor-pointer"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="flex h-screen bg-[#f8f3e9] font-sans overflow-hidden">
       {/* Desktop Sidebar */}
       <div className="w-64 bg-[#1a1614] text-white flex-col shadow-2xl z-20 hidden md:flex">
         <div className="p-6 border-b border-gray-800">
-          <h1 className="text-2xl font-black text-[#f5efe6] tracking-wider">TicketPeChalo.in</h1>
-          <p className="text-xs text-gray-400 mt-1">Management Portal</p>
+          <h1 className="text-xl font-black text-[#f5efe6] tracking-wider flex items-center gap-2">
+            <span>🛡️</span> Admin Panel
+          </h1>
+          <p className="text-xs text-amber-200/80 mt-1 font-mono">
+            TicketPeChalo Control
+          </p>
         </div>
-        <div className="flex-1 px-4 py-6 space-y-2">{tabs.map((t) => <TabButton key={t.id} tab={t} />)}</div>
+        <div className="flex-1 px-4 py-6 space-y-2">
+          {sections.map((sec) => (
+            <button
+              key={sec.id}
+              onClick={() => setActiveSection(sec.id)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-left font-bold text-sm ${
+                activeSection === sec.id
+                  ? "bg-[#8b1e3f] text-white shadow-lg ring-1 ring-white/20"
+                  : "text-gray-400 hover:bg-[#8b1e3f]/20 hover:text-white"
+              }`}
+            >
+              <span className="text-lg">{sec.icon}</span>
+              {sec.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Mobile Sidebar Overlay */}
+      {/* Mobile Drawer */}
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="fixed inset-0 z-40 bg-black/60 md:hidden" onClick={() => setMobileMenuOpen(false)}>
-            <motion.div initial={{ x: -256 }} animate={{ x: 0 }} exit={{ x: -256 }} transition={{ duration: 0.2, ease: "easeOut" }} className="w-64 h-full bg-[#1a1614] text-white flex flex-col shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 bg-black/70 md:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <motion.div
+              initial={{ x: -260 }}
+              animate={{ x: 0 }}
+              exit={{ x: -260 }}
+              transition={{ duration: 0.2 }}
+              className="w-64 h-full bg-[#1a1614] text-white flex flex-col shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="p-6 border-b border-gray-800 flex justify-between items-center">
                 <div>
-                  <h1 className="text-xl font-black text-[#f5efe6] tracking-wider">TicketPeChalo.in</h1>
-                  <p className="text-xs text-gray-400 mt-1">Management Portal</p>
+                  <h1 className="text-lg font-black text-[#f5efe6]">
+                    Admin Panel
+                  </h1>
+                  <p className="text-xs text-amber-200">TicketPeChalo</p>
                 </div>
-                <button onClick={() => setMobileMenuOpen(false)} className="text-gray-400 hover:text-white text-2xl">&times;</button>
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-gray-400 text-2xl font-bold"
+                >
+                  &times;
+                </button>
               </div>
               <div className="flex-1 px-4 py-6 space-y-2">
-                {tabs.map((t) => (
-                  <button key={t.id} onClick={() => { setActiveTab(t.id); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-150 text-left font-medium ${activeTab === t.id ? "bg-[#8b1e3f] text-white shadow-lg" : "text-gray-400 hover:bg-[#8b1e3f]/10 hover:text-[#8b1e3f]"}`}>
-                    <span className="text-xl">{t.icon}</span>{t.label}
+                {sections.map((sec) => (
+                  <button
+                    key={sec.id}
+                    onClick={() => {
+                      setActiveSection(sec.id);
+                      setMobileMenuOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left font-bold text-sm ${
+                      activeSection === sec.id
+                        ? "bg-[#8b1e3f] text-white"
+                        : "text-gray-400 hover:bg-[#8b1e3f]/20"
+                    }`}
+                  >
+                    <span className="text-lg">{sec.icon}</span>
+                    {sec.label}
                   </button>
                 ))}
               </div>
@@ -197,224 +304,608 @@ const fetchShows = async () => {
         )}
       </AnimatePresence>
 
-      {/* Main Content */}
+      {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-full overflow-y-auto">
-        {/* Header */}
-        <header className="bg-white px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 shadow-sm flex justify-between items-center z-10 sticky top-0">
+        {/* Header Bar */}
+        <header className="bg-white border-b border-[#e7dac8] px-6 py-4 shadow-sm flex justify-between items-center z-10 sticky top-0">
           <div className="flex items-center gap-3">
-            <button onClick={() => setMobileMenuOpen(true)} className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition">
-              <svg className="w-6 h-6 text-[#1a1614]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 text-[#1a1614]"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
             </button>
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#1a1614] capitalize border-l-4 border-[#8b1e3f] pl-3">Manage {activeTab}</h2>
+            <h2 className="text-xl font-extrabold text-[#5b0f1b] border-l-4 border-[#8b1e3f] pl-3 capitalize flex items-center gap-2">
+              <span>
+                {sections.find((s) => s.id === activeSection)?.icon}
+              </span>
+              <span>{sections.find((s) => s.id === activeSection)?.label}</span>
+            </h2>
           </div>
-          <button onClick={openAddModal} className="bg-[#8b1e3f] hover:bg-[#5b0f1b] text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-md font-semibold transition-all shadow-md flex items-center gap-1 sm:gap-2 text-sm sm:text-base cursor-pointer">
-            <span>+</span><span className="hidden sm:inline">Add New {activeTab.slice(0, -1)}</span><span className="sm:hidden">Add</span>
-          </button>
+
+          {activeSection === "movies" && (
+            <button
+              onClick={openAddModal}
+              className="bg-[#8b1e3f] hover:bg-[#5b0f1b] text-white px-4 py-2 rounded-xl font-extrabold text-xs sm:text-sm shadow-md transition flex items-center gap-1.5 cursor-pointer"
+            >
+              <span>+ Add New Movie</span>
+            </button>
+          )}
         </header>
 
-        {/* Mobile Tab Pills */}
-        <div className="md:hidden bg-white border-b border-[#e7dac8] px-4 py-2">
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide">{tabs.map((t) => <MobileTabPill key={t.id} tab={t} />)}</div>
-        </div>
-
-        <div className="p-4 sm:p-6 lg:p-8">
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-            {activeTab === "movies" && (
-              <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-[#e7dac8] border-l-4 border-l-[#8b1e3f]">
-                <p className="text-gray-500 text-xs sm:text-sm font-semibold uppercase">Total Movies</p>
-                <h3 className="text-2xl sm:text-3xl font-black text-[#1a1614] mt-1">{movies.length}</h3>
-              </div>
-            )}
-            {activeTab === "theatres" && (
-              <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-[#e7dac8] border-l-4 border-l-[#8b1e3f]">
-                <p className="text-gray-500 text-xs sm:text-sm font-semibold uppercase">Total Theatres</p>
-                <h3 className="text-2xl sm:text-3xl font-black text-[#1a1614] mt-1">{theatres.length}</h3>
-              </div>
-            )}
-            {activeTab === "shows" && (
-              <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-[#e7dac8] border-l-4 border-l-[#5b0f1b]">
-                <p className="text-gray-500 text-xs sm:text-sm font-semibold uppercase">Active Shows</p>
-                <h3 className="text-2xl sm:text-3xl font-black text-[#1a1614] mt-1">{shows.length}</h3>
-              </div>
-            )}
-          </div>
-
-          {/* Content */}
-          <div className="bg-white rounded-xl shadow-sm border border-[#e7dac8] overflow-hidden">
-            {/* Desktop Table */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-[#faf7f2] text-gray-600 uppercase text-xs font-bold border-b border-[#e7dac8]">
-                    {activeTab === "movies" && <><th className="p-4">Movie</th><th className="p-4">Genre</th><th className="p-4">Language</th><th className="p-4 text-right">Actions</th></>}
-                    {activeTab === "theatres" && <><th className="p-4">Theatre Name</th><th className="p-4">Location</th><th className="p-4">Total Seats</th><th className="p-4 text-right">Actions</th></>}
-                    {activeTab === "shows" && <><th className="p-4">Movie</th><th className="p-4">Theatre</th><th className="p-4">Show Time</th><th className="p-4">Price</th><th className="p-4 text-right">Actions</th></>}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#e7dac8]">
-                  {activeTab === "movies" && movies.map((m) => (
-                    <tr key={m._id} className="hover:bg-[#faf7f2]/50 transition">
-                      <td className="p-4 flex items-center gap-4">
-                        <img src={m.poster} alt={m.title} className="w-12 h-16 object-cover rounded shadow-sm" />
-                        <div><p className="font-bold text-[#1a1614]">{m.title}</p><p className="text-xs text-gray-500">{m.duration} mins</p></div>
-                      </td>
-                      <td className="p-4"><span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-semibold">{m.genre}</span></td>
-                      <td className="p-4 font-medium text-gray-700">{m.movieLanguage}</td>
-                      <td className="p-4 text-right space-x-2">
-                        <button onClick={() => editMovie(m)} className="text-[#8b1e3f] hover:text-[#5b0f1b] font-semibold text-sm px-2 cursor-pointer">Edit</button>
-                        <button onClick={() => deleteMovie(m._id)} className="text-[#5b0f1b] hover:text-black font-semibold text-sm px-2 cursor-pointer">Delete</button>
-                      </td>
-                    </tr>
-                  ))}
-                  {activeTab === "theatres" && theatres.map((t) => (
-                    <tr key={t._id} className="hover:bg-[#faf7f2]/50 transition">
-                      <td className="p-4 font-bold text-[#1a1614]">{t.name}</td>
-                      <td className="p-4 text-gray-600">{t.location}</td>
-                      <td className="p-4 font-medium text-gray-700">{t.totalSeats}</td>
-                      <td className="p-4 text-right space-x-2">
-                        <button onClick={() => editTheatre(t)} className="text-[#8b1e3f] hover:text-[#5b0f1b] font-semibold text-sm px-2 cursor-pointer">Edit</button>
-                        <button onClick={() => deleteTheatre(t._id)} className="text-[#5b0f1b] hover:text-black font-semibold text-sm px-2 cursor-pointer">Delete</button>
-                      </td>
-                    </tr>
-                  ))}
-                  {activeTab === "shows" && shows.map((s) => (
-                    <tr key={s._id} className="hover:bg-[#faf7f2]/50 transition">
-                      <td className="p-4 font-bold text-[#1a1614]">{s.movie?.title || "Unknown"}</td>
-                      <td className="p-4 text-gray-600">{s.theatre?.name || "Unknown"}</td>
-                      <td className="p-4 font-medium text-gray-700">{new Date(s.showTime).toLocaleString()}</td>
-                      <td className="p-4 font-bold text-[#8b1e3f]">₹{s.price}</td>
-                      <td className="p-4 text-right space-x-2">
-                        <button onClick={() => editShow(s)} className="text-[#8b1e3f] hover:text-[#5b0f1b] font-semibold text-sm px-2 cursor-pointer">Edit</button>
-                        <button onClick={() => deleteShow(s._id)} className="text-[#5b0f1b] hover:text-black font-semibold text-sm px-2 cursor-pointer">Delete</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        {/* Dynamic Section Content Area */}
+        <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+          {loading && (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#8b1e3f]" />
             </div>
+          )}
 
-            {/* Mobile Cards */}
-            <div className="md:hidden">
-              {activeTab === "movies" && movies.map((m) => (
-                <div key={m._id} className="p-4 border-b border-[#e7dac8] last:border-b-0">
-                  <div className="flex gap-3">
-                    <img src={m.poster} alt={m.title} className="w-14 h-20 object-cover rounded shadow-sm flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-[#1a1614] text-sm truncate">{m.title}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{m.duration} mins</p>
-                      <div className="flex flex-wrap gap-1.5 mt-2">
-                        <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-[10px] font-semibold">{m.genre}</span>
-                        <span className="bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full text-[10px] font-semibold">{m.movieLanguage}</span>
+          {/* SECTION 1: MOVIES (MANAGE) */}
+          {!loading && activeSection === "movies" && (
+            <div className="bg-white rounded-2xl shadow-sm border border-[#e7dac8] overflow-hidden">
+              {/* Desktop Table View (md and up) */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-[#faf7f2] text-[#5b0f1b] uppercase text-xs font-black border-b border-[#e7dac8]">
+                      <th className="p-4">Movie</th>
+                      <th className="p-4">Genre</th>
+                      <th className="p-4">Language</th>
+                      <th className="p-4">Rating</th>
+                      <th className="p-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#e7dac8]">
+                    {moviesData.movies.length === 0 ? (
+                      <tr>
+                        <td colSpan="5" className="p-8 text-center text-gray-500 font-medium">
+                          No movies found in this page.
+                        </td>
+                      </tr>
+                    ) : (
+                      moviesData.movies.map((m) => (
+                        <tr key={m._id} className="hover:bg-[#faf7f2]/60 transition">
+                          <td className="p-4 flex items-center gap-3">
+                            <img
+                              src={m.poster || "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&auto=format&fit=crop&q=80"}
+                              alt={m.title}
+                              className="w-10 h-14 object-cover rounded-lg shadow-sm shrink-0 border border-[#e7dac8]"
+                            />
+                            <div>
+                              <p className="font-bold text-[#2e1c14] text-sm">{m.title}</p>
+                              <p className="text-xs text-gray-500">{m.duration} mins • {m.certificate || "UA"}</p>
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <span className="bg-[#f5efe6] text-[#8b1e3f] border border-[#e7dac8] px-2.5 py-1 rounded-full text-xs font-bold">
+                              {m.genre || "Action"}
+                            </span>
+                          </td>
+                          <td className="p-4 font-semibold text-xs text-[#4b2e1e]">
+                            {m.movieLanguage || m.language || "Hindi"}
+                          </td>
+                          <td className="p-4 font-bold text-xs text-amber-600">
+                            ★ {m.rating ? m.rating.toFixed(1) : "8.5"}
+                          </td>
+                          <td className="p-4 text-right space-x-2">
+                            <button
+                              onClick={() => editMovie(m)}
+                              className="text-[#8b1e3f] hover:text-[#5b0f1b] font-bold text-xs bg-[#f5efe6] px-3 py-1.5 rounded-lg border border-[#e7dac8] cursor-pointer"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => deleteMovie(m._id)}
+                              className="text-red-700 hover:text-red-900 font-bold text-xs bg-red-50 px-3 py-1.5 rounded-lg border border-red-200 cursor-pointer"
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Stacked Card View (below md breakpoint) */}
+              <div className="md:hidden divide-y divide-[#e7dac8]">
+                {moviesData.movies.length === 0 ? (
+                  <div className="p-6 text-center text-gray-500 font-medium text-xs">
+                    No movies found in this page.
+                  </div>
+                ) : (
+                  moviesData.movies.map((m) => (
+                    <div key={m._id} className="p-4 space-y-3 bg-white">
+                      <div className="flex gap-3 items-start">
+                        <img
+                          src={m.poster || "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&auto=format&fit=crop&q=80"}
+                          alt={m.title}
+                          className="w-14 h-20 object-cover rounded-xl border border-[#e7dac8] shadow-sm shrink-0"
+                        />
+                        <div className="flex-1 space-y-1">
+                          <h4 className="font-extrabold text-[#2e1c14] text-sm leading-tight">{m.title}</h4>
+                          <p className="text-xs text-gray-500">{m.duration} mins • {m.certificate || "UA"}</p>
+                          <div className="flex flex-wrap items-center gap-2 pt-1">
+                            <span className="bg-[#f5efe6] text-[#8b1e3f] border border-[#e7dac8] px-2 py-0.5 rounded-full text-[10px] font-bold">
+                              {m.genre || "Action"}
+                            </span>
+                            <span className="text-xs font-bold text-amber-600">
+                              ★ {m.rating ? m.rating.toFixed(1) : "8.5"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between pt-2 border-t border-[#e7dac8]/50">
+                        <span className="text-xs font-semibold text-[#4b2e1e]">
+                          Lang: {m.movieLanguage || m.language || "Hindi"}
+                        </span>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => editMovie(m)}
+                            className="text-[#8b1e3f] font-bold text-xs bg-[#f5efe6] px-3 py-1.5 rounded-lg border border-[#e7dac8]"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => deleteMovie(m._id)}
+                            className="text-red-700 font-bold text-xs bg-red-50 px-3 py-1.5 rounded-lg border border-red-200"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex gap-3 mt-3">
-                    <button onClick={() => editMovie(m)} className="flex-1 bg-[#faf7f2] text-[#8b1e3f] border border-[#e7dac8] py-2 rounded-lg text-xs font-semibold hover:bg-[#8b1e3f]/10 transition">Edit</button>
-                    <button onClick={() => deleteMovie(m._id)} className="flex-1 bg-[#f5efe6] text-[#5b0f1b] border border-[#e7dac8] py-2 rounded-lg text-xs font-semibold hover:bg-[#5b0f1b]/10 transition">Delete</button>
-                  </div>
-                </div>
-              ))}
-              {activeTab === "theatres" && theatres.map((t) => (
-                <div key={t._id} className="p-4 border-b border-[#e7dac8] last:border-b-0">
-                  <p className="font-bold text-[#1a1614] text-sm">{t.name}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{t.location}</p>
-                  <p className="text-xs text-gray-600 mt-1">{t.totalSeats} seats</p>
-                  <div className="flex gap-3 mt-3">
-                    <button onClick={() => editTheatre(t)} className="flex-1 bg-[#faf7f2] text-[#8b1e3f] border border-[#e7dac8] py-2 rounded-lg text-xs font-semibold hover:bg-[#8b1e3f]/10 transition">Edit</button>
-                    <button onClick={() => deleteTheatre(t._id)} className="flex-1 bg-[#f5efe6] text-[#5b0f1b] border border-[#e7dac8] py-2 rounded-lg text-xs font-semibold hover:bg-[#5b0f1b]/10 transition">Delete</button>
-                  </div>
-                </div>
-              ))}
-              {activeTab === "shows" && shows.map((s) => (
-                <div key={s._id} className="p-4 border-b border-[#e7dac8] last:border-b-0">
-                  <p className="font-bold text-[#1a1614] text-sm">{s.movie?.title || "Unknown"}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{s.theatre?.name || "Unknown"}</p>
-                  <p className="text-xs text-gray-600 mt-1">{new Date(s.showTime).toLocaleString()}</p>
-                  <p className="text-xs font-bold text-[#8b1e3f] mt-1">₹{s.price}</p>
-                  <div className="flex gap-3 mt-3">
-                    <button onClick={() => editShow(s)} className="flex-1 bg-[#faf7f2] text-[#8b1e3f] border border-[#e7dac8] py-2 rounded-lg text-xs font-semibold hover:bg-[#8b1e3f]/10 transition">Edit</button>
-                    <button onClick={() => deleteShow(s._id)} className="flex-1 bg-[#f5efe6] text-[#5b0f1b] border border-[#e7dac8] py-2 rounded-lg text-xs font-semibold hover:bg-[#5b0f1b]/10 transition">Delete</button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  ))
+                )}
+              </div>
 
-            {/* Empty States */}
-            {activeTab === "movies" && movies.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-5xl mb-4">🎬</p>
-                <p className="text-gray-800 font-semibold text-sm">No movies found</p>
-                <p className="text-gray-500 text-xs mt-1">Click "Add New Movie" to get started</p>
+              <PaginationControls
+                currentPage={moviesData.page}
+                totalPages={moviesData.pages}
+                onPageChange={(p) => setMoviePage(p)}
+              />
+            </div>
+          )}
+
+          {/* SECTION 2: BOOKINGS */}
+          {!loading && activeSection === "bookings" && (
+            <div className="bg-white rounded-2xl shadow-sm border border-[#e7dac8] overflow-hidden">
+              {/* Desktop Table View (md and up) */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-[#faf7f2] text-[#5b0f1b] uppercase text-xs font-black border-b border-[#e7dac8]">
+                      <th className="p-4">Booking ID</th>
+                      <th className="p-4">User</th>
+                      <th className="p-4">Movie</th>
+                      <th className="p-4">Theatre</th>
+                      <th className="p-4">Seats</th>
+                      <th className="p-4">Amount</th>
+                      <th className="p-4">Status</th>
+                      <th className="p-4">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#e7dac8]">
+                    {bookingsData.bookings.length === 0 ? (
+                      <tr>
+                        <td colSpan="8" className="p-8 text-center text-gray-500 font-medium">
+                          No bookings found in this page.
+                        </td>
+                      </tr>
+                    ) : (
+                      bookingsData.bookings.map((b) => (
+                        <tr key={b._id} className="hover:bg-[#faf7f2]/60 transition text-xs">
+                          <td className="p-4 font-mono font-bold text-gray-700">
+                            {b._id.slice(-8).toUpperCase()}
+                          </td>
+                          <td className="p-4">
+                            <p className="font-bold text-[#2e1c14]">{b.user?.name || "Guest"}</p>
+                            <p className="text-[11px] text-gray-500">{b.user?.email || "N/A"}</p>
+                          </td>
+                          <td className="p-4 font-bold text-[#8b1e3f]">
+                            {b.movie?.title || "Movie"}
+                          </td>
+                          <td className="p-4 text-gray-700 font-medium">
+                            {b.show?.theatre?.name || "Theatre"}
+                          </td>
+                          <td className="p-4 font-mono font-bold text-indigo-700">
+                            {b.seats?.join(", ")}
+                          </td>
+                          <td className="p-4 font-extrabold text-[#5b0f1b]">
+                            ₹{b.totalPrice}
+                          </td>
+                          <td className="p-4">
+                            <span
+                              className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase ${
+                                b.payment_status === "confirmed"
+                                  ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                                  : b.payment_status === "pending"
+                                  ? "bg-amber-100 text-amber-800 border border-amber-300"
+                                  : "bg-red-100 text-red-800 border border-red-300"
+                              }`}
+                            >
+                              {b.payment_status}
+                            </span>
+                          </td>
+                          <td className="p-4 text-gray-500 font-medium">
+                            {new Date(b.createdAt).toLocaleString([], { dateStyle: "short", timeStyle: "short" })}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
-            )}
-            {activeTab === "theatres" && theatres.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-5xl mb-4">🏢</p>
-                <p className="text-gray-800 font-semibold text-sm">No theatres found</p>
-                <p className="text-gray-500 text-xs mt-1">Click "Add New Theatre" to get started</p>
+
+              {/* Mobile Stacked Card View (below md breakpoint) */}
+              <div className="md:hidden divide-y divide-[#e7dac8]">
+                {bookingsData.bookings.length === 0 ? (
+                  <div className="p-6 text-center text-gray-500 font-medium text-xs">
+                    No bookings found in this page.
+                  </div>
+                ) : (
+                  bookingsData.bookings.map((b) => (
+                    <div key={b._id} className="p-4 space-y-2 bg-white text-xs">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <span className="font-mono font-bold text-gray-500">#{b._id.slice(-8).toUpperCase()}</span>
+                          <h4 className="font-extrabold text-[#8b1e3f] text-sm mt-0.5">{b.movie?.title || "Movie"}</h4>
+                        </div>
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                            b.payment_status === "confirmed"
+                              ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                              : b.payment_status === "pending"
+                              ? "bg-amber-100 text-amber-800 border border-amber-300"
+                              : "bg-red-100 text-red-800 border border-red-300"
+                          }`}
+                        >
+                          {b.payment_status}
+                        </span>
+                      </div>
+                      <div className="space-y-1 text-gray-600">
+                        <p><span className="font-semibold text-gray-800">User:</span> {b.user?.name || "Guest"} ({b.user?.email || "N/A"})</p>
+                        <p><span className="font-semibold text-gray-800">Theatre:</span> {b.show?.theatre?.name || "Cinema Venue"}</p>
+                        <p><span className="font-semibold text-gray-800">Seats:</span> <span className="font-mono font-bold text-indigo-700">{b.seats?.join(", ")}</span></p>
+                      </div>
+                      <div className="flex justify-between items-center pt-2 border-t border-[#e7dac8]/50">
+                        <span className="text-[11px] text-gray-500">
+                          {new Date(b.createdAt).toLocaleString([], { dateStyle: "short", timeStyle: "short" })}
+                        </span>
+                        <span className="font-extrabold text-[#5b0f1b] text-sm">₹{b.totalPrice}</span>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
-            )}
-            {activeTab === "shows" && shows.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-5xl mb-4">🎟️</p>
-                <p className="text-gray-800 font-semibold text-sm">No shows found</p>
-                <p className="text-gray-500 text-xs mt-1">Click "Add New Show" to schedule one</p>
+
+              <PaginationControls
+                currentPage={bookingsData.page}
+                totalPages={bookingsData.pages}
+                onPageChange={(p) => setBookingPage(p)}
+              />
+            </div>
+          )}
+
+          {/* SECTION 3: USERS */}
+          {!loading && activeSection === "users" && (
+            <div className="bg-white rounded-2xl shadow-sm border border-[#e7dac8] overflow-hidden">
+              {/* Desktop Table View (md and up) */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-[#faf7f2] text-[#5b0f1b] uppercase text-xs font-black border-b border-[#e7dac8]">
+                      <th className="p-4">User</th>
+                      <th className="p-4">Email</th>
+                      <th className="p-4">Role</th>
+                      <th className="p-4">Joined Date</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#e7dac8]">
+                    {usersData.users.length === 0 ? (
+                      <tr>
+                        <td colSpan="4" className="p-8 text-center text-gray-500 font-medium">
+                          No users found in this page.
+                        </td>
+                      </tr>
+                    ) : (
+                      usersData.users.map((u) => (
+                        <tr key={u._id} className="hover:bg-[#faf7f2]/60 transition text-xs">
+                          <td className="p-4 flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-[#8b1e3f] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                              {u.name?.charAt(0).toUpperCase()}
+                            </div>
+                            <span className="font-bold text-[#2e1c14]">{u.name}</span>
+                          </td>
+                          <td className="p-4 text-gray-600 font-medium">{u.email}</td>
+                          <td className="p-4">
+                            <span
+                              className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase ${
+                                u.role === "admin"
+                                  ? "bg-purple-100 text-purple-900 border border-purple-300"
+                                  : "bg-gray-100 text-gray-700 border border-gray-300"
+                              }`}
+                            >
+                              {u.role}
+                            </span>
+                          </td>
+                          <td className="p-4 text-gray-500 font-medium">
+                            {new Date(u.createdAt).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
-            )}
-          </div>
+
+              {/* Mobile Stacked Card View (below md breakpoint) */}
+              <div className="md:hidden divide-y divide-[#e7dac8]">
+                {usersData.users.length === 0 ? (
+                  <div className="p-6 text-center text-gray-500 font-medium text-xs">
+                    No users found in this page.
+                  </div>
+                ) : (
+                  usersData.users.map((u) => (
+                    <div key={u._id} className="p-4 flex items-center justify-between bg-white text-xs">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-[#8b1e3f] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                          {u.name?.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="font-extrabold text-[#2e1c14] text-sm">{u.name}</p>
+                          <p className="text-gray-500 text-[11px]">{u.email}</p>
+                        </div>
+                      </div>
+                      <div className="text-right space-y-1">
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase inline-block ${
+                            u.role === "admin"
+                              ? "bg-purple-100 text-purple-900 border border-purple-300"
+                              : "bg-gray-100 text-gray-700 border border-gray-300"
+                          }`}
+                        >
+                          {u.role}
+                        </span>
+                        <p className="text-[10px] text-gray-400 font-medium">
+                          {new Date(u.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <PaginationControls
+                currentPage={usersData.page}
+                totalPages={usersData.pages}
+                onPageChange={(p) => setUserPage(p)}
+              />
+            </div>
+          )}
+
+          {/* SECTION 4: REVENUE / STATS */}
+          {!loading && activeSection === "stats" && (
+            <div className="space-y-6">
+              {/* Stat Cards Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-[#e7dac8] border-l-4 border-l-emerald-600 space-y-1">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                    Total Revenue
+                  </p>
+                  <h3 className="text-3xl font-black text-[#5b0f1b]">
+                    ₹{stats.totalRevenue ? stats.totalRevenue.toLocaleString() : "0"}
+                  </h3>
+                  <p className="text-[11px] text-emerald-700 font-semibold">
+                    From confirmed bookings
+                  </p>
+                </div>
+
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-[#e7dac8] border-l-4 border-l-[#8b1e3f] space-y-1">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                    Total Bookings
+                  </p>
+                  <h3 className="text-3xl font-black text-[#1a1614]">
+                    {stats.totalBookings || 0}
+                  </h3>
+                  <p className="text-[11px] text-[#8b1e3f] font-semibold">
+                    {stats.confirmedBookingsCount || 0} Confirmed
+                  </p>
+                </div>
+
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-[#e7dac8] border-l-4 border-l-indigo-600 space-y-1">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                    Total Users
+                  </p>
+                  <h3 className="text-3xl font-black text-[#1a1614]">
+                    {stats.totalUsers || 0}
+                  </h3>
+                  <p className="text-[11px] text-indigo-700 font-semibold">
+                    Registered accounts
+                  </p>
+                </div>
+
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-[#e7dac8] border-l-4 border-l-amber-500 space-y-1">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                    Active Movies
+                  </p>
+                  <h3 className="text-3xl font-black text-[#1a1614]">
+                    {stats.totalMovies || 0}
+                  </h3>
+                  <p className="text-[11px] text-amber-700 font-semibold">
+                    Movies in database
+                  </p>
+                </div>
+              </div>
+
+              {/* Summary Overview Panel */}
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-[#e7dac8] space-y-4">
+                <h3 className="text-lg font-black text-[#5b0f1b] flex items-center gap-2">
+                  <span>📊</span> Platform Operational Summary
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-[#faf7f2] border border-[#e7dac8] p-4 rounded-xl space-y-2">
+                    <div className="text-xs font-bold text-[#8b1e3f]">
+                      CONVERSION METRIC
+                    </div>
+                    <div className="text-2xl font-black text-[#2e1c14]">
+                      {stats.totalBookings > 0
+                        ? ((stats.confirmedBookingsCount / stats.totalBookings) * 100).toFixed(1)
+                        : "0.0"}%
+                    </div>
+                    <p className="text-xs text-gray-600 font-medium">
+                      Booking completion rate (Confirmed vs Pending/Failed)
+                    </p>
+                  </div>
+
+                  <div className="bg-[#faf7f2] border border-[#e7dac8] p-4 rounded-xl space-y-2">
+                    <div className="text-xs font-bold text-[#8b1e3f]">
+                      AVERAGE REVENUE PER CONFIRMED BOOKING
+                    </div>
+                    <div className="text-2xl font-black text-[#2e1c14]">
+                      ₹
+                      {stats.confirmedBookingsCount > 0
+                        ? Math.round(stats.totalRevenue / stats.confirmedBookingsCount)
+                        : 0}
+                    </div>
+                    <p className="text-xs text-gray-600 font-medium">
+                      Average order transaction value
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Add / Edit Movie Modal */}
       <AnimatePresence>
         {isModalOpen && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#5b0f1b]/60 backdrop-blur-sm">
-            <motion.div initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }} className="bg-[#faf7f2] rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto border border-[#e7dac8]">
-              <div className="flex justify-between items-center p-6 border-b border-[#e7dac8] bg-[#faf7f2]">
-                <h3 className="text-xl font-bold text-[#5b0f1b]">{editingId ? "Edit" : "Add New"} {activeTab.slice(0, -1)}</h3>
-                <button onClick={closeModal} className="text-gray-500 hover:text-[#5b0f1b] font-bold text-xl cursor-pointer">&times;</button>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="bg-[#faf7f2] rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto border border-[#e7dac8]"
+            >
+              <div className="flex justify-between items-center p-6 border-b border-[#e7dac8] bg-white sticky top-0 z-10">
+                <h3 className="text-xl font-bold text-[#5b0f1b]">
+                  {editingId ? "Edit Movie" : "Add New Movie"}
+                </h3>
+                <button
+                  onClick={closeModal}
+                  className="text-gray-500 hover:text-[#5b0f1b] font-bold text-xl cursor-pointer"
+                >
+                  &times;
+                </button>
               </div>
-              <div className="p-6">
-                {activeTab === "movies" && (
-                  <form onSubmit={handleMovieSubmit} className="space-y-4">
-                    <input type="text" placeholder="Movie Title" required value={movieForm.title} onChange={(e) => setMovieForm({ ...movieForm, title: e.target.value })} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8b1e3f] focus:border-[#8b1e3f] outline-none transition bg-white text-[#2e1c14]" />
-                    <textarea placeholder="Description" required rows={3} value={movieForm.description} onChange={(e) => setMovieForm({ ...movieForm, description: e.target.value })} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8b1e3f] focus:border-[#8b1e3f] outline-none transition bg-white text-[#2e1c14]" />
-                    <div className="grid grid-cols-2 gap-4">
-                      <input type="number" placeholder="Duration (mins)" required value={movieForm.duration} onChange={(e) => setMovieForm({ ...movieForm, duration: e.target.value })} className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#8b1e3f] focus:border-[#8b1e3f] bg-white text-[#2e1c14]" />
-                      <input type="text" placeholder="Genre" required value={movieForm.genre} onChange={(e) => setMovieForm({ ...movieForm, genre: e.target.value })} className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#8b1e3f] focus:border-[#8b1e3f] bg-white text-[#2e1c14]" />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <input type="text" placeholder="Language" required value={movieForm.movieLanguage} onChange={(e) => setMovieForm({ ...movieForm, movieLanguage: e.target.value })} className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#8b1e3f] focus:border-[#8b1e3f] bg-white text-[#2e1c14]" />
-                      <input type="url" placeholder="Poster Image URL" required value={movieForm.poster} onChange={(e) => setMovieForm({ ...movieForm, poster: e.target.value })} className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#8b1e3f] focus:border-[#8b1e3f] bg-white text-[#2e1c14]" />
-                    </div>
-                    <button type="submit" className="w-full bg-[#8b1e3f] hover:bg-[#5b0f1b] text-white font-bold py-3 rounded-lg transition mt-4 cursor-pointer">{editingId ? "Update Movie" : "Save Movie"}</button>
-                  </form>
-                )}
-                {activeTab === "theatres" && (
-                  <form onSubmit={handleTheatreSubmit} className="space-y-4">
-                    <input type="text" placeholder="Theatre Name" required value={theatreForm.name} onChange={(e) => setTheatreForm({ ...theatreForm, name: e.target.value })} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8b1e3f] focus:border-[#8b1e3f] outline-none transition bg-white text-[#2e1c14]" />
-                    <input type="text" placeholder="Location" required value={theatreForm.location} onChange={(e) => setTheatreForm({ ...theatreForm, location: e.target.value })} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8b1e3f] focus:border-[#8b1e3f] outline-none transition bg-white text-[#2e1c14]" />
-                    <input type="number" placeholder="Total Seats" required value={theatreForm.totalSeats} onChange={(e) => setTheatreForm({ ...theatreForm, totalSeats: parseInt(e.target.value) })} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8b1e3f] focus:border-[#8b1e3f] outline-none transition bg-white text-[#2e1c14]" />
-                    <button type="submit" className="w-full bg-[#8b1e3f] hover:bg-[#5b0f1b] text-white font-bold py-3 rounded-lg transition mt-4 cursor-pointer">{editingId ? "Update Theatre" : "Save Theatre"}</button>
-                  </form>
-                )}
-                {activeTab === "shows" && (
-                  <form onSubmit={handleShowSubmit} className="space-y-4">
-                    <select required value={showForm.movie} onChange={(e) => setShowForm({ ...showForm, movie: e.target.value })} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8b1e3f] focus:border-[#8b1e3f] outline-none transition bg-white text-[#2e1c14]">
-                      <option value="">Select Movie</option>
-                      {movies.map((m) => <option key={m._id} value={m._id}>{m.title}</option>)}
-                    </select>
-                    <select required value={showForm.theatre} onChange={(e) => setShowForm({ ...showForm, theatre: e.target.value })} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8b1e3f] focus:border-[#8b1e3f] outline-none transition bg-white text-[#2e1c14]">
-                      <option value="">Select Theatre</option>
-                      {theatres.map((t) => <option key={t._id} value={t._id}>{t.name}</option>)}
-                    </select>
-                    <input type="datetime-local" required value={showForm.showTime} onChange={(e) => setShowForm({ ...showForm, showTime: e.target.value })} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8b1e3f] focus:border-[#8b1e3f] outline-none transition bg-white text-[#2e1c14]" />
-                    <input type="number" placeholder="Ticket Price (₹)" required value={showForm.price} onChange={(e) => setShowForm({ ...showForm, price: parseInt(e.target.value) })} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8b1e3f] focus:border-[#8b1e3f] outline-none transition bg-white text-[#2e1c14]" />
-                    <button type="submit" className="w-full bg-[#8b1e3f] hover:bg-[#5b0f1b] text-white font-bold py-3 rounded-lg transition mt-4 cursor-pointer">{editingId ? "Update Show" : "Save Show"}</button>
-                  </form>
-                )}
-              </div>
+
+              <form onSubmit={handleMovieSubmit} className="p-6 space-y-4">
+                <div>
+                  <label className="text-xs font-bold text-[#4b2e1e] mb-1 block">Title</label>
+                  <input
+                    type="text"
+                    required
+                    value={movieForm.title}
+                    onChange={(e) => setMovieForm({ ...movieForm, title: e.target.value })}
+                    className="w-full p-3 border border-[#e7dac8] rounded-xl focus:ring-2 focus:ring-[#8b1e3f] outline-none bg-white text-sm text-[#2e1c14]"
+                    placeholder="e.g. Jawan"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-[#4b2e1e] mb-1 block">Story / Description</label>
+                  <textarea
+                    required
+                    rows={3}
+                    value={movieForm.description}
+                    onChange={(e) => setMovieForm({ ...movieForm, description: e.target.value })}
+                    className="w-full p-3 border border-[#e7dac8] rounded-xl focus:ring-2 focus:ring-[#8b1e3f] outline-none bg-white text-sm text-[#2e1c14]"
+                    placeholder="Enter movie storyline..."
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-[#4b2e1e] mb-1 block">Duration (mins)</label>
+                    <input
+                      type="number"
+                      required
+                      value={movieForm.duration}
+                      onChange={(e) => setMovieForm({ ...movieForm, duration: parseInt(e.target.value) })}
+                      className="w-full p-3 border border-[#e7dac8] rounded-xl outline-none focus:ring-2 focus:ring-[#8b1e3f] bg-white text-sm text-[#2e1c14]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-[#4b2e1e] mb-1 block">Genre</label>
+                    <input
+                      type="text"
+                      required
+                      value={movieForm.genre}
+                      onChange={(e) => setMovieForm({ ...movieForm, genre: e.target.value })}
+                      className="w-full p-3 border border-[#e7dac8] rounded-xl outline-none focus:ring-2 focus:ring-[#8b1e3f] bg-white text-sm text-[#2e1c14]"
+                      placeholder="e.g. Action / Thriller"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-[#4b2e1e] mb-1 block">Language</label>
+                    <input
+                      type="text"
+                      required
+                      value={movieForm.movieLanguage}
+                      onChange={(e) => setMovieForm({ ...movieForm, movieLanguage: e.target.value })}
+                      className="w-full p-3 border border-[#e7dac8] rounded-xl outline-none focus:ring-2 focus:ring-[#8b1e3f] bg-white text-sm text-[#2e1c14]"
+                      placeholder="e.g. Hindi"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-[#4b2e1e] mb-1 block">Rating (0 - 10)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      required
+                      value={movieForm.rating}
+                      onChange={(e) => setMovieForm({ ...movieForm, rating: parseFloat(e.target.value) })}
+                      className="w-full p-3 border border-[#e7dac8] rounded-xl outline-none focus:ring-2 focus:ring-[#8b1e3f] bg-white text-sm text-[#2e1c14]"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-[#4b2e1e] mb-1 block">Poster Image URL</label>
+                  <input
+                    type="url"
+                    required
+                    value={movieForm.poster}
+                    onChange={(e) => setMovieForm({ ...movieForm, poster: e.target.value })}
+                    className="w-full p-3 border border-[#e7dac8] rounded-xl outline-none focus:ring-2 focus:ring-[#8b1e3f] bg-white text-sm text-[#2e1c14]"
+                    placeholder="https://..."
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full bg-[#8b1e3f] hover:bg-[#5b0f1b] text-white font-extrabold py-3.5 rounded-xl transition shadow-md mt-4 cursor-pointer text-sm"
+                >
+                  {editingId ? "Update Movie" : "Save Movie"}
+                </button>
+              </form>
             </motion.div>
           </motion.div>
         )}
@@ -424,4 +915,3 @@ const fetchShows = async () => {
 }
 
 export default AdminDashboard;
-

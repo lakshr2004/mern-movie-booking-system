@@ -8,100 +8,239 @@ function TheatreListPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const selectedTime = searchParams.get("time");
-  const [shows, setShows] = useState([]);
+
+  const [movie, setMovie] = useState(null);
+  const [theatres, setTheatres] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchShows = async () => {
+    window.scrollTo(0, 0);
+  }, [movieId, selectedTime]);
+
+  useEffect(() => {
+    const fetchData = async () => {
       try {
-        const res = await API.get("/shows/movie/" + movieId);
-        // Show all shows for this movie (theatre selection)
-        const filtered = res.data
-          .filter((show) => show && show.showTime && show.theatre)
-          .filter((show) => {
-            if (!selectedTime) return true;
-            const date = new Date(show.showTime);
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            const time = `${hours}:${minutes}`;
-            return time === selectedTime;
-          });
-        setShows(filtered);
+        setLoading(true);
+        const [movieRes, showsRes] = await Promise.allSettled([
+          API.get("/movies/" + movieId),
+          API.get("/shows/movie/" + movieId),
+        ]);
+
+        const movieData = movieRes.status === "fulfilled" ? movieRes.value.data : null;
+        const showsData = showsRes.status === "fulfilled" ? showsRes.value.data : [];
+
+        setMovie(movieData);
+
+        let availableTheatres = [];
+
+        // 1. Try extracting from movie.showtimes for selectedTime
+        if (movieData && movieData.showtimes && movieData.showtimes.length > 0) {
+          const matchedSlot = movieData.showtimes.find((s) => s.time === selectedTime) || movieData.showtimes[0];
+          if (matchedSlot && matchedSlot.theatres) {
+            availableTheatres = matchedSlot.theatres.map((t) => {
+              const matchedShow = Array.isArray(showsData) ? showsData.find(s => s._id === (t.showId || t._id)) : null;
+              const bookedCount = matchedShow && matchedShow.bookedSeats ? matchedShow.bookedSeats.length : 0;
+              return {
+                ...t,
+                _id: t.showId || t.theatreId || t._id,
+                showId: t.showId || t._id,
+                name: t.name || t.theatreName || "Theatre Venue",
+                location: t.location || "City Centre",
+                price: t.price || 250,
+                totalSeats: 100,
+                bookedSeatsCount: bookedCount,
+              };
+            });
+          }
+        }
+
+        // 2. If no theatres from movie.showtimes, match from Shows collection
+        if (availableTheatres.length === 0 && Array.isArray(showsData) && showsData.length > 0) {
+          availableTheatres = showsData
+            .filter((show) => show && show.theatre)
+            .filter((show) => {
+              if (!selectedTime) return true;
+              if (show.showTime && show.showTime.includes(selectedTime)) return true;
+              try {
+                const d = new Date(show.showTime);
+                const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                return timeStr === selectedTime;
+              } catch {
+                return true;
+              }
+            })
+            .map((show) => ({
+              _id: show._id,
+              showId: show._id,
+              name: show.theatre.name || "Theatre",
+              location: show.theatre.location || "City Centre",
+              price: show.price || 200,
+              totalSeats: show.theatre.totalSeats || show.totalSeats || 100,
+              bookedSeatsCount: show.bookedSeats?.length || 0,
+            }));
+        }
+
+        setTheatres(availableTheatres);
       } catch (error) {
-        console.log(error);
+        console.error("Error fetching theatres for showtime:", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchShows();
+
+    fetchData();
   }, [movieId, selectedTime]);
 
-  // Skeleton loader for theatre list
+  const getPosterSrc = () => {
+    if (!movie) return "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&auto=format&fit=crop&q=80";
+    if (movie.poster && movie.poster.startsWith("http")) return movie.poster;
+    if (movie.fallbackPoster) return movie.fallbackPoster;
+    return "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&auto=format&fit=crop&q=80";
+  };
+
   if (loading) {
     return (
-      <Motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen bg-[#f8f3e9] px-4 sm:px-6 py-8 md:py-14">
-        <div className="max-w-4xl mx-auto">
-          {/* Title skeleton */}
-          <div className="h-10 w-64 bg-gray-300 animate-pulse rounded mx-auto mb-8 md:mb-12" />
-
-          {/* Theatre cards skeleton */}
-          <div className="space-y-4 sm:space-y-6">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="bg-white border border-[#e5dccb] p-4 sm:p-6 rounded-xl">
-                <div className="h-6 w-48 bg-gray-300 animate-pulse rounded mb-2" />
-                <div className="h-4 w-32 bg-gray-300 animate-pulse rounded mb-3" />
-                <div className="flex justify-between">
-                  <div className="h-4 w-20 bg-gray-300 animate-pulse rounded" />
-                  <div className="h-4 w-24 bg-gray-300 animate-pulse rounded" />
-                </div>
-              </div>
-            ))}
-          </div>
+      <div className="min-h-screen bg-[#f8f3e9] px-4 py-8 max-w-5xl mx-auto space-y-6">
+        <div className="h-28 bg-[#e7dac8]/50 animate-pulse rounded-3xl" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-36 bg-[#e7dac8]/50 animate-pulse rounded-2xl" />
+          ))}
         </div>
-      </Motion.div>
+      </div>
     );
   }
 
   return (
-    <Motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen bg-[#f8f3e9] px-4 sm:px-6 py-8 md:py-14">
-      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-[#8b1e3f] mb-8 md:mb-12">
-        Available Theatres
-      </h1>
-      <div className="space-y-4 sm:space-y-6 max-w-4xl mx-auto">
-        {shows.length === 0 && <p className="text-center text-gray-500 text-sm sm:text-base">No theatres available</p>}
-        {shows.map((show, idx) => {
-          const totalSeats = show.theatre.totalSeats;
-          const booked = show.bookedSeats?.length || 0;
-          const availableSeats = totalSeats - booked;
-          return (
-              <Motion.div
-              key={show._id}
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              whileHover={{ scale: 1.02 }}
-              onClick={() => navigate(`/seat/${show._id}`)}
-              className="bg-white border border-[#e7dac8] hover:border-[#8b1e3f] p-4 sm:p-6 rounded-xl shadow-md hover:shadow-xl transition-all cursor-pointer"
-            >
+    <Motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="min-h-screen bg-[#f8f3e9] px-4 py-6 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-6"
+    >
+      {/* Back Button to Select Showtime Page */}
+      <button
+        onClick={() => navigate(`/shows/${movieId}`)}
+        className="flex items-center gap-2 text-[#5b0f1b] hover:text-[#8b1e3f] font-extrabold text-sm transition cursor-pointer"
+      >
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to Showtime Selection
+      </button>
 
-              <h2 className="text-base sm:text-lg font-bold text-[#4b2e1e]">{show.theatre.name}</h2>
-              <p className="text-xs sm:text-sm text-gray-500 mb-1 sm:mb-2">{show.theatre.location}</p>
-              {show.showTime && (
-                <p className="text-xs sm:text-sm text-[#8b1e3f] font-semibold mb-2 sm:mb-3">
-                  ⏰ Show Time: {new Date(show.showTime).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
-                </p>
-              )}
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
-                <p className="text-[#8b1e3f] font-semibold text-sm sm:text-base">Price: Rs. {show.price}</p>
-                <p className={`text-xs sm:text-sm font-semibold ${availableSeats < 20 ? "text-[#5b0f1b]" : "text-green-600"}`}>{availableSeats} Seats Available</p>
+      {/* Header Banner */}
+      {movie && (
+        <div className="bg-[#faf7f2] border border-[#e7dac8] rounded-3xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <img
+              src={getPosterSrc()}
+              alt={movie.title}
+              onError={(e) => {
+                e.target.src = movie.fallbackPoster || "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&auto=format&fit=crop&q=80";
+              }}
+              className="w-16 h-24 object-cover rounded-xl border border-[#e7dac8] shadow-sm shrink-0"
+            />
+
+            <div>
+              <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                <span className="bg-[#5b0f1b] text-white text-[10px] font-black px-2 py-0.5 rounded uppercase">
+                  {movie.certificate || "UA"}
+                </span>
+                <span className="bg-[#f5efe6] text-[#8b1e3f] text-xs font-bold px-2.5 py-0.5 rounded-md border border-[#e7dac8]">
+                  {movie.movieLanguage || movie.language || "Hindi"}
+                </span>
               </div>
-            </Motion.div>
-          );
-        })}
+
+              <h1 className="text-2xl sm:text-3xl font-black text-[#5b0f1b]">
+                {movie.title}
+              </h1>
+
+              <p className="text-xs text-[#4b2e1e] font-medium mt-0.5">
+                Step 2 of 2: Select an available theatre venue for your showtime
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-[#8b1e3f] text-white px-5 py-3 rounded-2xl text-center shrink-0 shadow-md">
+            <div className="text-xs font-semibold text-amber-200 uppercase tracking-wider">
+              Selected Showtime
+            </div>
+            <div className="text-xl font-black">{selectedTime || "04:30 PM"}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Theatres List */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-black text-[#5b0f1b] flex items-center gap-2">
+            <svg className="w-5 h-5 text-[#8b1e3f]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            Available Theatres ({theatres.length})
+          </h2>
+          <span className="text-xs font-bold text-[#8b1e3f]">
+            Filtered for {selectedTime || "Selected Time"}
+          </span>
+        </div>
+
+        {theatres.length === 0 ? (
+          <div className="bg-[#faf7f2] border border-[#e7dac8] rounded-2xl p-8 text-center text-[#4b2e1e] font-medium">
+            No theatres available for this showtime slot.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {theatres.map((t, idx) => {
+              const availableSeats = (t.totalSeats || 100) - (t.bookedSeatsCount || 0);
+              return (
+                <Motion.div
+                  key={t.showId || t._id || idx}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, delay: idx * 0.04 }}
+                  onClick={() => navigate(`/seat/${t.showId || t._id}`)}
+                  className="bg-[#faf7f2] border-2 border-[#e7dac8] hover:border-[#8b1e3f] rounded-2xl p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between cursor-pointer group"
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <h3 className="font-extrabold text-[#5b0f1b] text-base group-hover:text-[#8b1e3f] transition">
+                          {t.name}
+                        </h3>
+                        <p className="text-xs text-[#4b2e1e] flex items-center gap-1 mt-0.5">
+                          <span>📍</span> {t.location}
+                        </p>
+                      </div>
+                      <span className="bg-[#f5efe6] text-[#8b1e3f] border border-[#e7dac8] text-[11px] font-bold px-2.5 py-1 rounded-md shrink-0">
+                        {t.screenType || "IMAX 4K"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 mt-3 border-t border-[#e7dac8]/60 flex items-center justify-between gap-3">
+                    <div>
+                      <div className="text-xs text-[#4b2e1e] font-medium">
+                        Ticket Price: <span className="font-extrabold text-[#8b1e3f]">₹{t.price || 250}</span>
+                      </div>
+                      <div className="text-[11px] font-semibold text-emerald-700 mt-0.5">
+                        {availableSeats} seats available
+                      </div>
+                    </div>
+
+                    <button className="bg-[#8b1e3f] group-hover:bg-[#5b0f1b] text-white text-xs font-extrabold px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-1">
+                      <span>Select Seats</span>
+                      <span>→</span>
+                    </button>
+                  </div>
+                </Motion.div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </Motion.div>
   );
 }
 
 export default TheatreListPage;
-

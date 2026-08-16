@@ -4,7 +4,8 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const http = require("http");
 const { Server } = require("socket.io");
-require("dotenv").config();
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, ".env") });
 
 const Show = require("./models/Show");
 const Booking = require("./models/Booking");
@@ -47,15 +48,37 @@ app.use(cors());
 
 app.use(compression());
 
+// Register webhook route's raw parser BEFORE global json parser, 
+// so Razorpay's raw body is preserved for signature verification
+app.use(
+  "/api/payment/webhook",
+  express.raw({ type: "application/json" })
+);
+
 app.use(express.json());
 
 // Seed data
 const seedDefaultData = async () => {
-  // your original seed code
+  try {
+    const User = require("./models/User");
+    const adminExists = await User.findOne({ role: "admin" });
+    if (!adminExists) {
+      await User.create({
+        name: "Admin User",
+        email: "admin@ticket.in",
+        password: "password123",
+        role: "admin",
+      });
+      console.log("✅ Seeded default Admin user: admin@ticket.in / password123");
+    }
+  } catch (err) {
+    console.log("Admin seed error:", err.message);
+  }
 };
 
 // ROUTES
 app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/movies", require("./routes/movieRoutes"));
 app.use("/api/shows", require("./routes/showRoutes"));
 app.use("/api/booking", bookingRoutes);
@@ -80,23 +103,24 @@ io.on("connection", (socket) => {
 
 // Seat lock cleanup cron (every 30s)
 setInterval(async () => {
-  // 1. Temporary Redis locks cleanup
+  // 1. Temporary Redis locks cleanup using sorted-set expiry tracker
   try {
     const { redis } = require("./utils/redis");
 
     if (redis) {
-      const keys = await redis.keys("seat:*");
+      const now = Date.now();
+      const expiredMembers = await redis.zrangebyscore("seat-lock-expiry", 0, now);
 
-      for (const key of keys) {
-        const ttl = await redis.ttl(key);
-
-        if (ttl <= 0) {
-          const [, showId, seatId] = key.split(":");
-
-          global.io
-            .to(`show-${showId}`)
-            .emit("seatUnlocked", { seats: [seatId] });
+      for (const member of expiredMembers) {
+        const [showId, seatId, userId] = member.split(":");
+        // Confirm the actual seat key is really gone (i.e. genuinely expired, not just a stale ZSET entry)
+        const stillLocked = await redis.get(`seat:${showId}:${seatId}`);
+        if (!stillLocked) {
+          if (global.io) {
+            global.io.to(`show-${showId}`).emit("seatUnlocked", { seats: [seatId] });
+          }
         }
+        await redis.zrem("seat-lock-expiry", member);
       }
     }
   } catch (err) {

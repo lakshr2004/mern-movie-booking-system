@@ -30,9 +30,15 @@ exports.protect = async (req, res, next) => {
   }
 };
 
-exports.adminOnly = (req, res, next) => {
-  if (req.user && req.user.role === "admin") {
-    return next();
-  }
-  return res.status(403).json({ message: "Admin access only" });
+exports.authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res
+        .status(403)
+        .json({ message: "Forbidden: Access denied for this role" });
+    }
+    next();
+  };
 };
+
+exports.adminOnly = exports.authorize("admin");

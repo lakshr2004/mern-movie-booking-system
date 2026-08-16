@@ -198,7 +198,7 @@ Live seat locking
 
 Prevent double booking
 
-Automatic seat unlock after 2 minutes
+Automatic seat unlock after 5 minutes (300 seconds)
 
 Real-time updates across users
 
@@ -255,7 +255,7 @@ Step 6 — Real-time Seat Lock
 
 When a seat is selected:
 
-It is locked for 2 minutes
+It is locked for 5 minutes (300 seconds)
 
 Other users cannot select it
 

@@ -57,9 +57,6 @@ export const lockSeats = (showId, seats) =>
 export const unlockSeats = (showId, seats) =>
   API.post("/booking/unlock", { showId, seats });
 
-export const bookSeats = (showId, seats) =>
-  API.post("/booking/book", { showId, seats });
-
 //
 // 💳 PAYMENT APIs
 //

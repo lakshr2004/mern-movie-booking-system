@@ -4,7 +4,7 @@ import { AuthContext } from "../../features/auth/AuthContext";
 import logo from "../../assets/logo.jpeg";
 
 function Navbar() {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, getUserRole } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
   const navbarRef = useRef(null);
@@ -34,10 +34,10 @@ function Navbar() {
     };
   }, [isMenuOpen]);
 
-  const handleLogout = () => { logout(); navigate("/"); setIsMenuOpen(false); };
+  const handleLogout = () => { logout(); navigate("/login"); setIsMenuOpen(false); };
   const handleMyBookings = () => { navigate(user ? "/my-bookings" : "/register"); setIsMenuOpen(false); };
 
-  const isAdmin = user?.user?.role === "admin";
+  const isAdmin = getUserRole() === "admin";
 
   return (
     <div
@@ -129,6 +129,22 @@ function Navbar() {
                     </button>
                   )}
                 </>
+              )}
+              {isAdmin && (
+                <Link
+                  to="/admin/dashboard"
+                  style={{ 
+                    color: isActive("/admin/dashboard") || isActive("/admin") ? "#8b1e3f" : "#4b2e1e", 
+                    textDecoration: "none",
+                    borderBottom: isActive("/admin/dashboard") || isActive("/admin") ? "2px solid #8b1e3f" : "2px solid transparent",
+                    paddingBottom: 2,
+                    transition: "all 0.2s ease"
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "#8b1e3f")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = (isActive("/admin/dashboard") || isActive("/admin")) ? "#8b1e3f" : "#4b2e1e")}
+                >
+                  Admin Dashboard
+                </Link>
               )}
             </div>
 
@@ -244,30 +260,23 @@ function Navbar() {
             )}
             {isAdmin && (
               <div style={{ borderTop: "1px solid #e7dac8", paddingTop: 12, marginTop: 8 }}>
-                {[
-                  { label: "Movies", href: "/admin?tab=movies" },
-                  { label: "Theatres", href: "/admin?tab=theatres" },
-                  { label: "Shows", href: "/admin?tab=shows" },
-                ].map((item) => (
-                  <Link
-                    key={item.label}
-                    to={item.href}
-                    onClick={() => setIsMenuOpen(false)}
-                    style={{ 
-                      display: "block", 
-                      padding: "12px 4px", 
-                      fontSize: 15, 
-                      fontWeight: 500, 
-                      color: "#2e1c14", 
-                      textDecoration: "none", 
-                      borderBottom: "1px solid #e7dac8" 
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = "#8b1e3f")}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = "#2e1c14")}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
+                <Link
+                  to="/admin/dashboard"
+                  onClick={() => setIsMenuOpen(false)}
+                  style={{ 
+                    display: "block", 
+                    padding: "12px 4px", 
+                    fontSize: 15, 
+                    fontWeight: 500, 
+                    color: "#2e1c14", 
+                    textDecoration: "none", 
+                    borderBottom: "1px solid #e7dac8" 
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "#8b1e3f")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "#2e1c14")}
+                >
+                  Admin Dashboard
+                </Link>
               </div>
             )}
             {!user ? (

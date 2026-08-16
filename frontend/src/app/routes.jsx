@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import MoviesPage from "../features/movies/MoviesPage";
 import MovieDetailsPage from "../features/movies/MovieDetailsPage";
 import ShowsPage from "../features/shows/ShowsPage";
@@ -16,27 +16,61 @@ import BookingConfirmation from "../features/bookings/BookingConfirmation";
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<MoviesPage />} />
-      <Route path="/movie/:id" element={<MovieDetailsPage />} />
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute userOnly={true}>
+            <MoviesPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/movie/:id"
+        element={
+          <ProtectedRoute userOnly={true}>
+            <MovieDetailsPage />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/my-bookings" element={<MyBookings />} />
-      <Route path="/contact" element={<ContactPage />} />
-      <Route path="/cart" element={<CartPage />} />
+      <Route
+        path="/my-bookings"
+        element={
+          <ProtectedRoute userOnly={true}>
+            <MyBookings />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/contact"
+        element={
+          <ProtectedRoute userOnly={true}>
+            <ContactPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/cart"
+        element={
+          <ProtectedRoute userOnly={true}>
+            <CartPage />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/booking-confirmation"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute userOnly={true}>
             <BookingConfirmation />
           </ProtectedRoute>
         }
       />
 
-
       <Route
         path="/theatres/:movieId"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute userOnly={true}>
             <TheatreListPage />
           </ProtectedRoute>
         }
@@ -44,7 +78,7 @@ function AppRoutes() {
       <Route
         path="/shows/:movieId"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute userOnly={true}>
             <ShowsPage />
           </ProtectedRoute>
         }
@@ -53,22 +87,25 @@ function AppRoutes() {
       <Route
         path="/seat/:showId"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute userOnly={true}>
             <SeatPage />
           </ProtectedRoute>
         }
       />
       <Route
-        path="/admin"
+        path="/admin/dashboard"
         element={
           <ProtectedRoute adminOnly={true}>
             <AdminDashboard />
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/admin"
+        element={<Navigate to="/admin/dashboard" replace />}
+      />
     </Routes>
   );
 }
 
 export default AppRoutes;
-

@@ -59,6 +59,7 @@ exports.login = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("Login Controller Error:", error);
     res.status(500).json({ message: error.message });
   }
 };

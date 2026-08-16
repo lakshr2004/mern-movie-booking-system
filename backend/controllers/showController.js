@@ -119,22 +119,41 @@ exports.getShowSeatsStatus = async (req, res) => {
     const show = await Show.findById(showId);
     if (!show) return res.status(404).json({ message: "Show not found" });
 
-    const { getSeatLockStatus } = require('../utils/redis');
+    const { redis } = require('../utils/redis');
     const status = {};
 
-    // Generate 100 seats A1-J10
-    for (let row = 'A'; row <= 'J'; row++) {
+    const rows = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
+    const allSeatIds = [];
+    for (const row of rows) {
       for (let num = 1; num <= 10; num++) {
-        const seatId = `${row}${num}`;
-        const redisLock = await getSeatLockStatus(showId, seatId);
-        
-        if (redisLock) {
-          status[seatId] = { status: 'LOCKED', ...redisLock };
-        } else if (show.bookedSeats.includes(seatId)) {
-          status[seatId] = { status: 'BOOKED' };
-        } else {
-          status[seatId] = { status: 'AVAILABLE' };
-        }
+        allSeatIds.push(`${row}${num}`);
+      }
+    }
+
+    // Try batch fetching Redis locks if redis is available
+    let redisLocksMap = {};
+    if (redis && redis.status === "ready") {
+      try {
+        const keys = allSeatIds.map(seatId => `seat:${showId}:${seatId}`);
+        const lockUserIds = await redis.mget(keys);
+        allSeatIds.forEach((seatId, idx) => {
+          if (lockUserIds[idx]) {
+            redisLocksMap[seatId] = { lockedBy: lockUserIds[idx] };
+          }
+        });
+      } catch (redisErr) {
+        console.log("Redis batch lock status fetch error:", redisErr.message);
+      }
+    }
+
+    for (const seatId of allSeatIds) {
+      const redisLock = redisLocksMap[seatId];
+      if (redisLock) {
+        status[seatId] = { status: 'LOCKED', ...redisLock };
+      } else if (show.bookedSeats && show.bookedSeats.includes(seatId)) {
+        status[seatId] = { status: 'BOOKED' };
+      } else {
+        status[seatId] = { status: 'AVAILABLE' };
       }
     }
 
@@ -142,7 +161,7 @@ exports.getShowSeatsStatus = async (req, res) => {
       price: show.price,
       seatsStatus: status,
       totalSeats: show.totalSeats || 100,
-      bookedSeatsCount: show.bookedSeats.length
+      bookedSeatsCount: show.bookedSeats ? show.bookedSeats.length : 0
     });
   } catch (error) {
     console.error('Seats status error:', error);
@@ -150,50 +169,5 @@ exports.getShowSeatsStatus = async (req, res) => {
   }
 };
 
-// Lock Seats
-exports.lockSeats = async (req, res) => {
-  try {
-    const { seats } = req.body;
-    const showId = req.params.id;
-    const userId = req.user._id.toString();
-
-    if (!Array.isArray(seats) || seats.length === 0) {
-      return res.status(400).json({ message: "Seats array required" });
-    }
-
-    const { lockSeats } = require('../utils/redis');
-    const lockedSeats = await lockSeats(showId, seats, userId, 300); // 5min
-
-    global.io.to(`show-${showId}`).emit('seatLocked', { seats: lockedSeats, userId });
-
-    res.json({ success: true, lockedSeats });
-  } catch (error) {
-    console.error('Lock seats error:', error);
-    res.status(500).json({ message: "Lock failed" });
-  }
-};
-
-// Unlock Seats
-exports.unlockSeats = async (req, res) => {
-  try {
-    const { seats } = req.body;
-    const showId = req.params.id;
-    const userId = req.user._id.toString();
-
-    if (!Array.isArray(seats) || seats.length === 0) {
-      return res.status(400).json({ message: "Seats array required" });
-    }
-
-    const { unlockSeats } = require('../utils/redis');
-    const unlockedSeats = await unlockSeats(showId, seats, userId);
-
-    global.io.to(`show-${showId}`).emit('seatUnlocked', { seats: unlockedSeats });
-
-    res.json({ success: true, unlockedSeats });
-  } catch (error) {
-    console.error('Unlock seats error:', error);
-    res.status(500).json({ message: "Unlock failed" });
-  }
-};
 
 

@@ -46,7 +46,12 @@ function Login() {
         `Welcome ${res.data?.user?.name || "User"}`
       );
 
-      navigate("/", { replace: true });
+      const userRole = res.data?.user?.role || res.data?.role || "user";
+      if (userRole === "admin") {
+        navigate("/admin/dashboard", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
 
     } catch (error) {
 

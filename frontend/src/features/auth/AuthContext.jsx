@@ -17,6 +17,10 @@ function AuthProvider({ children }) {
     return user?.user?.id || user?.user?._id || user?.id || user?._id || null;
   }, [user]);
 
+  const getUserRole = useCallback(() => {
+    return user?.user?.role || user?.role || "user";
+  }, [user]);
+
   const login = (userData) => {
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
@@ -28,7 +32,7 @@ function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, getUserId }}>
+    <AuthContext.Provider value={{ user, login, logout, getUserId, getUserRole }}>
       {children}
     </AuthContext.Provider>
   );
