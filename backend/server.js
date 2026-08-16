@@ -63,15 +63,21 @@ const seedDefaultData = async () => {
     const User = require("./models/User");
     const adminExists = await User.findOne({ role: "admin" });
     if (!adminExists) {
-      const adminEmail = process.env.ADMIN_EMAIL || "admin@ticket.in";
-      const adminPassword = process.env.ADMIN_PASS || process.env.ADMIN_PASSWORD || "AdminPass123!";
+      const adminEmail = process.env.ADMIN_EMAIL;
+      const adminPassword = process.env.ADMIN_PASSWORD || process.env.ADMIN_PASS;
+
+      if (!adminEmail || !adminPassword) {
+        console.warn("⚠️ Admin bootstrap skipped: ADMIN_EMAIL and ADMIN_PASSWORD environment variables are required.");
+        return;
+      }
+
       await User.create({
         name: "Admin User",
         email: adminEmail,
         password: adminPassword,
         role: "admin",
       });
-      console.log(`✅ Seeded default Admin user: ${adminEmail}`);
+      console.log("✅ Seeded Admin user from environment configuration");
     }
   } catch (err) {
     console.log("Admin seed error:", err.message);

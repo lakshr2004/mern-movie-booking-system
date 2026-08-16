@@ -7,16 +7,15 @@
 [![Redis](https://img.shields.io/badge/Redis-Upstash-red?logo=redis)](https://upstash.com/)
 [![Socket.IO](https://img.shields.io/badge/Socket.IO-4.8.1-black?logo=socket.io)](https://socket.io/)
 [![Razorpay](https://img.shields.io/badge/Razorpay-Payment--Gateway-blue?logo=razorpay)](https://razorpay.com/)
-[![QA Score](https://img.shields.io/badge/QA%20Audit-9.5%2F10%20PASSED-success)](#-qa-audit--security-verification)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 **TicketPeChalo.in** is an enterprise-grade, full-stack real-time movie ticket booking web application built using the modern MERN Stack (**MongoDB, Express 5, React 19, Node.js**), **Upstash Distributed Redis Locks**, **Socket.IO WebSockets**, and **Razorpay Payment Gateway**.
 
-It features real-time seat locking with sub-millisecond Socket.IO updates, server-side authoritative payment price calculation, atomic multi-seat lock rollbacks, and a comprehensive Admin Management Dashboard.
+It features real-time seat locking with sub-millisecond Socket.IO updates, server-side authoritative payment price calculation, atomic multi-seat lock rollbacks, responsive beige-maroon UI design, and a comprehensive Admin Management Dashboard.
 
 ---
 
-## 📸 Screenshots & Visual Walkthrough
+## 📸 Visual Overview
 
 <div align="center">
   <table>
@@ -100,7 +99,7 @@ It features real-time seat locking with sub-millisecond Socket.IO updates, serve
   - 🟡 **Locked** (Yellow — Active 300s Redis Lock)
   - ⬛ **Booked** (Black — Permanently Reserved in MongoDB)
 - 🎟️ **Instant E-Ticket Generation**: Confirmed bookings generate digital passes complete with unique Booking IDs, seat allocations, theatre location, QR code, and payment transaction metadata.
-- 📜 **Personal Booking History**: Protected `/my-bookings` route with 100% IDOR data isolation.
+- 📜 **Personal Booking History**: Protected `/my-bookings` route with strict data isolation per authenticated user.
 
 ### ⚡ Distributed Concurrency & Real-Time Sync
 - 🔒 **Redis Key-Value Seat Locks**: High-performance Upstash Redis locks (`SET key val EX 300 NX`) guarantee **max 1 owner per seat**.
@@ -109,10 +108,10 @@ It features real-time seat locking with sub-millisecond Socket.IO updates, serve
 - ⏳ **Automated Lock Expiration**: 5-minute TTL background cron task releases unconfirmed pending seats.
 
 ### 🛡️ Security & Hardening
-- 💳 **Price Manipulation Defense**: Backend strictly recalculates ticket price + convenience fee + GST. Client amount payloads (`amount = 1`, `0`, `-50`, `9999`) are completely ignored.
+- 💳 **Price Manipulation Defense**: Backend strictly recalculates ticket price + convenience fee + GST. Client amount payloads are completely ignored.
 - 🔐 **HMAC-SHA256 Signature Verification**: Razorpay payment signatures verified server-side prior to confirming bookings.
 - 🛡️ **JWT & Role-Based Access Control (RBAC)**: All protected routes and admin endpoints enforced with `protect` and `adminOnly` middlewares. Unauthenticated users are redirected to `/login`.
-- 🔑 **Environment Secret Management**: Admin credentials and API keys stored strictly in `.env` configuration files.
+- 🔑 **Environment Secret Management**: Admin credentials and API keys stored strictly in environment configuration files.
 
 ### 👑 Admin Management Dashboard
 - 📊 **Executive Metrics**: Live overview of Total Revenue, Total Bookings, Confirmed Transactions, Registered Users, and Active Movies.
@@ -123,14 +122,31 @@ It features real-time seat locking with sub-millisecond Socket.IO updates, serve
 
 ---
 
+## 🎨 Color Palette & Design System
+
+The application implements a tailored **Beige and Maroon** design system:
+
+| Layer | Hex Color Value | Description / Usage |
+|---|---|---|
+| **Light Background** | `#f8f3e9` | Primary page body background |
+| **Container / Cream** | `#faf7f2` | Card background & section separation |
+| **Section Highlight** | `#fbf9f5` | Inner cards, checkout sub-panels |
+| **Pill Background** | `#f5efe6` | Summary chips & badges |
+| **Primary Maroon** | `#8b1e3f` | Buttons, accents, ratings |
+| **Dark Maroon** | `#5b0f1b` | Header text, active tabs, modal titles |
+| **Body Text** | `#2e1c14` | High-contrast body text |
+| **Border / Divider** | `#e7dac8` | Card borders & input outlines |
+
+---
+
 ## 🛠️ Technology Stack
 
 | Domain | Framework / Library | Description |
 | ------ | ------------------- | ----------- |
-| **Frontend** | React 19, Vite 5, Tailwind CSS | High-performance single-page application |
-| **Routing & Auth** | React Router 6, Axios, AuthContext | Client-side routing and JWT state management |
+| **Frontend** | React 19, Vite 7, Tailwind CSS | High-performance single-page application |
+| **Routing & Auth** | React Router 7, Axios, AuthContext | Client-side routing and JWT state management |
 | **Backend** | Node.js, Express 5 | RESTful API server with middleware chain |
-| **Database** | MongoDB Atlas, Mongoose 8 | Document-oriented primary database |
+| **Database** | MongoDB Atlas / Local, Mongoose 9 | Document-oriented primary database |
 | **Caching & Locking**| Upstash Redis (`ioredis`) | High-speed distributed key-value locking |
 | **Real-Time** | Socket.IO 4.8 | Low-latency WebSockets for seat synchronization |
 | **Payments** | Razorpay Node SDK | Secured payment gateway order & signature verification |
@@ -154,7 +170,6 @@ Base API Endpoint: `http://localhost:5000/api`
 | `GET` | `/api/movies/:id` | Fetch single movie details | No |
 | `GET` | `/api/shows/movie/:movieId` | Fetch shows for a specific movie | No |
 | `GET` | `/api/shows/:id` | Fetch single show details | No |
-| `GET` | `/api/shows/:id/seats` | Fetch real-time seat status grid | Yes |
 
 ### 💺 Booking & Seat Lock Routes
 | Method | Endpoint | Description | Auth Required |
@@ -188,79 +203,76 @@ Base API Endpoint: `http://localhost:5000/api`
 
 ---
 
-## 📊 QA Audit & Security Verification
+## ⚙️ Environment Configuration
 
-The platform underwent a **3-Phase Adversarial QA Audit & Stress Test**:
+Environment variable names required for backend and frontend deployment:
 
-- ✅ **5-User Same-Seat Concurrency Race (10/10 Rounds Passed)**: 5 concurrent browser clients attacked identical seats (`H5`). In 100% of test rounds, **exactly 1 winner** acquired the lock and **4 were rejected**, preserving single-ownership invariants.
-- ✅ **3-User Overlapping Multi-Seat Race**: Verified that partial collisions immediately trigger atomic unlock rollbacks for free seats, avoiding orphan locks.
-- ✅ **Price Tampering Defense**: Passed 11 payload injection attacks (`amount = 1`, `0`, `-50`, `9999999`, `null`, `NaN`). Server-side total calculation enforced 100% of the time.
-- ✅ **IDOR Data Isolation**: Verified 0 booking history overlap across all test user accounts.
-- **Overall QA Score**: **`9.5 / 10` (PASSED & PRODUCTION READY)**. Detailed reports available in [`QA_REPORT.md`](QA_REPORT.md) and [`FINAL_STRESS_TEST_REPORT.md`](FINAL_STRESS_TEST_REPORT.md).
+### Backend (`backend/.env`)
+```env
+MONGO_URI=
+PORT=
+JWT_SECRET=
+ADMIN_EMAIL=
+ADMIN_PASSWORD=
+REDIS_URL=
+RAZORPAY_KEY_ID=
+RAZORPAY_KEY_SECRET=
+RAZORPAY_WEBHOOK_SECRET=
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+```
+
+### Frontend (`frontend/.env`)
+```env
+VITE_API_URL=
+VITE_RAZORPAY_KEY_ID=
+```
 
 ---
 
-## ⚙️ Installation & Setup
+## 🚀 Local Development Setup
 
 ### Prerequisites
 - **Node.js** (v18.0.0 or higher)
 - **npm** (v9.0.0 or higher)
-- **MongoDB** (Local instance or MongoDB Atlas URI)
-- **Redis** (Local instance or Upstash Cloud Redis URI)
+- **MongoDB** (Local instance or MongoDB Atlas)
+- **Redis** (Local instance or Upstash Cloud Redis)
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/lakshr2004/TicketPeChalo.in.git
+git clone https://github.com/lakshr2004/mern-movie-booking-system.git
 cd TicketPeChalo.in
 ```
 
-### 2. Backend Configuration
-Create `.env` inside `backend/`:
-```env
-MONGO_URI=mongodb://127.0.0.1:27017/movieDB
-PORT=5000
-JWT_SECRET=your_jwt_secret_key
-ADMIN_EMAIL=admin@ticket.in
-ADMIN_PASS=AdminPass123!
-REDIS_URL=rediss://default:your_redis_token@your-redis-host.upstash.io:6379
-RAZORPAY_KEY_ID=rzp_test_TALTCKGwqHoHty
-RAZORPAY_KEY_SECRET=b6H4CYhr44e6FdI415Loig3H
-RAZORPAY_WEBHOOK_SECRET=ticketpechalo_webhook_2024
-```
-
-Install backend dependencies and run server:
+### 2. Backend Setup
 ```bash
 cd backend
 npm install
 npm run dev
 ```
-*Backend server runs on `http://localhost:5000`*
+*Backend runs on `http://localhost:5000`*
 
-### 3. Frontend Configuration
-Create `.env` inside `frontend/`:
-```env
-VITE_API_URL=http://localhost:5000
-VITE_RAZORPAY_KEY_ID=rzp_test_TALTCKGwqHoHty
-```
-
-Install frontend dependencies and start Vite dev server:
+### 3. Frontend Setup
 ```bash
 cd ../frontend
 npm install
 npm run dev
 ```
-*Frontend application runs on `http://localhost:5173`*
+*Frontend runs on `http://localhost:5173`*
 
 ---
 
-## 🧪 Default Test Accounts
+## 🧪 Quality Assurance & Validation
 
-| Account | Email | Password | Role |
-| ------- | ----- | -------- | ---- |
-| **Admin** | `admin@ticket.in` | `AdminPass123!` | Admin |
-| **User A** | `qa.user.a@example.com` | `QaPassword123!` | User |
-| **User B** | `qa.user.b@example.com` | `QaPassword123!` | User |
-| **User C** | `qa.user.c@example.com` | `QaPassword123!` | User |
+The application has been verified for:
+- **JWT Authentication & RBAC**: Route protection and admin-only endpoint security.
+- **Seat Lock Race Protection**: Atomic Redis `SET NX` locks preventing double-booking.
+- **Multi-Seat Partial Rollback**: Lua atomic unlock on partial lock failure.
+- **Socket.IO Real-Time Broadcast**: Instant state updates across active clients.
+- **Server Price Authority**: Backend-calculated total ignoring client payload manipulation.
+- **Razorpay Payment Lifecycle**: Order creation, signature verification, and booking confirmation.
+- **MongoDB Data Consistency**: Invariant check confirming `Show.bookedSeats` matches confirmed bookings.
 
 ---
 
@@ -275,7 +287,6 @@ TicketPeChalo.in/
 │   ├── models/          # Mongoose schemas (User, Movie, Theatre, Show, Booking, Contact)
 │   ├── routes/          # API route definitions
 │   ├── utils/           # Redis locking client & Lua unlock scripts
-│   ├── seedNowShowing.js# Database seeder script
 │   ├── server.js        # Express app initialization & Socket.IO server
 │   └── package.json
 ├── frontend/
@@ -290,9 +301,6 @@ TicketPeChalo.in/
 │   └── package.json
 ├── docs/
 │   └── images/          # Application screenshots & visual evidence
-├── QA_REPORT.md         # Comprehensive Phase 1-3 QA & Security Audit Report
-├── FINAL_E2E_WALKTHROUGH.md # End-to-end user & admin walkthrough logs
-├── FINAL_STRESS_TEST_REPORT.md # 5-User concurrency stress test report
 └── README.md
 ```
 
@@ -303,7 +311,7 @@ TicketPeChalo.in/
 **Laksh Raj**
 - **GitHub**: [@lakshr2004](https://github.com/lakshr2004)
 - **LinkedIn**: [Laksh Raj](https://www.linkedin.com/in/laksh-raj-0b14ab298/)
-- **Repository**: [TicketPeChalo.in](https://github.com/lakshr2004/TicketPeChalo.in)
+- **Repository**: [TicketPeChalo.in](https://github.com/lakshr2004/mern-movie-booking-system)
 
 ---
 
